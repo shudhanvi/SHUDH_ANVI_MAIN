@@ -1,30 +1,45 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-const Header = () => (
-  <header className="w-full absolute top-10 max-w-[900px] bg-black m-auto flex justify-between align-middle font-[Sansation] text-white">
-    <div className="w-full">
-      <img
-        src="/logos/anvi-robotics-logo.png"
-        alt="anvi-robotics-logo"
-        className="max-w-[120px] object-cover"
-      />
-    </div>
-    <h1 className="font-[400] text-[24px]">Anvi Robotics</h1>
-    <nav className="flex ">
-      <Link to="/" className="font-bold text-[20px]">
+const Header = () => {
+  const pathInfo = useLocation();
+  const path = pathInfo.pathname.slice(1);
+  console.log(path)
+
+  const currentPageStyle = (pname) => {
+    if (pname === path) {
+      return "active-nav-link";
+    }
+    return "";
+  } 
+
+  return (
+  <header className="w-full absolute p-2 rounded-2xl max-md:top-[15vh] md:top-[55px] max-w-[1000px] bg-black m-auto flex justify-around flex-wrap place-items-center align-middle font-[Sansation] text-white">
+    <img
+      src="/logos/anvi-robotics-logo.png"
+      alt="anvi-robotics-logo"
+      className="max-w-[120px] object-cover"
+    />
+    <h1 className="font-thin text-[24px]">Anvi Robotics</h1>
+    <nav className="flex justify-between align-middle gap-3 underline-offset-5">
+      <Link to="/" 
+        className={`${currentPageStyle('')} font-normal text-[18px] hover:scale-105 transition-all duration-120 border-b-2 border-b-transparent`}>
         Dashboard
       </Link>
-      <Link to="/robots" className="font-bold text-[20px]">
+      <Link to="/robots"
+        className={`${currentPageStyle('robots')} font-normal text-[18px] hover:scale-105 transition-all duration-120 border-b-2 border-b-transparent`}>
         Robots
       </Link>
-      <Link to="/reports" className="font-bold text-[20px]">
+      <Link to="/reports"
+        className={`${currentPageStyle('reports')} font-normal text-[18px] hover:scale-105 transition-all duration-120 border-b-2 border-b-transparent`}>
         Reports
       </Link>
-      <Link to="/highlights" className="font-bold text-[20px]">
+      <Link to="/highlights"
+        className={`${currentPageStyle('highlights')} font-normal text-[18px] hover:scale-105 transition-all duration-120 border-b-2 border-b-transparent`}>
         Highlights
       </Link>
     </nav>
   </header>
 );
+}
 
 export default Header;
