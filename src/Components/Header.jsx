@@ -19,8 +19,8 @@ const Header = () => {
       alt="anvi-robotics-logo"
       className="max-w-[120px] object-cover"
     />
-    <h1 className="font-thin text-[24px]">Anvi Robotics</h1>
-    <nav className="flex justify-between align-middle gap-3 underline-offset-5">
+    <h1 className="font-thin text-[24px]">PROJECT SHUDH</h1>
+    <nav className="flex justify-between align-middle gap-5 underline-offset-5">
       <Link to="/" 
         className={`${currentPageStyle('')} font-normal text-[18px] hover:scale-105 transition-all duration-120 border-b-2 border-b-transparent`}>
         Dashboard
