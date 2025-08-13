@@ -1,25 +1,30 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import Dashboard from "./src/pages/Dashboard";
-import Highlights from "./src/pages/Highlights";
-import Reports from "./src/pages/Reports";
-import Roborts from "./src/pages/Roborts";
-import Header from "./src/components/Header";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
+
+import Dashboard from "./pages/Dashboard";
+import Robots from "./Pages/Robots";
+import Reports from "./Pages/Reports";
+import Highlights from "./Pages/Highlights";
+
+import Header from "./Components/Header";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
     <Router>
+      {/* Header */}
       <Header />
-      {/* Navigation Menu */}
-      
 
       {/* Routes */}
-      <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/highlights" element={<Highlights />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/roborts" element={<Roborts />} />
-      </Routes>
+      <main className="bg-[#ccc] max-w-[1400px] m-auto min-h-screen">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/robots" element={<Robots />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/highlights" element={<Highlights />} />
+          <Route path="/reports" element={<NotFound />} />
+        </Routes>
+      </main>
     </Router>
   );
 }
