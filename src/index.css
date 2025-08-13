@@ -10,10 +10,10 @@
 }
 body{
   width: 100vw;
+  position: relative;
   overflow-x: hidden;
   overflow-y: auto;
-  min-height: 100vh;
-  padding: 30px;
+  min-height: 100dvh;
   margin: 0;
   background-color: #fafafa;
   display: flex;
@@ -21,6 +21,14 @@ body{
   justify-content: start;
   align-items: center;
 }
+
+header{
+  left: 50%;
+  right: 50%;
+  top: 50px;
+  transform: translate(-50%,-50%);
+}
+
 main .section1{
   width: 100%;
   max-width: 1000px;

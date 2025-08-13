@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 const Header = () => (
-  <header className="w-full max-w-[1200px] bg-black m-auto flex justify-between align-middle font-[Sansation] text-white">
+  <header className="w-full absolute top-10 max-w-[900px] bg-black m-auto flex justify-between align-middle font-[Sansation] text-white">
     <div className="w-full">
       <img
         src="/logos/anvi-robotics-logo.png"
