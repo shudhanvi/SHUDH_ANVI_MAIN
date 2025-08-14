@@ -134,7 +134,7 @@ const EmergencyBlockage = () => {
 
 
             <section className="mt-8 px-10"   >
-                <div className="bg-white rounded-xl shadow p-6  mx-auto mt-12 h-screen">
+                <div className="bg-white rounded-xl  p-6  mx-auto mt-12 h-screen">
                     <h2 className="text-3xl font-bold text-center mb-2">
                         Emergency Manhole Blockage Cleared in Record Time
                     </h2>
