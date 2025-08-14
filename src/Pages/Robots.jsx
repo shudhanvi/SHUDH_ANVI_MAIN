@@ -17,7 +17,7 @@ export default function Robots() {
     const [selectedDevice, setSelectedDevice] = useState(null);
 
     useEffect(() => {
-        Papa.parse("/datafiles/records.csv", {
+        Papa.parse("/datafiles/records_updated.csv", {
             download: true,
             header: true,
             complete: (result) => {
@@ -172,17 +172,15 @@ export default function Robots() {
                             <div
                                 key={idx}
                                 onClick={() => setSelectedDevice(item)}
-                                className="cursor-pointer bg-white border border-gray-400 rounded-xl p-4 h-80 w-90 hover:shadow-xl hover:shadow-blue-200 hover:scale-105 transition-shadow duration-300"
+                                className="cursor-pointer bg-white border border-gray-400 rounded-xl p-5 px-2 h-80 max-w hover:shadow-xl hover:shadow-blue-200 hover:scale-105 transition-shadow duration-300"
                             >
-                                <div className="flex ">
-                                    <div>
-                                        <img
-                                            src="/images/robo.png"
-                                            alt="Device"
-                                            className="w-full h-40 object-contain rounded-lg mb-4"
-                                        />
-                                    </div>
-                                    <div className="flex text-sm text-gray-600 text-start pl-5 items-center">
+                                <div className="grid grid-cols-2">
+                                    <img
+                                        src="/images/robo.png"
+                                        alt="Device"
+                                        className="w-full    h-40 object-contain rounded-lg mb-4"
+                                    />
+                                    <div className="flex text-sm pl-2 text-gray-600 text-start items-center">
                                         <div className="space-y-2">
                                             <p className="flex items-center mb-2">
                                                 <span className="text-lg">
@@ -202,7 +200,7 @@ export default function Robots() {
                                                         className="inline-block w-4 h-4 mr-1"
                                                     />
                                                 </span>
-                                                Last operation: {item.timestamp}
+                                                Last operation: <br /> {item.date_only}
                                             </p>
                                             <p className="flex items-center mb-2">
                                                 <span className="text-lg">

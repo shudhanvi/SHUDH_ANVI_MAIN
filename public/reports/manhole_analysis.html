@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manhole Analysis Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 900px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        h1, h2 { color: #333; }
+        img { max-width: 100%; height: auto; display: block; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manhole Analysis Report</h1>
+
+        <h2>Introduction</h2>
+        <p>This report presents an analysis of manhole data using two provided datasets: a static dataset containing manhole attributes and a records dataset with operational information. The analysis focuses on understanding the relationship between manhole characteristics and operational metrics.</p>
+
+        <h2>Analysis and Visualizations</h2>
+        
+        <h3>Clogging Incidents vs. Average Operation Time</h3>
+        <p>The scatter plot below visualizes the relationship between the number of historical clogging incidents and the average time taken for operations on each manhole.</p>
+        <img src="https://example.com/clogging_incidents_vs_avg_op_time.png" alt="Scatter plot of clogging incidents vs. average operation time">
+        <p>This visualization helps to identify if manholes with a higher history of clogging require significantly more or less time for maintenance and operations.</p>
+        <p>The image is also available for download here: [image-tag: code-generated-image-0-1753967241416327960]</p>
+
+        <h3>Top 5 Manholes by Clogging Incidents</h3>
+        <p>The table below highlights the top 5 manholes with the highest number of clogging incidents and their corresponding average operation times, offering a quick look at the most problematic manholes.</p>
+        <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>id</th>
+      <th>history_of_clogging_incidents</th>
+      <th>operation_time_minutes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MH-0016</td>
+      <td>8</td>
+      <td>25.333333</td>
+    </tr>
+    <tr>
+      <td>MH-0049</td>
+      <td>8</td>
+      <td>20.000000</td>
+    </tr>
+    <tr>
+      <td>MH-0025</td>
+      <td>8</td>
+      <td>24.571429</td>
+    </tr>
+    <tr>
+      <td>MH-0024</td>
+      <td>8</td>
+      <td>23.000000</td>
+    </tr>
+    <tr>
+      <td>MH-0044</td>
+      <td>8</td>
+      <td>21.000000</td>
+    </tr>
+  </tbody>
+</table>
+
+        <h2>Summary of Data</h2>
+        <h3>Static Manhole Data</h3>
+        <p>The static dataset contains information about 50 manholes, including:</p>
+        <ul>
+            <li><strong>Manhole ID:</strong> Unique identifier for each manhole.</li>
+            <li><strong>Physical Attributes:</strong> Diameter, depth, type of manhole, type of pipeline.</li>
+            <li><strong>Operational History:</strong> Last operation date, history of clogging incidents, condition.</li>
+            <li><strong>Environmental Factors:</strong> Nearby land use, population density.</li>
+            <li><strong>Flow Data:</strong> Flow in and out, water level.</li>
+        </ul>
+
+        <h3>Operational Records</h3>
+        <p>The records dataset contains a log of operations, including:</p>
+        <ul>
+            <li><strong>Operation Time:</strong> The duration of each operation in minutes.</li>
+            <li><strong>Gas Data:</strong> Readings for CO, CH4, and H2S.</li>
+            <li><strong>Timestamp:</strong> The date and time of the operation.</li>
+        </ul>
+    </div>
+</body>
+</html>
