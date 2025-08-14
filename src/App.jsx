@@ -8,7 +8,7 @@ import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Robots from "./pages/Robots";
 import Reports from "./pages/Reports";
-import Highlights from "./pages/Highlights";
+import Highlights from "./Pages/Highlights";
 
 function App() {
   return (
