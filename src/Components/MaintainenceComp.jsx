@@ -24,7 +24,7 @@ const MaintainenceComp = () => {
   };
 
   const filteredMtData = (val) => {
-    console.log('activeTab : ', val)
+    // console.log('activeTab : ', val)
     const updatedMtData = maintenanceTasks.filter(i => {
         if (val === 'all') return i
         else {
@@ -34,7 +34,7 @@ const MaintainenceComp = () => {
         }
     })
     setMaintainenceD(updatedMtData);
-    console.log(updatedMtData)
+    // console.log(updatedMtData)
   };
 
   return (

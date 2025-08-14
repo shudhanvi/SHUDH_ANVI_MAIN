@@ -75,7 +75,12 @@ const ManholeDetails = ({ selectedLocation, selectedOps, onClose, onGenerateRepo
       </div>
 
       {/* Book Bot Button */}
-      <button className="my-3 bg-[#1E9AB0] rounded-xl border-0 outline-0 text-white text-md font-[500] p-10 py-3 btn-hover transition-all cursor-pointer">
+      <button
+        onClick={() => {
+          onClose()
+          confirm("Successfully booked a bot.")
+        }}
+        className="my-3 bg-[#1E9AB0] rounded-xl border-0 outline-0 text-white text-md font-[500] p-10 py-3 btn-hover transition-all cursor-pointer">
         Book a Bot
       </button>
       
