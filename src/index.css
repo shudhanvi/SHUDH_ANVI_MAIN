@@ -25,8 +25,8 @@ body{
 header{
   left: 50%;
   right: 50%;
-  top: 50px;
   transform: translate(-50%,-50%);
+  z-index: 900;
   .active-nav-link{
     color: #1E9AB0;
     border-color: #1E9AB0;
@@ -67,15 +67,84 @@ main .section1{
 
 .btn-blue, .btn-blue-outline{
   color: #fff;
-  padding: 10px;
+  padding: 10px 15px;
   border-radius: 10px;
+  cursor: pointer;
   width: auto;
-  border: none;
+  border: 1px solid rgba(30, 154, 176, 1);
   outline: none;
-  transition: all 0.5s ease-in-out;
-  :hover{
-    border-radius: 0px;
-    transform: scale(1.1);
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease-in-out;
+}
+.btn-hover:hover{
+  border-radius: 0px;
+  transform: scale(1.01);
+  box-shadow: 0 2px 10px #00000020;
+}
+.btn-blue{
+  background-color: rgba(30, 154, 176, 1);
+  color: #fff;
+}
+.btn-blue-outline{
+  background-color: transparent;
+  color: #000;
+}
+
+.map-manhole-icon{
+  position: relative;
+  width: 10px;
+  height: auto;
+  aspect-ratio: 1/1;
+}
+.map-manhole-icon:hover{
+  .map-pin-titleBox{
+    display: flex;
+    visibility: visible;
   }
+}
+.map-pin-titleBox{
+  /* width: 100px; */
+  height: auto;
+  border-radius: 10px;
+  padding: 10px;
+  display: none;
+  position: absolute;
+  bottom: 125%; /* above the circle */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  box-shadow: 0 0 5px #aaa;
+  white-space: nowrap;
+}
+/* .leaflet-grab{
+  cursor: grab !important;
+} */
+.dB-Manhole-Popup{
+  position: fixed;
+  top: 0;
+  right: 0;
+  transform: translateY(-50%,-50%);
+  z-index: 9990;
+}
+
+
+body::-webkit-scrollbar, .dB-Manhole-Popup >div::-webkit-scrollbar {
+  width: 6px; /* thinner scrollbar */
+}
+
+body::-webkit-scrollbar-thumb, .dB-Manhole-Popup >div::-webkit-scrollbar-thumb {
+  background-color: #000; /* black thumb */
+  border-radius: 4px; /* smooth rounded edges */
+}
+
+body::-webkit-scrollbar-track, .dB-Manhole-Popup >div::-webkit-scrollbar-track {
+  background: white; /* no track color */
+}
+
+.manhole-popup-box{
+  background-color: white;
+}
+
+
+.maintainence-card * {
+  cursor: auto;
 }
