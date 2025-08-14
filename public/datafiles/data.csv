@@ -1,0 +1,6 @@
+district,division,section,date,time,waste_collected,device_id,duration,gas_level,coordinates,before_img,after_img
+Hyderabad,Division A,Section 1,2025-08-10,10:30,12kg,DEV-001,2h,Low,"17.385044, 78.486671",before1.jpg,after1.jpg
+Hyderabad,Division A,Section 2,2025-08-11,11:00,15kg,DEV-002,1.8h,Medium,"17.400000, 78.480000",before2.jpg,after2.jpg
+Hyderabad,Division B,Section 1,2025-08-12,09:45,10kg,DEV-003,2.5h,Low,"17.410000, 78.500000",before3.jpg,after3.jpg
+Secunderabad,Division C,Section 1,2025-08-13,12:15,20kg,DEV-004,3h,High,"17.420000, 78.510000",before4.jpg,after4.jpg
+Secunderabad,Division C,Section 2,2025-08-14,14:00,18kg,DEV-005,2.2h,Medium,"17.430000, 78.520000",before5.jpg,after5.jpg
