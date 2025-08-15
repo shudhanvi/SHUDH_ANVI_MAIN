@@ -31,7 +31,7 @@ const ManholeDetails = ({ selectedLocation, selectedOps, onClose, onGenerateRepo
   };
 
   return (
-    <div className="manhole-popup-box bg-grey-50 rounded-xl border-1 border-gray-300 shadow-md shadow-gray-500 w-96 max-w-[90vw] max-h-[90vh]">
+    <div className="manhole-popup-box bg-grey-50 rounded-xl border-1 border-gray-300 shadow-md shadow-gray-500 w-96 max-w-[90vw]">
       {/* Header */}
       <div className="w-full flex justify-between align-middle place-items-center gap-2 p-4 border-b-1 border-b-gray-300">
         <h4 className="font-[600]">Manhole Details</h4>
