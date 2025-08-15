@@ -100,10 +100,10 @@ canvas{max-width:100%;height:auto !important}
       </div>
     </div>
   </div>
-  <div class="chart-card" style="height: fit-content;">
+  <!-- <div class="chart-card"  style="height: fit-content; max-width: auto;">
         <h3>Gas Composition</h3>
         <canvas id="gasPie"></canvas>
-      </div>
+      </div> -->
 
   <!-- Operation Summary -->
   <div class="section">
@@ -120,6 +120,11 @@ canvas{max-width:100%;height:auto !important}
   <!-- Pie Analysis Charts -->
   <div class="section-title" style="font-weight: 900;">Manhole Analysis</div>
   <div class="charts-grid">
+    <div class="chart-card"  style="height: fit-content; max-width: auto;">
+        <h3>Gas Composition</h3>
+        <canvas id="gasPie"></canvas>
+      </div>
+
     <div class="chart-card"><h3>Condition Distribution</h3><canvas id="condPie"></canvas></div>
     <div class="chart-card"><h3>Sewer Length by Area</h3><canvas id="sewerPie"></canvas></div>
     <div class="chart-card"><h3>Waste by Blockage</h3><canvas id="wasteBar"></canvas></div>
