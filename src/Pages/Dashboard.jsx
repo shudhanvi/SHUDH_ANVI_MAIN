@@ -1,42 +1,10 @@
 import { useState } from "react";
 import MapComponent from "../Components/MapComponent";
 import MaintainenceComp from "../Components/MaintainenceComp";
-// import DashBCards from "../Components/DashBCards";
-
-// const DashboardCardsContent = [
-//   {
-//     label: "Active Robots",
-//     icon: "/icons/robot-blue-icon.png",
-//     number: 12,
-//     rateValue: "+2",
-//     units: "",
-//     bgColor: "blue",
-//   },
-//   {
-//     label: "Critical Issues",
-//     icon: "/icons/warning-red-icon.png",
-//     number: 3,
-//     rateValue: "-1",
-//     units: "",
-//     bgColor: "red",
-//   },
-//   {
-//     label: "Health Manholes",
-//     icon: "/icons/completed-icon.png",
-//     number: 89,
-//     rateValue: "+5",
-//     units: "%",
-//     bgColor: "green",
-//   },
-//   {
-//     label: "Coverage Area",
-//     icon: "/icons/map-marker-icon.png",
-//     number: 2.4,
-//     rateValue: "+0.2",
-//     units: <>km &#178;</>,
-//     bgColor: "blue",
-//   },
-// ];
+import PredictComp from '../Components/PredictComp';
+import PreventComp from '../Components/PreventComp';
+import CureComp from '../Components/CureComp';
+import { X } from "lucide-react";
 
 const DashboardCardsContent = [
     {label: 'Prevent', bgColor: 'rgba(239, 242, 249, 1)'},
@@ -46,6 +14,30 @@ const DashboardCardsContent = [
 
 const Dashboard = () => {
   const [isMapTab, setIsMapTab] = useState(true);
+  const [activeCard, setActiveCard] = useState('');
+
+  const updateActiveCard = cardName => {
+    document.body.style.position ="fixed";
+    setActiveCard(cardName);
+  }
+
+  const closeCardPopUp = () => {
+    document.body.style.position = "static";
+    setActiveCard('');
+  }
+
+  const renderPopups = () => {
+    switch (activeCard) {
+      case 'Prevent':
+        return <PreventComp />;
+      case 'Predict':
+        return <PredictComp />;
+      case 'Cure':
+        return <CureComp />;
+      default :
+        return null;
+    }
+  }
 
   return (
     <>
@@ -62,9 +54,8 @@ const Dashboard = () => {
             {DashboardCardsContent.map(i => (
                 <li key={i.label} 
                 className="w-full place-content-center rounded-xl hover:scale-102 hover:shadow-md shadow-gray-300 transition-all duration-150" style={{backgroundColor: i.bgColor}}>
-                    <button type="button" onClick={() => {}}
+                    <button type="button" onClick={() => {updateActiveCard(i.label)}}
                   className="w-full cursor-pointer bg-amber-200 rounded-xl text-lg text-[rgba(9, 10, 12, 1)] font-semibold p-5 w-full max-w-sm aspect-square place-content-center" style={{backgroundColor: i.bgColor}}>
-                    
                     {i.label}
                     </button>
                 </li>
@@ -94,6 +85,20 @@ const Dashboard = () => {
             { isMapTab ? <MapComponent /> : <MaintainenceComp />}
         </div>
       </section>
+
+      {/* Predict Pre */}
+      {activeCard !== '' && (
+        <section className="bg-[#00000099] w-[101%] absolute top-0 z-1300"> 
+          <div className="popup-container h-screen relative">
+            <div className="h-screen p-4 overflow-y-auto">
+              {renderPopups()}
+              <button className="absolute btn-blue btn-hover right-[calc(50vw-350px)] top-[40px]" onClick={() => closeCardPopUp()}>
+                <X size={20} color="white" />
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
     </>
   );
 };
