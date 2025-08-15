@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import L from "leaflet";
+import { useMap } from "react-leaflet";
 import { CheckCircle, Clock, AlertTriangle, Navigation } from "lucide-react";
 import ManholeDetails from "./ManholeDetails";
 import ReactDOMServer from "react-dom/server";
@@ -29,6 +30,16 @@ const MapComponent = () => {
     lat: 17.472427,
     lng: 78.482286,
   });
+
+  //recenter map with lat/long values
+  const RecenterMap = ({ lat, lng, zoom }) => {   
+  const map = useMap();
+  useEffect(() => {
+    map.setView([lat, lng], zoom);
+  }, [lat, lng, zoom, map]);
+  return null;
+};
+
   const [zoom, setZoom] = useState(17);
   const [filter, setFilter] = useState("all");
   const [divison, setDivision] = useState("");
@@ -283,10 +294,12 @@ const MapComponent = () => {
             }}
           >
             <MapContainer
-              center={[17.472427, 78.482286]}
+              /*handling recenter of map with lat/long values*/
+              center={[mapCenter.lat, mapCenter.lng]}
               zoom={zoom}
               style={{ height: "100%", width: "100%" }}
             >
+              <RecenterMap lat={mapCenter.lat} lng={mapCenter.lng} zoom={zoom} />
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
               {filteredPoints.map((point) => {
                 const status = getStatusIcon(point.lastCleaned);
