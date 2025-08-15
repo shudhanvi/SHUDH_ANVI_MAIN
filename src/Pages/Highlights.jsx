@@ -42,9 +42,9 @@ const EmergencyBlockage = () => {
                     <div className=" flex flex-row bg-white w-[70%] h-[330px] p-6 rounded-lg border border-gray-300">
                         <div className=" ">
                             <img
-                                src="/images/robo.png"
+                                src="/images/Robo.jpg"
                                 alt="Robot"
-                                className="  h-[285px] w-[328px]"
+                                className="  h-[250px] w-[328px] rounded-2xl"
                             />
                         </div>
                         <div className=" ">
@@ -159,7 +159,7 @@ const EmergencyBlockage = () => {
                             </div>
                         </div>
                         <div>
-                            <hr className="border-1 w-6 border-gray-300 my-4" />
+                            <hr className="border-1 w-6 border-gray-300 mr-4" />
                         </div>
                         <div className="flex flex-row  ">
                             <div className="bg-blue-50 h-11 w-11 flex items-center rounded-3xl m-auto">
@@ -173,7 +173,7 @@ const EmergencyBlockage = () => {
                             </div>
                         </div>
                         <div>
-                            <hr className="border-1 w-6 border-gray-300 my-4" />
+                            <hr className="border-1 w-6 border-gray-300 mr-4" />
                         </div>
                         <div className="flex flex-row  ">
                             <div className="bg-yellow-50 h-11 w-11 flex items-center rounded-3xl m-auto">
@@ -187,7 +187,7 @@ const EmergencyBlockage = () => {
                             </div>
                         </div>
                         <div>
-                            <hr className="border-1 w-6 border-gray-300 my-4" />
+                            <hr className="border-1 w-6 border-gray-300 mr-4" />
                         </div>
                         <div className="flex flex-row  ">
 
@@ -225,10 +225,10 @@ const EmergencyBlockage = () => {
 
                     <div className="flex flex-row gap-4 text-center  py-20 px-20 justify-center">
                         <div className=" h-50 w-70 rounded-2xl bg-cover bg-center bg-gray-200 flex items-center justify-center">
-                            <p>Before Image</p>
+                            <img src="/images/before.png" alt="Before" className="w-full h-full object-cover rounded-2xl" />
                         </div>
                         <div className=" h-50 w-70 rounded-2xl bg-cover bg-center bg-gray-200 flex items-center justify-center">
-                            <p>After Image</p>
+                            <img src="/images/after.png" alt="After" className="w-full h-full object-cover rounded-2xl" />
                         </div>
                     </div>
 
