@@ -4,12 +4,12 @@ import MaintainenceComp from "../Components/MaintainenceComp";
 import PredictComp from '../Components/PredictComp';
 import PreventComp from '../Components/PreventComp';
 import CureComp from '../Components/CureComp';
-import { X } from "lucide-react";
+import { ChartLine, CircleCheckBig, ShieldCheck, X } from "lucide-react";
 
-const DashboardCardsContent = [
-    {label: 'Prevent', bgColor: 'rgba(239, 242, 249, 1)'},
-    {label: 'Predict', bgColor: 'rgba(244, 235, 244, 1)'},
-    {label: 'Cure', bgColor: 'rgba(239, 248, 243, 1)'},
+const DashboardCardsContent = [ 
+    {label: 'Prevent', bgColor: '#51B3FF', icon: <ChartLine size={35} color="white" />, desc: 'Forecasting Risk'},
+    {label: 'Predict', bgColor: '#FF9231', icon: <ShieldCheck size={35} color="white" />, desc: 'Schedule Mantenance'},
+    {label: 'Cure', bgColor: '#61CB7E', icon: <CircleCheckBig  size={35} color="white" />, desc: 'Resolve Issuess'},
 ]
 
 const Dashboard = () => {
@@ -46,18 +46,22 @@ const Dashboard = () => {
         <p>Monitor and manage your smart drainage infrastructure</p>
       </section>
 
-      <section className="p-2 w-full max-w-[1200px] m-auto place-items-center">
-        <ul className="w-full max-w-[600px] m-0 p-0 grid grid-cols-3 gap-10">
+      <section className="p-2 w-full max-w-[1200px] mt-5 mb-15 mx-auto place-items-center">
+        <ul className="w-full max-w-[600px] m-0 p-0 flex justify-center align-middle gap-5">
           {/* {DashboardCardsContent.map((each) => (
             <DashBCards key={each.label} DashBCardInfo={each} />
           ))} */}
             {DashboardCardsContent.map(i => (
                 <li key={i.label} 
-                className="w-full place-content-center rounded-xl hover:scale-102 hover:shadow-md shadow-gray-300 transition-all duration-150" style={{backgroundColor: i.bgColor}}>
-                    <button type="button" onClick={() => {updateActiveCard(i.label)}}
-                  className="w-full cursor-pointer bg-amber-200 rounded-xl text-lg text-[rgba(9, 10, 12, 1)] font-semibold p-5 w-full max-w-sm aspect-square place-content-center" style={{backgroundColor: i.bgColor}}>
-                    {i.label}
-                    </button>
+                  className="w-full place-content-center rounded-xl hover:scale-102 hover:shadow-md shadow-gray-300 transition-all duration-150" style={{backgroundColor: i.bgColor}}>
+                  <button type="button" onClick={() => {updateActiveCard(i.label)}}
+                    className="w-full flex justify-center align-middle gap-2 cursor-pointer place-items-center bg-amber-200 rounded-xl text-lg text-[rgba(9, 10, 12, 1)] font-semibold p-5  w-full max-w-sm aspect-auto place-content-center" style={{backgroundColor: i.bgColor}}>
+                    <span className="w-full flex flex-col text-left text-white">
+                      <h5 className="text-md font-semibold">{i.label}</h5>
+                      <p className="text-[12px] font-[400] w-max">{i.desc}</p>
+                    </span>
+                    <span className="max-w-[50px]">{i.icon}</span>
+                  </button>
                 </li>
             ))}
         </ul>
@@ -81,7 +85,7 @@ const Dashboard = () => {
           </button>
         </div>
 
-        <div className="w-full max-w[1200px] tabs-content my-3 rounded-xl shadow-md shadow-gray-200">
+        <div className="w-full max-w[1200px] tabs-content my-3 rounded-xl">
             { isMapTab ? <MapComponent /> : <MaintainenceComp />}
         </div>
       </section>
@@ -92,7 +96,7 @@ const Dashboard = () => {
           <div className="popup-container h-screen relative">
             <div className="h-screen p-4 overflow-y-auto">
               {renderPopups()}
-              <button className="absolute btn-blue btn-hover right-[calc(50vw-350px)] top-[40px]" onClick={() => closeCardPopUp()}>
+              <button className="absolute btn-blue btn-hover right-[calc(50vw-350px)] top-[20px]" onClick={() => closeCardPopUp()}>
                 <X size={20} color="white" />
               </button>
             </div>

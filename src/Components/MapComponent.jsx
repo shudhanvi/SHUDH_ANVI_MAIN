@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Polygon, useMap } from "react-leaflet"
 import L from "leaflet";
 import { CheckCircle, Clock, AlertTriangle, Navigation } from "lucide-react";
 import ManholeDetails from "./ManholeDetails";
-import WardDetails from "./WardDetails";
 import ReactDOMServer from "react-dom/server";
 import "leaflet/dist/leaflet.css";
 import Papa from "papaparse";
@@ -12,6 +11,7 @@ import * as XLSX from "xlsx";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import WardDetailsPopUp from "./WardDetailsPopUp";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -240,11 +240,13 @@ const MapComponent = () => {
   const uniqueWards = [...new Set(wardData.map((d) => d.ward_name))];
 
   return (
-    <div className="w-full">
+    <div className="map-container w-full flex gap-5">
       {/* Left section: top box + map */}
-      <div className="transition-all relative duration-500 w-full">
+      <div className="transition-all relative duration-500 w-full"
+        style={{width: (selectedManholeLocation || selectedWard) ? '60%' : '100%'}}
+      >
         {/* Top box */}
-        <div className="shadow-lg shadow-gray-500 p-6 mb-4 rounded bg-white">
+        <div className="shadow-md shadow-gray-500 p-6 mb-4 rounded bg-white">
           <div className="flex justify-between align-middle flex-wrap gap-2">
             <p className="font-semibold text-md">
               Interactive Hotspot Manhole Map
@@ -308,7 +310,10 @@ const MapComponent = () => {
                 Go
               </button>
               <select
-                onChange={(e) => setSelectedWard(e.target.value)}
+                onChange={(e) => {
+                  setSelectedWard(e.target.value)
+                  setSelectedManholeLocation('')
+                }}
                 value={selectedWard || ""}
                 className="text-sm hover:shadow-md cursor-pointer hover:shadow-gray-100 py-2 border-0.5 border-gray-500 outline-1 rounded-sm bg-white hover:bg-gray-50 px-3 w-auto max-w-[150px]"
               >
@@ -409,11 +414,16 @@ const MapComponent = () => {
             </div>
           </div>
         </div>
+      </div>
 
+      {/* Right section: POP UPS */}
+        <div className="db-popup-container overflow-x-hidden overflow-y-auto"
+          style={{maxWidth: (selectedManholeLocation || selectedWard) ? '40%' : '0%'}}
+        >
         {/* Ward Details Popup */}
-        {selectedWard && (
-          <div className="mt-4">
-            <WardDetails
+        {selectedManholeLocation === '' && selectedWard && (
+          <div className="dB-Popup w-full flex justify-start h-full place-items-start transition-all duration-500">
+            <WardDetailsPopUp
               selectedWard={selectedWard}
               setSelectedWard={setSelectedWard}
               wardData={wardData}
@@ -423,7 +433,7 @@ const MapComponent = () => {
 
         {/* Sidebar Manhole PopUp */}
         {selectedManholeLocation && (
-          <div className="dB-Manhole-Popup w-96 h-auto place-items-center transition-all duration-500 bg-ray-100 border-gra-300 p-4">
+          <div className="dB-Popup w-full flex justify-start place-items-start h-full  transition-all duration-500">
             <ManholeDetails
               selectedLocation={selectedManholeLocation}
               selectedOps={selectedOps}
@@ -432,7 +442,8 @@ const MapComponent = () => {
             />
           </div>
         )}
-      </div>
+        </div>
+        {/* POPup ended */}
     </div>
   );
 };

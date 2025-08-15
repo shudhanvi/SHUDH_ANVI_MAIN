@@ -3,23 +3,24 @@ import DashAccordian from "./DashAccordian";
 const ManholeDetails = ({ selectedLocation, selectedOps, onClose, onGenerateReport }) => {
   if (!selectedLocation) return null;
 
-  const getStatusColor = (type) => {
-    switch (type) {
-      case 'safe': return 'text-green-500';
-      case 'warning': return 'text-yellow-500';
-      case 'danger': return 'text-red-500';
-      default: return 'text-gray-500';
-    }
-  };
+  // const getStatusColor = (type) => {
+  //   switch (type) {
+  //     case 'safe': return 'text-green-500';
+  //     case 'warning': return 'text-yellow-500';
+  //     case 'danger': return 'text-red-500';
+  //     default: return 'text-gray-500';
+  //   }
+  // };
+  console.log("selectedOps in manholDetails.jsx : ", selectedOps);
 
-  const getStatusIcon = (type) => {
-    switch (type) {
-      case 'safe': return '🟢';
-      case 'warning': return '🟡';
-      case 'danger': return '🔴';
-      default: return '⚪';
-    }
-  };
+  // const getStatusIcon = (type) => {
+  //   switch (type) {
+  //     case 'safe': return '🟢';
+  //     case 'warning': return '🟡';
+  //     case 'danger': return '🔴';
+  //     default: return '⚪';
+  //   }
+  // };
 
   const locationDetails = {
     area: "Hasmathpet",
@@ -30,7 +31,7 @@ const ManholeDetails = ({ selectedLocation, selectedOps, onClose, onGenerateRepo
   };
 
   return (
-    <div className="manhole-popup-box bg-grey-50 rounded-xl border-1 border-gray-300 shadow-md shadow-gray-500 w-96 max-w-[90vw] max-h-[90vh] overflow-hidden overflow-y-auto">
+    <div className="manhole-popup-box bg-grey-50 rounded-xl border-1 border-gray-300 shadow-md shadow-gray-500 w-96 max-w-[90vw] max-h-[90vh]">
       {/* Header */}
       <div className="w-full flex justify-between align-middle place-items-center gap-2 p-4 border-b-1 border-b-gray-300">
         <h4 className="font-[600]">Manhole Details</h4>
@@ -81,7 +82,7 @@ const ManholeDetails = ({ selectedLocation, selectedOps, onClose, onGenerateRepo
           confirm("Successfully booked a bot.")
         }}
         className="my-3 bg-[#1E9AB0] rounded-xl border-0 outline-0 text-white text-md font-[500] p-10 py-3 btn-hover transition-all cursor-pointer">
-        Book a Bot
+        Assign a Bot
       </button>
       
     </div>
