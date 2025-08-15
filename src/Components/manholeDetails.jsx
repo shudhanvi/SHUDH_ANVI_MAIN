@@ -3,23 +3,24 @@ import DashAccordian from "./DashAccordian";
 const ManholeDetails = ({ selectedLocation, selectedOps, onClose, onGenerateReport }) => {
   if (!selectedLocation) return null;
 
-  const getStatusColor = (type) => {
-    switch (type) {
-      case 'safe': return 'text-green-500';
-      case 'warning': return 'text-yellow-500';
-      case 'danger': return 'text-red-500';
-      default: return 'text-gray-500';
-    }
-  };
+  // const getStatusColor = (type) => {
+  //   switch (type) {
+  //     case 'safe': return 'text-green-500';
+  //     case 'warning': return 'text-yellow-500';
+  //     case 'danger': return 'text-red-500';
+  //     default: return 'text-gray-500';
+  //   }
+  // };
+  console.log("selectedOps in manholDetails.jsx : ", selectedOps);
 
-  const getStatusIcon = (type) => {
-    switch (type) {
-      case 'safe': return '🟢';
-      case 'warning': return '🟡';
-      case 'danger': return '🔴';
-      default: return '⚪';
-    }
-  };
+  // const getStatusIcon = (type) => {
+  //   switch (type) {
+  //     case 'safe': return '🟢';
+  //     case 'warning': return '🟡';
+  //     case 'danger': return '🔴';
+  //     default: return '⚪';
+  //   }
+  // };
 
   const locationDetails = {
     area: "Hasmathpet",
