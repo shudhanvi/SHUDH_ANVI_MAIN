@@ -229,6 +229,7 @@
         </div>
       </div>
     </div>
+<<<<<<< HEAD
 
     <!-- Map -->
     <div class="map-card">
@@ -323,9 +324,13 @@
     <div class="section-title" style="font-weight: 900;">Manhole Analysis</div>
     <div class="charts-grid">
       <div class="chart-card" style="height: fit-content; max-width: auto;">
+=======
+  </div>
+  <!-- <div class="chart-card"  style="height: fit-content; max-width: auto;">
+>>>>>>> 59518745d9d97ddeba71492afa7cc585b4998c8f
         <h3>Gas Composition</h3>
         <canvas id="gasPie"></canvas>
-      </div>
+      </div> -->
 
       <div class="chart-card">
         <h3>Condition Distribution</h3><canvas id="condPie"></canvas>
@@ -346,8 +351,25 @@
 
   </div>
 
+<<<<<<< HEAD
   <script>
     Chart.register(ChartDataLabels);
+=======
+  <!-- Pie Analysis Charts -->
+  <div class="section-title" style="font-weight: 900;">Manhole Analysis</div>
+  <div class="charts-grid">
+    <div class="chart-card"  style="height: fit-content; max-width: auto;">
+        <h3>Gas Composition</h3>
+        <canvas id="gasPie"></canvas>
+      </div>
+
+    <div class="chart-card"><h3>Condition Distribution</h3><canvas id="condPie"></canvas></div>
+    <div class="chart-card"><h3>Sewer Length by Area</h3><canvas id="sewerPie"></canvas></div>
+    <div class="chart-card"><h3>Waste by Blockage</h3><canvas id="wasteBar"></canvas></div>
+    <div class="chart-card"><h3>Junction Type Distribution</h3><canvas id="junctionBar"></canvas></div>
+    <div class="chart-card"><h3>Clogging by Junction</h3><canvas id="cloggingBar"></canvas></div>
+  </div>
+>>>>>>> 59518745d9d97ddeba71492afa7cc585b4998c8f
 
     function pieChart(id, labels, data, colors) {
       new Chart(document.getElementById(id), {
