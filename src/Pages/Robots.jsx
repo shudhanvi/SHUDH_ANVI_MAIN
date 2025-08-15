@@ -134,7 +134,7 @@ export default function Robots() {
     return (
         <div className="">
             {/* Header */}
-            <section className="section1 mt-10">
+            <section className="section1 mt-10 mx-auto text-center w-full">
                 <h1 className="text-2xl font-bold">Robot Fleet Management</h1>
                 <p className="text-gray-600">Monitor our autonomous drainage Robots</p>
             </section>
