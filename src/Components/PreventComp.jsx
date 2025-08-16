@@ -105,9 +105,7 @@ const PreventComp = () => {
         <p className="text-gray-600 text-[12px] font-[600] mb-3 px-3">
           How upcoming MH-034 and MH-057 can create issues in the network
         </p>
-        <div
-          className="aspect-w-16 aspect-h-9 h-auto relative"
-        >
+        <div className="aspect-w-16 aspect-h-9 h-auto relative">
           <img
             src="/images/prevent-map.png"
             className="w-full max-w-3xl m-auto object-contain"

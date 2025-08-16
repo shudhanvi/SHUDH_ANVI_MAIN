@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Polygon, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Polygon,
+  useMap,
+} from "react-leaflet";
 import L from "leaflet";
-import { CheckCircle, Clock, AlertTriangle, Navigation } from "lucide-react";
-import ManholeDetails from "./ManholeDetails";
+import { CheckCircle, Clock, AlertTriangle } from "lucide-react";
+import ManholePopUp from "./ManholePopUp";
 import ReactDOMServer from "react-dom/server";
 import "leaflet/dist/leaflet.css";
 import Papa from "papaparse";
@@ -38,7 +44,7 @@ const MapComponent = () => {
   const [wardPolygons, setWardPolygons] = useState({});
 
   //recenter map with lat/long values
-  const RecenterMap = ({ lat, lng, zoom }) => {   
+  const RecenterMap = ({ lat, lng, zoom }) => {
     const map = useMap();
     useEffect(() => {
       map.setView([lat, lng], zoom);
@@ -100,7 +106,7 @@ const MapComponent = () => {
 
   // Load CSV data + mock ops
   useEffect(() => {
-    Papa.parse("/datafiles/manholeData.csv", {
+    Papa.parse("/datafiles/ManholeData2.csv", {
       download: true,
       header: true,
       complete: (result) => {
@@ -118,6 +124,7 @@ const MapComponent = () => {
             raw: row,
           }));
 
+        // console.log("parsedData : ", parsedData)
         setManholePoints(parsedData);
 
         // Mock operation data
@@ -165,7 +172,7 @@ const MapComponent = () => {
         ];
         setOperationData(mockOperationData);
       },
-      error: (err) => console.error("CSV parsing failed:", err)
+      error: (err) => console.error("CSV parsing failed:", err),
     });
   }, []);
 
@@ -209,7 +216,9 @@ const MapComponent = () => {
   };
 
   const handleClosePopup = () => {
+    // console.log('closing')
     setSelectedManholeLocation(null);
+    setSelectedWard(null);
   };
 
   const handleGenerateReport = (type) => {
@@ -222,7 +231,7 @@ const MapComponent = () => {
         current: selectedOps[0],
       },
     };
-    
+
     // Save to localStorage (since we can't use it in artifacts, this is for reference)
     // In a real implementation, you'd save this to your backend or state management
     console.log("Report generated:", report);
@@ -240,10 +249,13 @@ const MapComponent = () => {
   const uniqueWards = [...new Set(wardData.map((d) => d.ward_name))];
 
   return (
-    <div className="map-container w-full flex gap-5">
+    <div className="map-container w-full flex gap-1">
       {/* Left section: top box + map */}
-      <div className="transition-all relative duration-500 w-full"
-        style={{width: (selectedManholeLocation || selectedWard) ? '60%' : '100%'}}
+      <div
+        className="transition-all relative duration-500 w-full"
+        style={{
+          width: (selectedManholeLocation || selectedWard) ? "65%" : "100%",
+        }}
       >
         {/* Top box */}
         <div className="shadow-md shadow-gray-500 p-6 mb-4 rounded bg-white">
@@ -257,7 +269,7 @@ const MapComponent = () => {
                   key={f}
                   onClick={() => {
                     setFilter(f);
-                    console.log('tab', f);
+                    console.log("tab", f);
                   }}
                   style={{ paddingBlock: "5px", borderRadius: "5px" }}
                   className={`${
@@ -311,13 +323,16 @@ const MapComponent = () => {
               </button>
               <select
                 onChange={(e) => {
-                  setSelectedWard(e.target.value)
-                  setSelectedManholeLocation('')
+                  setSelectedWard(e.target.value);
+                  setSelectedManholeLocation("");
                 }}
                 value={selectedWard || ""}
                 className="text-sm hover:shadow-md cursor-pointer hover:shadow-gray-100 py-2 border-0.5 border-gray-500 outline-1 rounded-sm bg-white hover:bg-gray-50 px-3 w-auto max-w-[150px]"
               >
-                <option value="" className="bg-white hover:bg-[rgba(30, 154, 176, 1)] px-2">
+                <option
+                  value=""
+                  className="bg-white hover:bg-[rgba(30, 154, 176, 1)] px-2"
+                >
                   Select Ward
                 </option>
                 {uniqueWards.map((ward, i) => (
@@ -346,46 +361,61 @@ const MapComponent = () => {
               zoom={zoom}
               style={{ height: "100%", width: "100%" }}
             >
-              <RecenterMap lat={mapCenter.lat} lng={mapCenter.lng} zoom={zoom} />
+              <RecenterMap
+                lat={mapCenter.lat}
+                lng={mapCenter.lng}
+                zoom={zoom}
+              />
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              
+
               {/* Ward polygon */}
               {selectedWard && wardPolygons[selectedWard] && (
                 <>
                   <ZoomToWard coordinates={wardPolygons[selectedWard]} />
                   <Polygon
                     positions={wardPolygons[selectedWard]}
-                    pathOptions={{ color: "#1d4ed8", weight: 2, fillOpacity: 0.1 }}
+                    pathOptions={{
+                      color: "#1d4ed8",
+                      weight: 2,
+                      fillOpacity: 0.1,
+                    }}
                   />
                 </>
               )}
 
               {filteredPoints.map((point) => {
                 const status = getStatusIcon(point.lastCleaned);
-                
+
                 const imageIcon =
-                  (point.type === 'fair' || point.type === 'good')
-                    ? 'icons/completed-icon.png'
-                    : (point.type === 'poor' ? 'icons/warning-orange-icon.png' : 'icons/warning-red-icon.png');
-                
-                const titleBox = ReactDOMServer.renderToString((
+                  point.type === "fair" || point.type === "good"
+                    ? "icons/completed-icon.png"
+                    : point.type === "poor"
+                    ? "icons/warning-orange-icon.png"
+                    : "icons/warning-red-icon.png";
+
+                const titleBox = ReactDOMServer.renderToString(
                   <div className="map-pin-titleBox flex justify-center align-middle gap-1">
-                    <img src={imageIcon} alt={imageIcon} className="object-contain w-full h-auto max-w-[25px] aspect-square" />
+                    <img
+                      src={imageIcon}
+                      alt={imageIcon}
+                      className="object-contain w-full h-auto max-w-[25px] aspect-square"
+                    />
                     <div className="text-gray-500 flex flex-col justify-start text-left">
-                      <span className="text-sm text-black font-[600]">{point.manhole_id}</span>
+                      <span className="text-sm text-black font-[600]">
+                        {point.manhole_id}
+                      </span>
                       <span className="text-[12px]">Industrial Area</span>
                     </div>
                   </div>
-                ));
+                );
 
                 const customIcon = L.divIcon({
-                  html: 
-                  `<div class="map-manhole-icon" style="background-color:${status.color};width:20px;aspect-ratio:1/1;border-radius:50%;border:3px solid #eee;">
+                  html: `<div class="map-manhole-icon" style="background-color:${status.color};width:20px;aspect-ratio:1/1;border-radius:50%;border:3px solid #eee;">
                     ${titleBox}
                   </div>`,
                   className: "",
                 });
-                
+
                 return (
                   <Marker
                     key={point.id}
@@ -417,11 +447,14 @@ const MapComponent = () => {
       </div>
 
       {/* Right section: POP UPS */}
-        <div className="db-popup-container overflow-x-hidden overflow-y-auto"
-          style={{maxWidth: (selectedManholeLocation || selectedWard) ? '40%' : '0%'}}
-        >
+      <div
+        className="db-popup-container overflow-x-hidden overflow-y-auto"
+        style={{
+          width: selectedManholeLocation || selectedWard ? "35%" : "0%",
+        }}
+      >
         {/* Ward Details Popup */}
-        {selectedManholeLocation === '' && selectedWard && (
+        {selectedManholeLocation === "" && selectedWard && (
           <div className="dB-Popup w-full flex justify-start h-full place-items-start transition-all duration-500">
             <WardDetailsPopUp
               selectedWard={selectedWard}
@@ -434,7 +467,7 @@ const MapComponent = () => {
         {/* Sidebar Manhole PopUp */}
         {selectedManholeLocation && (
           <div className="dB-Popup w-full flex justify-start place-items-start h-full  transition-all duration-500">
-            <ManholeDetails
+            <ManholePopUp
               selectedLocation={selectedManholeLocation}
               selectedOps={selectedOps}
               onClose={handleClosePopup}
@@ -442,8 +475,8 @@ const MapComponent = () => {
             />
           </div>
         )}
-        </div>
-        {/* POPup ended */}
+      </div>
+      {/* POPup ended */}
     </div>
   );
 };

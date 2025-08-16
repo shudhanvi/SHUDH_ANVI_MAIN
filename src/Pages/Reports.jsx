@@ -13,7 +13,7 @@ export default function Reports() {
     "Kukatpally",
     "Durgam Cheruvu",
     "Hafeezpet",
-    "Manikonda"
+    "Manikonda",
   ];
 
   const divisionsByDivision = {
@@ -23,9 +23,9 @@ export default function Reports() {
       "Yellareddyguda",
       "Jubille Hills",
       "Vengalroanagar",
-      "Fathenagar"
+      "Fathenagar",
     ],
-    "Kukatpally": [
+    Kukatpally: [
       "Bhagyanagar",
       "Kukatpally",
       "Vivekanandha Nagar",
@@ -37,21 +37,32 @@ export default function Reports() {
       "Balnagar",
       "KPHB",
       "Balaginagar",
-      "Hasmathpet"
+      "Hasmathpet",
     ],
     "Durgam Cheruvu": ["Nallagandla", "Madhapur", "Kondapur", "Gachibowli"],
-    "Hafeezpet": ["Chandanagar", "Warangal West", "Hanamkonda"],
-    "Manikonda": ["Jalpally", "Thukkuguda", "Kismathpur", "Manikonda", "Shamshabad"],
-    "Old Bowenpally": ["Tadbund", "Mallikarjuna Nagar", "Hasmathpet", "Bapuji Nagar"]
+    Hafeezpet: ["Chandanagar", "Warangal West", "Hanamkonda"],
+    Manikonda: [
+      "Jalpally",
+      "Thukkuguda",
+      "Kismathpur",
+      "Manikonda",
+      "Shamshabad",
+    ],
+    "Old Bowenpally": [
+      "Tadbund",
+      "Mallikarjuna Nagar",
+      "Hasmathpet",
+      "Bapuji Nagar",
+    ],
   };
 
   const displayDivisionNames = {
     "SR Nagar": "Division 6 (SR Nagar)",
-    "Kukatpally": "Division 9 (Kukatpally)",
+    Kukatpally: "Division 9 (Kukatpally)",
     "Durgam Cheruvu": "Division 15 (Durgam Cheruvu)",
-    "Hafeezpet": "Division 17 (Hafeezpet)",
-    "Manikonda": "Division 18 (Manikonda)",
-    "Old Bowenpally": "Division 4 (Old Bowenpally)"
+    Hafeezpet: "Division 17 (Hafeezpet)",
+    Manikonda: "Division 18 (Manikonda)",
+    "Old Bowenpally": "Division 4 (Old Bowenpally)",
   };
 
   const [selectedDivision, setSelectedDivision] = useState("");
@@ -69,7 +80,7 @@ export default function Reports() {
       division: "Old Bowenpally",
       section: "Hasmathpet",
       file: "Manhole_1.html",
-      icon: <ChartLine className="text-blue-500 w-5 h-5" />
+      icon: <ChartLine className="text-blue-500 w-5 h-5" />,
     },
     {
       id: "manhole2",
@@ -77,7 +88,7 @@ export default function Reports() {
       division: "Old Bowenpally",
       section: "Hasmathpet",
       file: "manhole_report.html",
-      icon: <ChartLine className="text-blue-500 w-5 h-5" />
+      icon: <ChartLine className="text-blue-500 w-5 h-5" />,
     },
     {
       id: "manhole3",
@@ -85,8 +96,8 @@ export default function Reports() {
       division: "Old Bowenpally",
       section: "Hasmathpet",
       file: "analytics_report.html",
-      icon: <ChartLine className="text-blue-500 w-5 h-5" />
-    }
+      icon: <ChartLine className="text-blue-500 w-5 h-5" />,
+    },
   ];
 
   const wardReports = [
@@ -96,8 +107,8 @@ export default function Reports() {
       division: "Old Bowenpally",
       section: "Hasmathpet",
       file: "Ward.html",
-      icon: <FileChartColumnIncreasing className="text-green-500 w-5 h-5" />
-    }
+      icon: <FileChartColumnIncreasing className="text-green-500 w-5 h-5" />,
+    },
   ];
 
   const robotReports = [
@@ -107,7 +118,7 @@ export default function Reports() {
       division: "Old Bowenpally",
       section: "Hasmathpet",
       file: "Robot.html",
-      icon: <Bot className="text-purple-500 w-5 h-5" />
+      icon: <Bot className="text-purple-500 w-5 h-5" />,
     },
     {
       id: "robot2",
@@ -115,8 +126,8 @@ export default function Reports() {
       division: "Old Bowenpally",
       section: "Hasmathpet",
       file: "robo_reports_s.html",
-      icon: <Bot className="text-purple-500 w-5 h-5" />
-    }
+      icon: <Bot className="text-purple-500 w-5 h-5" />,
+    },
   ];
 
   const allReports = [...manholeReports, ...wardReports, ...robotReports];
@@ -125,7 +136,10 @@ export default function Reports() {
     : [];
 
   const getFilteredReports = (type) => {
-    if (selectedDivision === "Old Bowenpally" && selectedSection === "Hasmathpet") {
+    if (
+      selectedDivision === "Old Bowenpally" &&
+      selectedSection === "Hasmathpet"
+    ) {
       if (type === "all") return allReports;
       if (type === "manhole") return manholeReports;
       if (type === "ward") return wardReports;
@@ -147,19 +161,15 @@ export default function Reports() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-w-screen">
-      <Header />
-
+    <>
       {/* Title */}
-      <div className="mb-6 flex flex-col items-center text-center w-full">
-        <h2 className="text-2xl font-bold mb-1">Reports & Analytics</h2>
-        <p className="text-gray-600">
-          Generate and manage system reports and data exports
-        </p>
-      </div>
+      <section className="section1">
+        <h1>Reports & Analytics</h1>
+        <p>Generate and manage system reports and data exports</p>
+      </section>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2 items-center mb-10 mt-5 p-4 rounded-xl w-full max-w-screen-xl mx-auto">
+      <section className="flex flex-wrap gap-2 items-center mb-10 mt-5 p-4 rounded-xl w-full max-w-screen-xl mx-auto">
         <select
           value={selectedDivision}
           onChange={(e) => {
@@ -202,35 +212,55 @@ export default function Reports() {
           <img src="/icons/search-icon.png" alt="Search" className="w-5 h-5" />
           Search Reports
         </button>
-      </div>
+      </section>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 w-full max-w-screen-xl mx-auto">
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 w-full max-w-screen-xl mx-auto">
         {[
           { type: "all", label: "All Reports", icon: <File color="#1A8BA8" /> },
-          { type: "manhole", label: "Manhole Reports", icon: <ChartLine color="#1A8BA8" /> },
-          { type: "ward", label: "Ward Reports", icon: <FileChartColumnIncreasing color="#1A8BA8" /> },
-          { type: "robot", label: "Robot Reports", icon: <Bot style={{ color: "#1A8BA8" }} /> }
+          {
+            type: "manhole",
+            label: "Manhole Reports",
+            icon: <ChartLine color="#1A8BA8" />,
+          },
+          {
+            type: "ward",
+            label: "Ward Reports",
+            icon: <FileChartColumnIncreasing color="#1A8BA8" />,
+          },
+          {
+            type: "robot",
+            label: "Robot Reports",
+            icon: <Bot style={{ color: "#1A8BA8" }} />,
+          },
         ].map((card) => {
-          const count = searchClicked ? getFilteredReports(card.type).length : 0;
+          const count = searchClicked
+            ? getFilteredReports(card.type).length
+            : 0;
           return (
             <div
               key={card.type}
               onClick={() => handleCardClick(card.type)}
               className={`p-4 rounded-xl shadow text-center cursor-pointer 
-                ${activeCard === card.type ? "bg-blue-100 border border-blue-500" : "bg-white"} 
+                ${
+                  activeCard === card.type
+                    ? "bg-blue-100 border border-blue-500"
+                    : "bg-white"
+                } 
                 hover:bg-gray-100`}
             >
-              {React.cloneElement(card.icon, { className: "mx-auto mb-2 w-10 h-10" })}
+              {React.cloneElement(card.icon, {
+                className: "mx-auto mb-2 w-10 h-10",
+              })}
               <p className="font-medium">{card.label}</p>
               <p className="text-lg font-bold">{count}</p>
             </div>
           );
         })}
-      </div>
+      </section>
 
       {/* Reports List */}
-      <div className="w-full max-w-screen-xl mx-auto">
+      <section className="w-full max-w-screen-xl mx-auto">
         {displayReportsState.length > 0 ? (
           <div className="space-y-4">
             {displayReportsState.map((r) => (
@@ -254,11 +284,11 @@ export default function Reports() {
         ) : (
           <p className="text-gray-500 font-semibold">No reports available</p>
         )}
-      </div>
+      </section>
 
       {/* Popup Modal */}
       {popupReport && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-1300">
+        <section className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-1300">
           <div className="bg-white p-6 rounded-xl shadow-lg w-11/12 md:w-2/3 h-[100vh] relative">
             <button
               onClick={() => setPopupReport(null)}
@@ -273,8 +303,8 @@ export default function Reports() {
               title={popupReport.title}
             />
           </div>
-        </div>
+        </section>
       )}
-    </div>
-  )
+    </>
+  );
 }

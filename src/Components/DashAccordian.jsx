@@ -32,44 +32,46 @@ export default function DashAccordian() {
   };
 
   return (
-    <div className="w-[95%] mx-auto rounded-xl">
+    <ul className="w-[95%] mx-auto rounded-xl">
       {/* Accordion Header */}
       {accdList.map((eachAcd) => (
-        <div className="w-full mx-auto rounded-xl">
+        <li key={eachAcd.heading} className="w-full mx-auto rounded-xl">
           <button
             type="button"
             onClick={() => updateAcdList(eachAcd)}
             className="w-full h-auto cursor-pointer my-2 font-medium text-gray-900 rounded-t-xl hover:bg-gray-100 gap-3"
           >
             <div className="bg-[#FEF9E6] w-full flex items-center justify-between px-4 py-2 ">
-            <span className="text-md">{eachAcd.heading}</span>
-                <svg
+              <span className="text-md">{eachAcd.heading}</span>
+              <svg
                 className={`w-3 h-3 transform transition-transform duration-200 ${
-                    eachAcd.isOpen ? "rotate-180" : ""
+                  eachAcd.isOpen ? "" : "rotate-180"
                 }`}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 10 6"
-                >
+              >
                 <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M9 5 5 1 1 5"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.5"
+                  d="M9 5 5 1 1 5"
                 />
-                </svg>
+              </svg>
             </div>
           </button>
 
           {/* Accordion Content */}
           {eachAcd.isOpen && (
-            <div className="p-5 bg-white">
-              <p className="mb-4 text-[12px] text-gray-500 transition-all duration-110">{eachAcd.desc}</p>
+            <div className="p-5 bg-white transition-all duration-110">
+              <p className="mb-4 text-[12px] text-gray-500">
+                {eachAcd.desc}
+              </p>
             </div>
           )}
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

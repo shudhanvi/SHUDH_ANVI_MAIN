@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Polygon, useMap } from "react-leaflet";
 import L from "leaflet";
 import { CheckCircle, Clock, AlertTriangle, Navigation } from "lucide-react";
-import ManholeDetails from "./ManholeDetails";
+import ManholePopUp from "./ManholePopUp";
 import WardDetails from "./WardDetails";
 import ReactDOMServer from "react-dom/server";
 import "leaflet/dist/leaflet.css";
@@ -424,7 +424,7 @@ const MapComponent = () => {
         {/* Sidebar Manhole PopUp */}
         {selectedManholeLocation && (
           <div className="dB-Manhole-Popup w-96 h-auto place-items-center transition-all duration-500 bg-ray-100 border-gra-300 p-4">
-            <ManholeDetails
+            <ManholePopUp
               selectedLocation={selectedManholeLocation}
               selectedOps={selectedOps}
               onClose={handleClosePopup}
