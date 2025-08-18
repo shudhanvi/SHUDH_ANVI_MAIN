@@ -27,10 +27,7 @@ const MapComponent = () => {
   const [manholePoints, setManholePoints] = useState([]);
   const [latInput, setLatInput] = useState("");
   const [lonInput, setLonInput] = useState("");
-  const [mapCenter, setMapCenter] = useState({
-    lat: 17.472427,
-    lng: 78.482286,
-  });
+  const [mapCenter, setMapCenter] = useState({lat: 17.472427, lng: 78.482286,});
 
   // Ward related states
   const [wardData, setWardData] = useState([]);
@@ -90,6 +87,7 @@ const MapComponent = () => {
         const workbook = XLSX.read(arrayBuffer, { type: "array" });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet);
+        console.log("wardjsonData : ", jsonData);
         setWardData(jsonData);
       } catch (error) {
         console.error("Error loading ward data:", error);

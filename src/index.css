@@ -27,12 +27,19 @@ header{
   right: 50%;
   transform: translate(-50%,-50%);
   z-index: 900;
+  /* animation: name duration timing-function delay iteration-count direction fill-mode; */
+  animation: headerScaleIn 1s ease-in-out 0s 1 forwards;
   .active-nav-link{
     color: #1E9AB0;
     border-color: #1E9AB0;
     font-weight: 900;
   }
 }
+
+main{
+  animation: textFadeIn 1s ease-in-out 0.2s 1 forwards;
+}
+
 
 main .section1{
   width: 100%;
@@ -49,10 +56,23 @@ main .section1{
   }
   h1{
     font-size: 32px;
-    font-weight: bold;
+    font-weight: 500;
   }
-  p{font-size: 16px; color: #657086;}
+  p{
+    font-size: 16px; color: #657086;
+  }
 }
+
+/*  */
+/* OVERRIDE STYLINGS */
+.leaflet-container{
+  position: sticky !important;
+  z-index: 899 !important;
+}
+.react-datepicker-popper{
+  z-index: 950 !important;
+}
+/*  */
 
 .icon-bg-blue{
   background-color: #0380FC1A
@@ -65,6 +85,15 @@ main .section1{
 }
 
 
+button{
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  min-height: 48px !important;
+  /* border-radius: 16px !important; */
+}
+/* input, select{
+  min-height: 48px !important;
+} */
 .btn-blue, .btn-blue-outline{
   color: #fff;
   padding: 10px 15px;
@@ -143,4 +172,33 @@ body::-webkit-scrollbar-track, .dB-Manhole-Popup >div::-webkit-scrollbar-track {
 
 .maintainence-card * {
   cursor: auto;
+}
+
+
+
+/* ============================================== */
+/* ===============  Map Anim Keyframes Styles  ================== */
+/* ============================================== */
+@keyframes headerScaleIn{
+  from {
+    opacity: 0;
+    visibility: hidden;
+    top: -60px;
+  } to {
+    opacity: 1;
+    visibility: visible;
+    top: 60px;
+  }
+}
+
+@keyframes textFadeIn{
+  from {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+  } to {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0px);
+  }
 }
