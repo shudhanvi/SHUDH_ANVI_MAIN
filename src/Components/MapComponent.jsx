@@ -7,7 +7,7 @@ import {
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
-import { CheckCircle, Clock, AlertTriangle } from "lucide-react";
+import { CheckCircle, Clock, AlertTriangle, Ear } from "lucide-react";
 import ManholePopUp from "./ManholePopUp";
 import ReactDOMServer from "react-dom/server";
 import "leaflet/dist/leaflet.css";
@@ -18,6 +18,9 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import WardDetailsPopUp from "./WardDetailsPopUp";
+import { DummyWardData } from "../../public/datafiles/DummyWardData";
+import useGeoCode from "./GeoCoding";
+import FilterableWardSelect from "./FilterableWardSelect";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -43,10 +46,15 @@ const MapComponent = () => {
   const [selectedWard, setSelectedWard] = useState(null);
   const [wardPolygons, setWardPolygons] = useState({});
 
+  // using geocode for mapping by area names
+  const setGeocode = useGeoCode();
+
   //recenter map with lat/long values
   const RecenterMap = ({ lat, lng, zoom }) => {
+    // console.log('RecenterMap', lat, lng, zoom, selectedWard)
     const map = useMap();
     useEffect(() => {
+      // console.log('mapping');
       map.setView([lat, lng], zoom);
     }, [lat, lng, zoom, map]);
     return null;
@@ -82,21 +90,35 @@ const MapComponent = () => {
           if (!grouped[name]) grouped[name] = [];
           grouped[name].push(coord);
         });
+        console.log("grouped : ", grouped);
         setWardPolygons(grouped);
       })
       .catch((err) => console.error("Error loading ward coordinates:", err));
   }, []);
 
-  // Load ward data from Excel file in public folder
+  // Load WardData from Excel file and Adding Other in public folder
   useEffect(() => {
     const loadWardData = async () => {
       try {
-        const response = await fetch("/datafiles/ward_data.xlsx");
-        const arrayBuffer = await response.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
-        setWardData(jsonData);
+        // const response = await fetch("/datafiles/ward_data.xlsx");
+        // const arrayBuffer = await response.arrayBuffer();
+        // const workbook = XLSX.read(arrayBuffer, { type: "array" });
+        // const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        // const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+        // Ward Options for User
+        // Hasmathpet, Tadbund, Mallikarjuna Nagar, Balaji Nagar
+        // filtering dummyWardsData
+        const allWardsL = DummyWardData 
+          // ? DummyWardData.length > 0
+          // : DummyWardData?.filter(
+          //     (each) => each.ward_name.toLowerCase() !== "hasmathpet"
+          //   );
+        // allWardsL.push(...jsonData);
+        allWardsL.sort();
+        // console.log("wardjsonData : ", allWardsL);
+
+        setWardData(allWardsL);
       } catch (error) {
         console.error("Error loading ward data:", error);
       }
@@ -176,6 +198,46 @@ const MapComponent = () => {
     });
   }, []);
 
+  // SetWard Mapping Runs on Ward Input Changes
+  useEffect(() => {
+    if (selectedWard !== "HasmathPet" && selectedWard) {
+      const SetWardMapping = async () => {
+        const wardGeoData = await setGeocode(selectedWard);
+
+        if (wardGeoData) {
+          const newLat = wardGeoData.lat;
+          const newLon = wardGeoData.lon;
+          // console.log("mapping warded", { lat: newLat, lon: newLon });
+          setMapCenter({ lat: newLat, lng: newLon });
+        }
+        // ✅ Normalize polygon
+        //   let polygons = [];
+        //   if (wardGeoData.geojson?.type === "Polygon") {
+        //     polygons = [
+        //       wardGeoData.geojson.coordinates[0].map(([lng, lat]) => [
+        //         lat,
+        //         lng,
+        //       ]),
+        //     ];
+        //   } else if (wardGeoData.geojson?.type === "MultiPolygon") {
+        //     polygons = wardGeoData.geojson.coordinates.map((poly) =>
+        //       poly[0].map(([lng, lat]) => [lat, lng])
+        //     );
+        //   }
+
+        //   // ✅ Save polygon(s) to state for rendering
+        //   const updatedWardPolygons = {...wardPolygons, [selectedWard] : polygons};
+        //   console.log('polygons :', updatedWardPolygons);
+        //   setWardPolygons(updatedWardPolygons)
+        // }
+
+        // console.log("mapping warded", wardGeoData);
+      };
+
+      SetWardMapping();
+    }
+  }, [selectedWard]);
+
   const getStatusIcon = (lastCleaned) => {
     const now = new Date();
     const diffDays = Math.floor((now - lastCleaned) / (1000 * 60 * 60 * 24));
@@ -246,7 +308,7 @@ const MapComponent = () => {
   });
 
   // Get unique ward names for the dropdown
-  const uniqueWards = [...new Set(wardData.map((d) => d.ward_name))];
+  // const uniqueWards = [...new Set(wardData.map((d) => d.ward_name))];
 
   return (
     <div className="map-container w-full flex gap-1">
@@ -254,7 +316,7 @@ const MapComponent = () => {
       <div
         className="transition-all relative duration-500 w-full"
         style={{
-          width: (selectedManholeLocation || selectedWard) ? "65%" : "100%",
+          width: selectedManholeLocation || selectedWard ? "65%" : "100%",
         }}
       >
         {/* Top box */}
@@ -321,30 +383,12 @@ const MapComponent = () => {
               >
                 Go
               </button>
-              <select
-                onChange={(e) => {
-                  setSelectedWard(e.target.value);
-                  setSelectedManholeLocation("");
-                }}
-                value={selectedWard || ""}
-                className="text-sm hover:shadow-md cursor-pointer hover:shadow-gray-100 py-2 border-0.5 border-gray-500 outline-1 rounded-sm bg-white hover:bg-gray-50 px-3 w-auto max-w-[150px]"
-              >
-                <option
-                  value=""
-                  className="bg-white hover:bg-[rgba(30, 154, 176, 1)] px-2"
-                >
-                  Select Ward
-                </option>
-                {uniqueWards.map((ward, i) => (
-                  <option
-                    key={i}
-                    value={ward}
-                    className="bg-white hover:bg-[rgba(30, 154, 176, 1)] px-2"
-                  >
-                    {ward}
-                  </option>
-                ))}
-              </select>
+              <FilterableWardSelect
+                wardData={wardData}
+                selectedWard={selectedWard}
+                setSelectedWard={setSelectedWard}
+                setSelectedManholeLocation={setSelectedManholeLocation}
+              />
             </div>
           </div>
 
@@ -372,6 +416,7 @@ const MapComponent = () => {
               {selectedWard && wardPolygons[selectedWard] && (
                 <>
                   <ZoomToWard coordinates={wardPolygons[selectedWard]} />
+                  {console.log("poly ", wardPolygons)}
                   <Polygon
                     positions={wardPolygons[selectedWard]}
                     pathOptions={{
