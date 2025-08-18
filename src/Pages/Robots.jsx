@@ -6,6 +6,8 @@ import { Bot, Calendar, Download, MapPin, Funnel } from 'lucide-react';
 import { Clock } from 'lucide-react';
 import { Trash } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
 
 export default function Robots() {
     const [data, setData] = useState([]);
@@ -14,16 +16,34 @@ export default function Robots() {
     const [selectedDivision, setSelectedDivision] = useState("");
     const [selectedArea, setSelectedArea] = useState("");
     const [filteredData, setFilteredData] = useState([]);
+    const [detailedFilteredData, setDetailedFilteredData] = useState([]);
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
+    const [detailedfromdate, setDetailedFromDate] = useState(null);
+    const [detailedtodate, setDetailedToDate] = useState(null);
+    const [selectedHistory, setSelectedHistory] = useState(null);
 
     // Modal state
     const [selectedDevice, setSelectedDevice] = useState(null);
 
-    const openRoboCardPopUp = (i) => {
+    // ✅ new states for controlling messages
+    const [message, setMessage] = useState("");
+    const [hasSearched, setHasSearched] = useState(false);
+
+    const openRoboCardPopUp = (device) => {
         document.body.style.position = "fixed";
-        setSelectedDevice(i);
-    }
+        setSelectedDevice(device);
+        setSelectedHistory(null);
+
+        let filtereds = data.filter((item) => item.robo_id === device.robo_id);
+
+        filtereds = filtereds.sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+        );
+
+        setDetailedFilteredData(filtereds);
+        setShowResults(true);
+    };
 
     const closeRoboCardPopUp = () => {
         document.body.style.position = "static";
@@ -31,18 +51,61 @@ export default function Robots() {
     }
 
     useEffect(() => {
-        Papa.parse("/datafiles/records_updated.csv", {
-            download: true,
-            header: true,
-            complete: (result) => {
-                setData(result.data);
-                const uniqueDivisions = [
-                    ...new Set(result.data.map((item) => item.division)),
-                ];
-                setDivisions(uniqueDivisions);
+        const fetchData = async () => {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-            },
-        });
+            try {
+                console.log("Fetching data from server...");
+                const response = await fetch("https://sewage-bot-poc.onrender.com/api/data", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    signal: controller.signal,
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const serverData = await response.json();
+
+                if (Array.isArray(serverData) && serverData.length > 0) {
+                    console.log("✅ Data loaded from server");
+                    setData(serverData);
+                    const uniqueDivisions = [
+                        ...new Set(serverData.map((item) => item.division)),
+                    ];
+                    setDivisions(uniqueDivisions);
+                    return;
+                } else {
+                    throw new Error("Server returned empty data");
+                }
+            } catch (error) {
+                console.warn("⚠ Server fetch failed/empty, falling back to CSV:", error.message);
+
+                Papa.parse("/datafiles/records_updated.csv", {
+                    download: true,
+                    header: true,
+                    complete: (result) => {
+                        console.log("✅ Data loaded from CSV fallback");
+                        setData(result.data);
+                        const uniqueDivisions = [
+                            ...new Set(result.data.map((item) => item.division)),
+                        ];
+                        setDivisions(uniqueDivisions);
+                    },
+                    error: (err) => {
+                        console.error("❌ Failed to load fallback CSV:", err);
+                    },
+                });
+            }
+        };
+
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -51,7 +114,7 @@ export default function Robots() {
                 ...new Set(
                     data
                         .filter((item) => item.division === selectedDivision)
-                        .map((item) => item.area)
+                        .map((item) => item.section)
                 ),
             ];
             setAreas(divisionAreas);
@@ -61,84 +124,78 @@ export default function Robots() {
         }
     }, [selectedDivision, data]);
 
+    // ✅ updated handleFilter with proper messages
     const handleFilter = () => {
-        if (selectedDivision && selectedArea) {
-            let filtered = data.filter(
-                (item) =>
-                    item.division === selectedDivision && item.area === selectedArea
-            );
+        setHasSearched(true);
+        setMessage("");
 
-            if (fromDate && toDate) {
-                filtered = filtered.filter((item) => {
-                    const ts = new Date(item.timestamp);
-                    return ts >= fromDate && ts <= toDate;
-                });
-            }
-
-            const seen = new Set();
-            const limited = [];
-            for (const row of filtered) {
-                if (!seen.has(row.robo_id) && seen.size < 10) {
-                    seen.add(row.robo_id);
-                    limited.push(row);
-                }
-            }
-
-            setFilteredData(limited);
-
-
-        }
-        else if (selectedDivision && !selectedArea) {
-            let filtered = data.filter((item) => item.division === selectedDivision);
-            if (fromDate && toDate) {
-                filtered = filtered.filter((item) => {
-                    const ts = new Date(item.timestamp);
-                    return ts >= fromDate && ts <= toDate;
-                });
-            }
-
-            const seen = new Set();
-            const limited = [];
-            for (const row of filtered) {
-                if (!seen.has(row.robo_id) && seen.size < 10) {
-                    seen.add(row.robo_id);
-                    limited.push(row);
-                }
-            }
-
-            setFilteredData(limited);
-        }
-        else {
+        if (!selectedDivision) {
             setFilteredData([]);
+            setMessage("Please select a division.");
+            return;
         }
-    };
-    const [showResults, setShowResults] = useState(false); // new state
 
-    const apply = () => {
-        let filtereds = data.filter((item) => item.division === selectedDivision);
+        let filtered = data.filter((item) => item.division === selectedDivision);
+
+        if (selectedArea) {
+            filtered = filtered.filter((item) => item.section === selectedArea);
+        }
 
         if (fromDate && toDate) {
-            filtereds = filtereds.filter((item) => {
+            filtered = filtered.filter((item) => {
                 const ts = new Date(item.timestamp);
                 return ts >= fromDate && ts <= toDate;
             });
         }
 
-        setFilteredData(filtereds);
-        setShowResults(true); // show results after clicking apply
+        const latestByRobot = {};
+
+        for (const row of filtered) {
+            const ts = new Date(row.timestamp);
+
+            if (!latestByRobot[row.robo_id] || ts > new Date(latestByRobot[row.robo_id].timestamp)) {
+                latestByRobot[row.robo_id] = row;
+            }
+        }
+
+        const limited = Object.values(latestByRobot);
+        if (limited.length === 0) {
+            setMessage("No data available for selected area.");
+        }
+
+        setFilteredData(limited);
     };
 
+    const [showResults, setShowResults] = useState(false);
 
+    const apply = () => {
+        if (!selectedDevice) return;
 
+        let filtereds = data.filter((item) => item.robo_id === selectedDevice.robo_id);
+
+        if (detailedfromdate && detailedtodate) {
+            filtereds = filtereds.filter((item) => {
+                const ts = new Date(item.timestamp);
+                return ts >= detailedfromdate && ts <= detailedtodate;
+            });
+        }
+        filtereds = filtereds.sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+        );
+
+        setDetailedFilteredData(filtereds);
+        setShowResults(true);
+    };
+
+    const activeRecord = selectedHistory || selectedDevice;
 
     return (
         <div className="">
-            {/* Header */}
-            <section className="section1 mt-10">
-                <h1 className="text-2xl font-bold">Robot Fleet Management</h1>
-                <p className="text-gray-600">Monitor our autonomous drainage Robots</p>
-            </section>
+            <section className="section1 mx-auto">
+                <h1>Robot Fleet Management</h1>
+                <p>Monitor your autonomus drainage robots</p>
 
+            </section>
             {/* Filters */}
             <section className="flex justify-center h-auto w-full mt-6">
                 <div className="flex flex-wrap gap-4 bg-white h-35 p-4 rounded-lg border border-gray-300">
@@ -148,29 +205,31 @@ export default function Robots() {
                         <select
                             value={selectedDivision}
                             onChange={(e) => setSelectedDivision(e.target.value)}
-                            className="border border-gray-300 rounded-md p-2 w-48"
+                            className="border border-gray-300 rounded-md p-2 w-48 min-w-[12rem]"
                         >
-                            <option value="">Select Division</option>
+                            <option value="" className="text-xs">
+                                Select Division
+                            </option>
                             {divisions.map((div, i) => (
-                                <option key={i} value={div}>
+                                <option key={i} value={div} className="text-xs">
                                     {div}
                                 </option>
                             ))}
                         </select>
                     </div>
 
-                    {/* Area */}
+                    {/* Section */}
                     <div className="m-auto text-start">
                         <label className="block font-semibold mb-1">Section</label>
                         <select
                             value={selectedArea}
                             onChange={(e) => setSelectedArea(e.target.value)}
-                            className="border border-gray-300 rounded-md p-2 w-48"
+                            className="border border-gray-300 rounded-md p-2 w-48 min-w-[12rem]"
                         >
-                            <option value="">Select Area</option>
-                            {areas.map((area, i) => (
-                                <option key={i} value={area}>
-                                    {area}
+                            <option value="" className="text-xs">Select Section</option>
+                            {areas.map((section, i) => (
+                                <option key={i} value={section} className="text-xs">
+                                    {section}
                                 </option>
                             ))}
                         </select>
@@ -201,14 +260,14 @@ export default function Robots() {
                     {/* Button */}
                     <div className="flex m-auto">
                         <button
-                            className="bg-[#1A8BA8] text-white px-6 py-2 rounded-md flex items-center gap-2 cursor-pointer mt-5.5"
+                            className="bg-[#1A8BA8] text-white px-4 py-2.5 rounded-[16px] flex items-center gap-2 cursor-pointer mt-5.5"
                             onClick={handleFilter}
                         >
                             <span>
                                 <img
                                     src="/icons/search-icon.png"
                                     alt="Search Icon"
-                                    className="w-4 h-4 "
+                                    className=" btn-hover"
                                 />
                             </span>
                             View Bots
@@ -231,7 +290,7 @@ export default function Robots() {
                                 <div
                                     key={idx}
                                     onClick={() => openRoboCardPopUp(item)}
-                                    className="cursor-pointer bg-white border border-gray-400 rounded-xl  px-2 h-80 max-w hover:shadow-xl hover:shadow-blue-200 hover:scale-105 transition-shadow duration-300"
+                                    className="cursor-pointer bg-white border border-gray-200 rounded-xl  px-2 h-80 max-w hover:shadow-xl hover:shadow-blue-200 hover:scale-100 transition-shadow duration-100"
                                 >
                                     <div className="flex flex-row">
                                         <img
@@ -279,22 +338,22 @@ export default function Robots() {
                                                             className="inline-block w-4 h-4 mr-1"
                                                         />
                                                     </span>
-                                                    Ward: {item.area}
+                                                    Ward: {item.section}
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
-                                    <hr className="my-4" />
+                                    <hr className="my-4 mx-4 text-gray-400 " />
                                     <div className="px-15 py-2">
                                         <div className="flex justify-between items-center">
                                             <div className="text-center">
-                                                <p className="text-2xl font-bold">
+                                                <p className="text-2xl ">
                                                     {item.waste_collected_kg}Kgs
                                                 </p>
                                                 <p className="text-xs text-gray-500">Waste Collected</p>
                                             </div>
                                             <div className="text-center">
-                                                <p className="text-2xl font-bold">
+                                                <p className="text-2xl ">
                                                     {item.operation_time_minutes}
                                                 </p>
                                                 <p className="text-xs text-gray-500">Operations</p>
@@ -306,9 +365,9 @@ export default function Robots() {
                         </div> </>
 
                 ) : (
-                    <p className="text-gray-500 text-center mt-4">
-                        No data available for this selection.
-                    </p>
+                    hasSearched && (
+                        <p className="text-black-500 text-center  text-xl mt-4">{message}</p>
+                    )
                 )}
             </section>
 
@@ -316,135 +375,203 @@ export default function Robots() {
             {selectedDevice && (
                 <div className="fixed inset-0 h-screen flex items-center justify-center bg-transparent bg-opacity-50 z-[910]">
                     <div className="w-full h-screen bg-[#00000099] flex place-content-center">
-                    <div className="bg-white w-11/12 lg:w-3/4 rounded-lg p-6 overflow-y-auto max-h-[100vh] relative right-5 top-5 shadow-2xl border border-gray-300">
+                        <div className="bg-white w-11/12 lg:w-3/4 rounded-lg p-6 overflow-y-auto max-h-[100vh] relative right-5 top-5 shadow-2xl border border-gray-300">
 
-                        <button
-                            onClick={() => closeRoboCardPopUp()}
-                            className="absolute right-6 text-gray-500 hover:text-black text-5xl top-[10px] "
-                        >
-                            ×
-                        </button>
+                            <button
+                                onClick={() => closeRoboCardPopUp()}
+                                className="absolute right-6 text-gray-500 hover:text-black text-5xl top-[10px] cursor-pointer "
+                            >
+                                ×
+                            </button>
 
-                        {/* Modal Content */}
-                        <div className="flex flex-row justify-between ">
+                            {/* Modal Content */}
+                            <div className="flex flex-row justify-around">
 
-                            <div className="text-start w-[45%]">
-                                <h1 className="text-start text-3xl font-bold mb-2">Operational Details</h1>
-                            </div>
-                            <div className="text-start w-[45%]">
-                                <h1 className="text-start text-3xl font-bold mb-2">Operation History</h1>
-                            </div>
-                        </div>
-                        <div className="flex flex-row justify-between ">
-                            <div className="w-[45%] ">
-                                <div className="flex flex-col justify-start text-gray-500 w-full">
-                                    <span className="text-start"><img src="/icons/map-marker-icon.png" alt="" className="inline-block w-4 h-4 mr-1 " />Division:{selectedDevice.division}</span><br />
-                                    <span className="text-start"><img src="/icons/map-marker2-icon.png" alt="" className="inline-block w-4 h-4 mr-1 " />Section:{selectedDevice.area}</span>
-
+                                <div className="text-start w-[45%]">
+                                    <h1 className="text-start text-[18px]  mb-2">Operational Details</h1>
                                 </div>
-                                <div className="grid grid-cols-2 w-full text-start text-gray-500 mt-5 gap-y-6">
-                                    <span><Calendar className="inline-block w-10 h-10 mr-1 bg-blue-100 p-2 rounded-md" color="#348feb" />Date : <b className="text-black font-semibold">{new Date(selectedDevice.timestamp).toLocaleDateString()}</b></span>
-                                    <span><Clock className="inline-block w-10 h-10 mr-1 bg-blue-100 p-2 rounded-md" color="#348feb" />Starting Time : <b className="text-black font-semibold">{new Date(selectedDevice.timestamp).toLocaleTimeString()}</b></span>
-                                    <span><Trash className="inline-block w-10 h-10 mr-1 bg-blue-100 p-2 rounded-md" color="#348feb" />Waste Collected : <b className="text-black font-semibold">{selectedDevice.waste_collected_kg}kgs</b></span>
-                                    <span><Clock className="inline-block w-10 h-10 mr-1 bg-blue-100 p-2 rounded-md" color="#348feb" />Task Duration: <b className="text-black font-semibold">{selectedDevice.operation_time_minutes} mins</b></span>
-                                    <span><Bot className="inline-block w-10 h-10 mr-1 bg-blue-100 p-2 rounded-md" color="#348feb" />Robo Id: <b className="text-black font-semibold">{selectedDevice.robo_id}</b></span>
-                                    <span className="text-2xl text-black pl-2" >Gas Level:<span style={{
-                                        color:
-                                            selectedDevice.gas_level?.toLowerCase() === "high"
-                                                ? "red"
-                                                : selectedDevice.gas_level?.toLowerCase() === "medium"
-                                                    ? "orange"
-                                                    : "green",
-                                    }}> {selectedDevice.gas_level
-                                        ? selectedDevice.gas_level.charAt(0).toUpperCase() + selectedDevice.gas_level.slice(1).toLowerCase()
-                                        : ""}</span></span>
-                                    <span><MapPin className="inline-block w-10 h-10 mr-1 bg-blue-100 p-2 rounded-md" color="#348feb" />{selectedDevice.area}</span>
-                                </div>
-                                <h1 className=" font-semibold px-3 pt-8 text-start">{selectedDevice.location}</h1>
-                                <div className=" w-full text-start text-gray-500 mt-5 bg-gray-200 rounded-lg ">
-
-                                    {/* Map Container */}
-                                    <div className="bd-gray">
-                                        {selectedDevice?.location ? (
-                                            (() => {
-                                                const [lat, lng] = selectedDevice.location.split(',').map(Number);
-                                                return (
-                                                    <MapContainer center={[lat, lng]} zoom={23} className="h-40 rounded-lg">
-                                                        <TileLayer
-                                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                                        />
-                                                        <Marker position={[lat, lng]}>
-                                                            <Popup>{selectedDevice.location}</Popup>
-                                                        </Marker>
-                                                    </MapContainer>
-                                                );
-                                            })()
-                                        ) : (
-                                            <p>No location available</p>
-                                        )}
-                                    </div>
-                                </div>
-                                <h1 className="font-semibold px-3 pt-8 text-start">Operation Images</h1>
-                                <div className="h-45 rounded-lg mt-10 p-3 w-full grid grid-cols-2 gap-2">
-                                    <img src={selectedDevice.image_url ? selectedDevice.image_url : '/images/before.png'} alt="Operation" className="h-full object-cover rounded-lg border border-gray-100" />
-
-                                    <img src={selectedDevice.image_url ? selectedDevice.image_url : '/images/after.png'} alt="Operation" className="h-full object-cover rounded-lg border border-gray-100" />
-                                </div>
-                                <div className="mt-5 flex justify-center w-full pb-10">
-                                    <p className=" flex items-center justify-center h-15 bg-[#1A8BA8] w-full text-white rounded-md"><Download className="inline-block w-5 h-5 mr-1 " color="white" />Generate Operation Report</p>
+                                <div className="text-start w-[45%]">
+                                    <h1 className="text-start text-[18px] mb-2">Operation History</h1>
                                 </div>
                             </div>
+                            <div className="flex flex-row justify-around ">
+                                <div className="w-[45%] ">
+                                    <div className="flex flex-col justify-start text-gray-500 w-full">
+                                        <span className="text-start text-[14px] text-[#676D7E]"><img src="/icons/map-marker-icon.png" alt="" className="inline-block w-4  mr-1 " />Division:{activeRecord.division}</span><br />
+                                        <span className="text-start text-[14px] text-[#676D7E]"><img src="/icons/map-marker2-icon.png" alt="" className="inline-block w-4  mr-1 " />Section:{activeRecord.section}</span>
 
-
-
-
-
-
-                            <div className="  w-[45%]">
-                                <h1 className="text-start mt-2 "> <span className="inline-block w-3 h-3 mr-5"><Funnel /></span>Filter by Date</h1>
-                                <div className="flex flex-row w-full justify-between mb-5 mt-3 gap-2">
-
-                                    <div className="text-start w-[45%] mt-2 ">
-
-                                        <label className="block font-semibold mb-1">From Date</label>
-                                        <input type="date" className="border border-gray-300 rounded-md p-2 w-full" value={fromDate ? fromDate.toISOString().split('T')[0] : ''}
-                                            onChange={(e) => setFromDate(new Date(e.target.value))} />
                                     </div>
-                                    <div className="text-start w-[45%] mt-2">
-                                        <label className="block font-semibold mb-1">To Date</label>
-                                        <input type="date" className="border border-gray-300 rounded-md p-2 w-full " value={toDate ? toDate.toISOString().split('T')[0] : ''}
-                                            onChange={(e) => setToDate(new Date(e.target.value))} />
+                                    <div className="grid grid-cols-2 w-full text-start text-[14px] text-[#676D7E] mt-5 gap-y-6">
+                                        <span className="flex flex-row">
+                                            <Calendar className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
+                                            <span className="flex flex-col ml-2">
+                                                Date
+                                                <span className="text-[#21232C] text-[16px]"> {new Date(activeRecord.timestamp).toLocaleDateString()}
+                                                </span>
+                                            </span>
+                                        </span>
+                                        <span className="flex flex-row">
+                                            <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
+                                            <span className="flex flex-col ml-2">
+                                                Starting Time
+                                                <span className="text-[#21232C] text-[16px]">{new Date(activeRecord.timestamp).toLocaleTimeString()}
+                                                </span></span>
+                                        </span>
+                                        <span className="flex flex-row">
+                                            <Trash className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
+                                            <span className="flex flex-col ml-2">
+                                                Waste Collected  <span className="text-[#21232C] text-[16px]">{activeRecord.waste_collected_kg}kgs</span></span>
+                                        </span>
+                                        <span className="flex flex-row">
+                                            <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
+                                            <span className="flex flex-col ml-2">
+                                                Task Duration <span className="text-[#21232C] text-[16px]">{activeRecord.operation_time_minutes} mins</span></span>
+                                        </span>
+
                                     </div>
-                                    <div>
-                                        <button className="bg-[#1A8BA8] text-white rounded-md h-10 text-sm px-6 mt-8.5" onClick={apply}>Filter</button>
+                                    <div className="flex flex-row mt-4">
+                                        <div className="flex flex-col text-start text-[14px] text-[#676D7E]  gap-y-5 w-[50%]">
+                                            <span className="flex flex-row">
+                                                <Bot className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
+                                                <span className="flex flex-col ml-2">
+                                                    Robo Id <span className="text-[#21232C] text-[16px]">{activeRecord.robo_id}</span></span>
+                                            </span>
+                                            <span> <MapPin className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />{activeRecord.section}</span>
+                                        </div>
+
+                                        <div className="flex items-center justify-start w-[50%]">
+                                            <div style={{ width: 90, height: 90 }}>
+                                                <CircularProgressbar
+                                                    value={
+                                                        activeRecord.gas_level?.toLowerCase() === "low"
+                                                            ? 22
+                                                            : activeRecord.gas_level?.toLowerCase() === "medium"
+                                                                ? 55
+                                                                : activeRecord.gas_level?.toLowerCase() === "high"
+                                                                    ? 80
+                                                                    : 0
+                                                    }
+                                                    text={
+                                                        activeRecord.gas_level
+                                                            ? activeRecord.gas_level.charAt(0).toUpperCase() +
+                                                            activeRecord.gas_level.slice(1).toLowerCase()
+                                                            : "N/A"
+                                                    }
+                                                    styles={buildStyles({
+                                                        textSize: "16px",
+                                                        textColor: "#000",
+                                                        pathColor:
+                                                            activeRecord.gas_level?.toLowerCase() === "high"
+                                                                ? "red"
+                                                                : activeRecord.gas_level?.toLowerCase() === "medium"
+                                                                    ? "orange"
+                                                                    : "green",
+                                                        trailColor: "#eee",
+                                                        strokeLinecap: "round",
+                                                    })}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
 
+
+
+                                    <div className=" w-full text-start text-[#21232C] mt-5 bg-gray-100 rounded-lg p-2 ">
+                                        <h1 className=" pb-1 text-start">{activeRecord.location}</h1>
+                                        {/* Map Container */}
+                                        <div className="bd-gray">
+                                            {activeRecord?.location ? (
+                                                (() => {
+                                                    const [lat, lng] = activeRecord.location.split(',').map(Number);
+                                                    return (
+                                                        <MapContainer center={[lat, lng]} zoom={23} className="h-40 rounded-lg">
+                                                            <TileLayer
+                                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                                            />
+                                                            <Marker position={[lat, lng]}>
+                                                                <Popup>{activeRecord.location}</Popup>
+                                                            </Marker>
+                                                        </MapContainer>
+                                                    );
+                                                })()
+                                            ) : (
+                                                <p>No location available</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <h1 className="text-[16px] text-[#21232C]  pt-5 text-start ">Operation Images</h1>
+                                    <div className="h-45 rounded-lg mt-2  w-full grid grid-cols-2 gap-2 mb-10">
+                                        <h1>Before</h1>
+                                        <h1>After</h1>
+                                        <img src={activeRecord.image_url ? activeRecord.image_url : '/images/before.png'} alt="Operation" className="h-full object-cover rounded-lg border border-gray-100" />
+
+                                        <img src={activeRecord.image_url ? activeRecord.image_url : '/images/after.png'} alt="Operation" className="h-full object-cover rounded-lg border border-gray-100" />
+                                    </div>
+                                    <div className=" flex justify-center w-full ">
+                                        <p className=" flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px]  w-full text-white rounded-[16px] cursor-pointer"><Download className="inline-block w-5 h-5 mr-1 " color="white" />Generate Operation Report</p>
+                                    </div>
                                 </div>
 
 
-                                <div className="max-h-190 shadow overflow-y-auto  rounded-md p-2">
-                                    <ul className="space-y-3">
-                                        {showResults && filteredData.map((history, index) => (
-                                            <li key={index} className="flex items-center justify-between pb-5">
-                                                <span>{new Date(history.timestamp).toLocaleDateString()}</span>
-                                                <span>{new Date(history.timestamp).toLocaleTimeString()}</span>
-                                                <button
-                                                    className="text-blue-500"
-                                                    onClick={() => setSelectedDevice(history)}
-                                                >
-                                                    View More
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
+
+
+
+
+                                <div className="  w-[45%]">
+                                    <div className="flex flex-row">
+                                        <span className="inline-block text-[#676D7E] mr-2  " ><Funnel /></span>
+                                        <h1 className="text-start text-[14px] "> Filter by Date Range</h1>
+                                    </div>
+                                    <div className="flex flex-row w-full justify-between mb-5 mt-3 gap-2">
+
+                                        <div className="text-start w-[45%] mt-2 ">
+
+                                            <label className="block text-[16px] text-[#676D7E100] mb-1">From Date</label>
+                                            <input type="date" className="border border-gray-300 rounded-md p-2 w-full" value={detailedfromdate && !isNaN(detailedfromdate) ? detailedfromdate.toISOString().split('T')[0] : ''}
+                                                onChange={(e) => {
+                                                    const val = e.target.value ? new Date(e.target.value) : null;
+                                                    setDetailedFromDate(val);
+                                                }} />
+                                        </div>
+                                        <div className="text-start w-[45%] mt-2">
+                                            <label className="block text-[16px] text-[#676D7E100] mb-1">To Date</label>
+                                            <input type="date" className="border border-gray-300 rounded-md p-2 w-full " value={detailedtodate && !isNaN(detailedtodate) ? detailedtodate.toISOString().split('T')[0] : ''}
+                                                onChange={(e) => {
+                                                    const val = e.target.value ? new Date(e.target.value) : null;
+                                                    setDetailedToDate(val);
+                                                }} />
+                                        </div>
+                                        <div>
+                                            <button className="bg-[#1A8BA8] cursor-pointer text-white rounded-md h-10 text-sm px-6 mt-8.5" onClick={apply}>Filter</button>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div className="max-h-190 shadow overflow-y-auto  rounded-md p-2">
+                                        <ul className="space-y-3">
+                                            {showResults && detailedFilteredData.map((history, index) => (
+                                                <li key={index} className="flex items-center justify-between pb-5">
+                                                    <span><img src="/icons/calendar-icon.png" alt="" className="inline-block h-5 mr-2" />{new Date(history.timestamp).toLocaleDateString()}</span>
+                                                    <span><img src="/icons/clock-icon.png" alt="" className="inline-block h-5 mr-2" color="black" />{new Date(history.timestamp).toLocaleTimeString()}</span>
+                                                    <button
+                                                        className="text-white text-xs rounded cursor-pointer bg-blue-500 h-8 p-2"
+                                                        onClick={() => setSelectedHistory(history)}
+                                                    >
+                                                        View More
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+
+                                    </div>
                                 </div>
+
+
                             </div>
-
-
                         </div>
                     </div>
-                       </div>                 
 
 
                 </div>
