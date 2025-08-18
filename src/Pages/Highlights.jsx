@@ -34,17 +34,17 @@ const EmergencyBlockage = () => {
       <section>
         <div className=" flex justify-evenly px-5  mt-8">
           {/* Robot Section */}
-          <div className=" flex flex-row bg-white w-[70%] h-[330px] p-6 rounded-lg border border-gray-300">
-            <div className=" ">
+          <div className=" flex flex-row bg-[#ffffff] w-[70%] h-[330px] p-6 rounded-lg border border-gray-300">
+            <div className="flex items-center ">
               <img
                 src="/images/Robo.jpg"
                 alt="Robot"
-                className="  h-[250px] w-[328px] rounded-2xl"
+                className="  h-[225px] w-[328px] rounded-2xl object-cover object-right"
               />
             </div>
             <div className=" ">
               <div>
-                <h3 className="text-3xl font-bold text-start px-10 pt-5 pb-3">
+                <h3 className="text-3xl  text-start px-10 pt-5 pb-3">
                   {data?.robot_id || "Robo_ yysb_001_5"}
                 </h3>
                 <p className=" text-lg px-10 pb-3 text-start text-gray-600">
@@ -60,10 +60,7 @@ const EmergencyBlockage = () => {
                     />
                   </span>
                   Operator Name:
-                  <span className="font-bold text-black">
-                    {" "}
-                    {data.operator_name}
-                  </span>
+                  <span className=" text-black"> {data.operator_name}</span>
                 </p>
               </div>
               <div className="flex flex-row justify-evenly items-end mt-5">
@@ -99,7 +96,7 @@ const EmergencyBlockage = () => {
           </div>
 
           {/* Operator Section */}
-          <div className="flex flex-col h-[330px] w-[25%] bg-white  p-6 rounded-lg border border-gray-300">
+          <div className="flex flex-col h-[330px] w-[25%] bg-[#ffffff]  p-6 rounded-lg border border-gray-300">
             <div className=" items-center justify-between mt-3">
               <div className="flex ">
                 <img
@@ -108,7 +105,7 @@ const EmergencyBlockage = () => {
                   className="w-16 h-16 rounded-full object-cover"
                 />
                 <div className="text-start px-5">
-                  <h4 className="text-2xl font-bold  ">
+                  <h4 className="text-2xl   ">
                     {data?.operator_name || "Sarah Chen"}
                   </h4>
                   <p className="text-lg text-gray-500 ">
@@ -137,25 +134,25 @@ const EmergencyBlockage = () => {
       </section>
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mt-8 w-full px-10">
-        <div className="bg-white rounded-lg p-4 pt-5 border border-gray-300">
+        <div className="bg-[#ffffff] rounded-lg p-4 pt-5 border border-gray-300">
           <p className="text-3xl font-bold text-[#1A8BA8]">
             {data.total_waste_kg || "1,245kgs"}
           </p>
           <p className="text-gray-500 text-md pt-2">Total waste collected</p>
         </div>
-        <div className="bg-white rounded-lg p-4 pt-5 border border-gray-300">
+        <div className="bg-[#ffffff] rounded-lg p-4 pt-5 border border-gray-300">
           <p className="text-3xl font-bold text-[#3D84FF]">
             {data?.time_saved_hr || "156h"}
           </p>
           <p className="text-gray-500 text-md pt-2">Time saved</p>
         </div>
-        <div className="bg-white rounded-lg p-4 pt-5 border border-gray-300 ">
+        <div className="bg-[#ffffff] rounded-lg p-4 pt-5 border border-gray-300 ">
           <p className="text-3xl font-bold text-[#21C45D]">
             {data?.success_rate_percent || "97.20%"}
           </p>
           <p className="text-gray-500 text-md pt-2">Success rate</p>
         </div>
-        <div className="bg-white rounded-lg p-4 pt-5 border border-gray-300">
+        <div className="bg-[#ffffff] rounded-lg p-4 pt-5 border border-gray-300">
           <p className="text-3xl font-bold text-[#E7B008]">
             {data?.avg_operation_time_hr || "2.8 hr"}
           </p>
@@ -164,8 +161,8 @@ const EmergencyBlockage = () => {
       </div>
 
       <section className="mt-8 px-10">
-        <div className="bg-white rounded-xl  p-6  mx-auto mt-12 h-screen">
-          <h2 className="text-3xl font-bold text-center mb-2">
+        <div className="bg-[#ffffff] rounded-xl  p-6  mx-auto mt-12 h-screen">
+          <h2 className="text-3xl  text-center mb-2">
             Emergency Manhole Blockage Cleared in Record Time
           </h2>
           <p className="text-gray-600 text-center mb-6 mt-4">
@@ -261,7 +258,7 @@ const EmergencyBlockage = () => {
               <p className="text-2xl font-bold text-[#1A8BA8] pt-3">
                 {data?.resolution_time_min || "28 mins"}
               </p>
-              <p className="text-gray-400 text-sm ">Resolution time</p>
+              <p className="text-gray-500 text-sm ">Resolution time</p>
             </div>
             <div className="bg-blue-50 border border-blue-300 rounded-lg p-2 h-30 w-40 flex flex-col items-center justify-center">
               <p className="text-2xl font-bold text-[#1A8BA8] pt-3">
