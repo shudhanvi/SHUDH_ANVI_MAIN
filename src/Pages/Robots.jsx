@@ -5,7 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Bot, Calendar, Download, MapPin, Funnel } from "lucide-react";
 import { Clock } from "lucide-react";
 import { Trash } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup,useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
@@ -230,7 +230,7 @@ export default function Robots() {
               value={selectedDivision}
               onChange={(e) => {
                 setSelectedDivision(e.target.value);
-                setDivisionError("");
+                setDivisionError('')
               }}
               className="border border-gray-300 rounded-md p-2 w-48 min-w-[12rem]"
             >
@@ -244,9 +244,8 @@ export default function Robots() {
               ))}
             </select>
 
-            <p className="text-red-500 text-xs mt-1 ml-2 h-[20px]">
-              {divisionError}
-            </p>
+            <p className="text-red-500 text-xs mt-1 ml-2 h-[20px]">{divisionError}</p>
+
           </div>
 
           {/* Section */}
@@ -309,8 +308,10 @@ export default function Robots() {
               View Bots
             </button>
             <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
+
           </div>
         </div>
+
       </section>
 
       {/* Display Filtered Data */}
@@ -414,18 +415,18 @@ export default function Robots() {
 
       {/* Modal */}
       {selectedDevice && (
-        <div className="fixed inset-0 h-screen flex items-center justify-center bg-transparent bg-opacity-50 z-[910]">
+        <div className="fixed inset-0 min-h-screen flex items-center justify-center bg-transparent bg-opacity-50 z-[910]">
           <div className="w-full h-screen bg-[#00000099] flex place-content-center">
-            <div className="bg-white w-11/12 lg:w-3/4 rounded-lg p-6 overflow-y-auto max-h-[100vh] relative right-5 top-5 shadow-2xl border border-gray-300">
+            <div className="bg-white w-11/12 lg:w-3/4 rounded-lg px-6 overflow-y-auto max-h-[100vh] relative right-5 top-5 shadow-2xl border border-gray-300">
               <button
                 onClick={() => closeRoboCardPopUp()}
-                className="popup-cancel-btn absolute right-6 text-gray-500 hover:text-black top-[10px] cursor-pointer"
+                className="popup-btn absolute right-6 text-gray-500 hover:text-black text-5xl top-[10px] cursor-pointer "
               >
                 ×
               </button>
 
               {/* Modal Content */}
-              <div className="flex flex-row justify-around">
+              <div className="flex flex-row justify-around pt-5">
                 <div className="text-start w-[48%]">
                   <h1 className="text-start text-[18px]  mb-2">
                     Operational Details
@@ -460,17 +461,17 @@ export default function Robots() {
                   </div>
                   <div className="grid grid-cols-2 w-full text-start text-[14px] text-[#676D7E] mt-5 gap-y-6">
                     <span className="flex flex-row">
-                        <Bot
-                          className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
-                          color="#0380FC"
-                        />
-                        <span className="flex flex-col ml-2">
-                          Robo Id{" "}
-                          <span className="text-[#21232C] text-[16px]">
-                            {activeRecord.robo_id}
-                          </span>
+                      <Bot
+                        className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
+                        color="#0380FC"
+                      />
+                      <span className="flex flex-col ml-2">
+                        Device Id{" "}
+                        <span className="text-[#21232C] text-[16px]">
+                          {activeRecord.robo_id}
                         </span>
                       </span>
+                    </span>
                     <span className="flex flex-row">
                       <Calendar
                         className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
@@ -500,7 +501,7 @@ export default function Robots() {
                         </span>
                       </span>
                     </span>
-                    
+
                     <span className="flex flex-row">
                       <Clock
                         className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
@@ -525,41 +526,41 @@ export default function Robots() {
                         </span>
                       </span>
                     </span>
-                     <span>
-                        {" "}
-                        <MapPin
-                          className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md"
-                          color="#0380FC"
-                        />
-                        {activeRecord.section}
-                      </span>
+                    <span>
+                      {" "}
+                      <MapPin
+                        className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md"
+                        color="#0380FC"
+                      />
+                      {activeRecord.section}
+                    </span>
                   </div>
                   <div className="flex flex-row mt-[24px] border border-gray-500 p-2 py-5 rounded-2xl " >
                     <div className="flex flex-col text-start text-[14px] text-[#676D7E] gap-y-2  w-[60%]">
                       <h1 className="text-[18px] text-black font-bold">Gas Level</h1>
-                    <p>Methane(CH4) : { "  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CH4}ppm</span></p>
-                    <p>Carbon Monoxide(CO) :{ "  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CO}ppm</span></p>
-                    <p>Hydrogen Sulphate(H2S) : { "  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).H2S}ppm</span></p>
-                     
+                      <p>Methane(CH4) : {"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CH4}ppm</span></p>
+                      <p>Carbon Monoxide(CO) :{"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CO}ppm</span></p>
+                      <p>Hydrogen Sulphate(H2S) : {"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).H2S}ppm</span></p>
+
                     </div>
 
                     <div className="flex items-center justify-center px-5">
-                      <div style={{ width: 90, height: 90 }}>
+                      <div style={{ width: 120, height: "auto", aspectRatio: 1 / 1 }}>
                         <CircularProgressbar
                           value={
                             activeRecord.gas_level?.toLowerCase() === "low"
                               ? 22
                               : activeRecord.gas_level?.toLowerCase() ===
                                 "medium"
-                              ? 55
-                              : activeRecord.gas_level?.toLowerCase() === "high"
-                              ? 80
-                              : 0
+                                ? 55
+                                : activeRecord.gas_level?.toLowerCase() === "high"
+                                  ? 80
+                                  : 0
                           }
                           text={
                             activeRecord.gas_level
                               ? activeRecord.gas_level.charAt(0).toUpperCase() +
-                                activeRecord.gas_level.slice(1).toLowerCase()
+                              activeRecord.gas_level.slice(1).toLowerCase()
                               : "N/A"
                           }
                           styles={buildStyles({
@@ -570,8 +571,8 @@ export default function Robots() {
                                 ? "red"
                                 : activeRecord.gas_level?.toLowerCase() ===
                                   "medium"
-                                ? "orange"
-                                : "green",
+                                  ? "orange"
+                                  : "green",
                             trailColor: "#eee",
                             strokeLinecap: "round",
                           })}
@@ -581,9 +582,12 @@ export default function Robots() {
                   </div>
 
                   <div className=" w-full text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2 ">
-                    <h1 className=" pb-1 text-start">
-                      {activeRecord.location}
-                    </h1>
+                    <div className="flex flex-row justify-between">
+                      <h1 className=" pb-1 text-start">
+                        {activeRecord.location}
+                      </h1>
+                      <h1>Manhole ID : {activeRecord.device_id}</h1>
+                    </div>
                     {/* Map Container */}
                     <div className="bd-gray">
                       {activeRecord?.location ? (
@@ -604,8 +608,8 @@ export default function Robots() {
                               <Marker position={[lat, lng]}>
                                 <Popup>{activeRecord.location}</Popup>
                               </Marker>
-                              
-                              <RecenterMap lat={lat} lng={lng}/>
+
+                              <RecenterMap lat={lat} lng={lng} />
                             </MapContainer>
                           );
                         })()
@@ -617,7 +621,7 @@ export default function Robots() {
                   <h1 className="text-[16px] text-[#21232C]  mt-[24px] text-start ">
                     Operation Images
                   </h1>
-                  <div className="h-45 rounded-lg mt-2  w-full grid grid-cols-2 gap-2 mb-10">
+                  <div className=" rounded-lg mt-2  w-full grid grid-cols-2 gap-2 mb-10 bg-gray-100">
                     <h1>Before</h1>
                     <h1>After</h1>
                     <img
@@ -640,7 +644,7 @@ export default function Robots() {
                       className="h-full object-cover rounded-lg border border-gray-100"
                     />
                   </div>
-                  <div className=" flex justify-center w-full ">
+                  <div className=" flex justify-center w-full my-[20px] mb-10 ">
                     <button className=" flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px]  w-full text-white rounded-[16px] cursor-pointer btn-hover">
                       <Download
                         className="inline-block w-5 h-5 mr-1  "
@@ -712,7 +716,7 @@ export default function Robots() {
                     </div>
                   </div>
 
-                  <div className="max-h-190 shadow overflow-y-auto  rounded-md p-2">
+                  <div className="max-h-227 shadow overflow-y-auto  rounded-md p-2">
                     <ul className="space-y-3">
                       {showResults &&
                         detailedFilteredData.map((history, index) => (
