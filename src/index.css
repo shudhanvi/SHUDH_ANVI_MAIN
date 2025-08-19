@@ -24,9 +24,8 @@ body{
 
 header{
   left: 50%;
-  right: 50%;
-  transform: translate(-50%,-50%);
-  z-index: 900;
+  transform: translateX(-50%);
+  z-index: 900 !important;
   /* animation: name duration timing-function delay iteration-count direction fill-mode; */
   animation: headerScaleIn 1s ease-in-out 0s 1 forwards;
   .active-nav-link{
@@ -37,7 +36,8 @@ header{
 }
 
 main{
-  animation: textFadeIn 1s ease-in-out 0.2s 1 forwards;
+  /* animation: textFadeIn 1s ease-in-out 0.2s 1 forwards; */
+  padding-bottom: 100px;
 }
 
 
@@ -70,7 +70,7 @@ main .section1{
   z-index: 899 !important;
 }
 .react-datepicker-popper{
-  z-index: 950 !important;
+  z-index: 951 !important;
 }
 /*  */
 
@@ -183,11 +183,11 @@ body::-webkit-scrollbar-track, .dB-Manhole-Popup >div::-webkit-scrollbar-track {
   from {
     opacity: 0;
     visibility: hidden;
-    top: -60px;
+    top: -40px;
   } to {
     opacity: 1;
     visibility: visible;
-    top: 60px;
+    top: 20px;
   }
 }
 
@@ -195,10 +195,9 @@ body::-webkit-scrollbar-track, .dB-Manhole-Popup >div::-webkit-scrollbar-track {
   from {
     opacity: 0;
     visibility: hidden;
-    transform: translateY(20px);
   } to {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0px);
+    z-index: 910;
   }
 }

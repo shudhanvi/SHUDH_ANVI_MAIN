@@ -130,8 +130,8 @@ const Dashboard = () => {
 
       {/* Predict Prevent Cure - Popups section */}
       {activeCard !== "" && (
-        <section className="bg-[#00000099] w-[101%] absolute top-0 z-1300">
-          <div className="popup-container h-screen relative">
+        <section className="bg-[#00000099] w-[101vw] fixed top-0 z-2000">
+          <div className="popup-container relative h-screen">
             <div className="fixed bg-[#000] opacity-50 w-full h-screen -z-1"></div>
             <div className="h-screen p-4 overflow-y-auto">
               {renderPopups()}
