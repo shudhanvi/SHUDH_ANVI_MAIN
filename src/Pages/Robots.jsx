@@ -5,7 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Bot, Calendar, Download, MapPin, Funnel } from "lucide-react";
 import { Clock } from "lucide-react";
 import { Trash } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup,useMap } from "react-leaflet";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
@@ -50,10 +50,21 @@ export default function Robots() {
     setSelectedDevice("");
   };
 
+  const RecenterMap = ({ lat, lng }) => {
+    const map = useMap();
+    useEffect(() => {
+      if (lat && lng) {
+        map.setView([lat, lng], map.getZoom()); // keep current zoom
+        // or use map.flyTo([lat, lng], 23) if you want animation & fixed zoom
+      }
+    }, [lat, lng, map]);
+    return null;
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
 
       try {
         console.log("Fetching data from server...");
@@ -415,19 +426,19 @@ export default function Robots() {
 
               {/* Modal Content */}
               <div className="flex flex-row justify-around">
-                <div className="text-start w-[45%]">
+                <div className="text-start w-[48%]">
                   <h1 className="text-start text-[18px]  mb-2">
                     Operational Details
                   </h1>
                 </div>
-                <div className="text-start w-[45%]">
+                <div className="text-start w-[48%]">
                   <h1 className="text-start text-[18px] mb-2">
                     Operation History
                   </h1>
                 </div>
               </div>
               <div className="flex flex-row justify-around ">
-                <div className="w-[45%] ">
+                <div className="w-[48%] ">
                   <div className="flex flex-col justify-start text-gray-500 w-full">
                     <span className="text-start text-[14px] text-[#676D7E]">
                       <img
@@ -448,6 +459,18 @@ export default function Robots() {
                     </span>
                   </div>
                   <div className="grid grid-cols-2 w-full text-start text-[14px] text-[#676D7E] mt-5 gap-y-6">
+                    <span className="flex flex-row">
+                        <Bot
+                          className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
+                          color="#0380FC"
+                        />
+                        <span className="flex flex-col ml-2">
+                          Robo Id{" "}
+                          <span className="text-[#21232C] text-[16px]">
+                            {activeRecord.robo_id}
+                          </span>
+                        </span>
+                      </span>
                     <span className="flex flex-row">
                       <Calendar
                         className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
@@ -477,18 +500,7 @@ export default function Robots() {
                         </span>
                       </span>
                     </span>
-                    <span className="flex flex-row">
-                      <Trash
-                        className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
-                        color="#0380FC"
-                      />
-                      <span className="flex flex-col ml-2">
-                        Waste Collected{" "}
-                        <span className="text-[#21232C] text-[16px]">
-                          {activeRecord.waste_collected_kg}kgs
-                        </span>
-                      </span>
-                    </span>
+                    
                     <span className="flex flex-row">
                       <Clock
                         className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
@@ -501,22 +513,19 @@ export default function Robots() {
                         </span>
                       </span>
                     </span>
-                  </div>
-                  <div className="flex flex-row mt-4">
-                    <div className="flex flex-col text-start text-[14px] text-[#676D7E]  gap-y-5 w-[50%]">
-                      <span className="flex flex-row">
-                        <Bot
-                          className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
-                          color="#0380FC"
-                        />
-                        <span className="flex flex-col ml-2">
-                          Robo Id{" "}
-                          <span className="text-[#21232C] text-[16px]">
-                            {activeRecord.robo_id}
-                          </span>
+                    <span className="flex flex-row">
+                      <Trash
+                        className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
+                        color="#0380FC"
+                      />
+                      <span className="flex flex-col ml-2">
+                        Waste Collected{" "}
+                        <span className="text-[#21232C] text-[16px]">
+                          {activeRecord.waste_collected_kg}kgs
                         </span>
                       </span>
-                      <span>
+                    </span>
+                     <span>
                         {" "}
                         <MapPin
                           className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md"
@@ -524,9 +533,17 @@ export default function Robots() {
                         />
                         {activeRecord.section}
                       </span>
+                  </div>
+                  <div className="flex flex-row mt-[24px] border border-gray-500 p-2 py-5 rounded-2xl " >
+                    <div className="flex flex-col text-start text-[14px] text-[#676D7E] gap-y-2  w-[60%]">
+                      <h1 className="text-[18px] text-black font-bold">Gas Level</h1>
+                    <p>Methane(CH4) : { "  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CH4}ppm</span></p>
+                    <p>Carbon Monoxide(CO) :{ "  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CO}ppm</span></p>
+                    <p>Hydrogen Sulphate(H2S) : { "  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).H2S}ppm</span></p>
+                     
                     </div>
 
-                    <div className="flex items-center justify-start w-[50%]">
+                    <div className="flex items-center justify-center px-5">
                       <div style={{ width: 90, height: 90 }}>
                         <CircularProgressbar
                           value={
@@ -563,7 +580,7 @@ export default function Robots() {
                     </div>
                   </div>
 
-                  <div className=" w-full text-start text-[#21232C] mt-5 bg-gray-100 rounded-lg p-2 ">
+                  <div className=" w-full text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2 ">
                     <h1 className=" pb-1 text-start">
                       {activeRecord.location}
                     </h1>
@@ -577,7 +594,7 @@ export default function Robots() {
                           return (
                             <MapContainer
                               center={[lat, lng]}
-                              zoom={23}
+                              zoom={15}
                               className="h-40 rounded-lg"
                             >
                               <TileLayer
@@ -587,6 +604,8 @@ export default function Robots() {
                               <Marker position={[lat, lng]}>
                                 <Popup>{activeRecord.location}</Popup>
                               </Marker>
+                              
+                              <RecenterMap lat={lat} lng={lng}/>
                             </MapContainer>
                           );
                         })()
@@ -595,7 +614,7 @@ export default function Robots() {
                       )}
                     </div>
                   </div>
-                  <h1 className="text-[16px] text-[#21232C]  pt-5 text-start ">
+                  <h1 className="text-[16px] text-[#21232C]  mt-[24px] text-start ">
                     Operation Images
                   </h1>
                   <div className="h-45 rounded-lg mt-2  w-full grid grid-cols-2 gap-2 mb-10">
@@ -632,7 +651,7 @@ export default function Robots() {
                   </div>
                 </div>
 
-                <div className="  w-[45%]">
+                <div className="  w-[48%]">
                   <div className="flex flex-row">
                     <span className="inline-block text-[#676D7E] mr-2  ">
                       <Funnel />

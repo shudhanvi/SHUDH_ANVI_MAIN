@@ -230,7 +230,7 @@ export default function Reports() {
               setDisplayReports([]);
               setSearchClicked(false);
             }}
-            className={`w-full border border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-[#1A8BA8] focus:border-[#1A8BA8] cursor-pointer ${!selectedDivision || selectedDivision === "ALL"
+            className={`w-full border border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-[#1A8BA8] focus:border-[#1A8BA8] cursor-pointer ${!selectedDivision || selectedDivision === "ALL Divisions"
                 ? "opacity-40 cursor-not-allowed"
                 : ""
               }`}
