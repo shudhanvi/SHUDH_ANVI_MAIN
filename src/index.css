@@ -85,15 +85,16 @@ main .section1{
 }
 
 
-button{
+button:not(.popup-cancel-btn){
   font-size: 16px !important;
   font-weight: 400 !important;
   /* min-height: 48px !important; */
   /* border-radius: 16px !important; */
 }
-/* input, select{
-  min-height: 48px !important;
-} */
+.popup-cancel-btn {
+  font-size: 36px !important;
+  cursor: pointer;  
+}
 .btn-blue, .btn-blue-outline{
   color: #fff;
   padding: 10px 15px;
@@ -147,10 +148,6 @@ button{
 /* .leaflet-grab{
   cursor: grab !important;
 } */
-.dB-Popup{
-  
-}
-
 
 body::-webkit-scrollbar, .dB-Manhole-Popup >div::-webkit-scrollbar {
   width: 6px; /* thinner scrollbar */
