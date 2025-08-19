@@ -1,660 +1,9 @@
- 
- 
-
-// import { File, ChartLine, FileChartColumnIncreasing, Bot } from "lucide-react";
-// import React, { useState } from "react";
-
-// export default function Reports() {
-//   const divisions = [
-//     "Old Bowenpally",
-//     "SR Nagar",
-//     "Kukatpally",
-//     "Durgam Cheruvu",
-//     "Hafeezpet",
-//     "Manikonda",
-//   ];
-
-//   const divisionsByDivision = {
-//     "SR Nagar": [
-//       "Borabanda",
-//       "Somajiguda",
-//       "Yellareddyguda",
-//       "Jubille Hills",
-//       "Vengalroanagar",
-//       "Fathenagar",
-//     ],
-//     Kukatpally: [
-//       "Bhagyanagar",
-//       "Kukatpally",
-//       "Vivekanandha Nagar",
-//       "Yellammabanda",
-//       "Moosapet",
-//       "Bharathnagar",
-//       "Motinagar",
-//       "Gayatrinagar",
-//       "Balnagar",
-//       "KPHB",
-//       "Balaginagar",
-//       "Hasmathpet",
-//     ],
-//     "Durgam Cheruvu": ["Nallagandla", "Madhapur", "Kondapur", "Gachibowli"],
-//     Hafeezpet: ["Chandanagar", "Warangal West", "Hanamkonda"],
-//     Manikonda: [
-//       "Jalpally",
-//       "Thukkuguda",
-//       "Kismathpur",
-//       "Manikonda",
-//       "Shamshabad",
-//     ],
-//     "Old Bowenpally": [
-//       "Tadbund",
-//       "Mallikarjuna Nagar",
-//       "Hasmathpet",
-//       "Bapuji Nagar",
-//     ],
-//   };
-
-//   const displayDivisionNames = {
-//     "SR Nagar": "Division 6 (SR Nagar)",
-//     Kukatpally: "Division 9 (Kukatpally)",
-//     "Durgam Cheruvu": "Division 15 (Durgam Cheruvu)",
-//     Hafeezpet: "Division 17 (Hafeezpet)",
-//     Manikonda: "Division 18 (Manikonda)",
-//     "Old Bowenpally": "Division 4 (Old Bowenpally)",
-//   };
-
-//   const [selectedDivision, setSelectedDivision] = useState("");
-//   const [selectedSection, setSelectedSection] = useState("");
-//   const [popupReport, setPopupReport] = useState(null);
-//   const [displayReportsState, setDisplayReports] = useState([]);
-//   const [activeCard, setActiveCard] = useState("");
-//   const [searchClicked, setSearchClicked] = useState(false);
-
-//   // Reports
-//   const manholeReports = [
-//     {
-//       id: "manhole1",
-//       title: "Zone A Manhole Analysis",
-//       division: "Old Bowenpally",
-//       section: "Hasmathpet",
-//       file: "Manhole_1.html",
-//       icon: <ChartLine className="text-blue-500 w-10 h-10" />,
-//     },
-//     {
-//       id: "manhole2",
-//       title: "Zone B Manhole Analysis",
-//       division: "Old Bowenpally",
-//       section: "Hasmathpet",
-//       file: "manhole_report.html",
-//       icon: <ChartLine className="text-blue-500 w-10 h-10" />,
-//     },
-//     {
-//       id: "manhole3",
-//       title: "Zone C Manhole Analysis",
-//       division: "Old Bowenpally",
-//       section: "Hasmathpet",
-//       file: "analytics_report.html",
-//       icon: <ChartLine className="text-blue-500 w-10 h-10" />,
-//     },
-//   ];
-
-//   const wardReports = [
-//     {
-//       id: "ward1",
-//       title: "Ward A Incident Summary",
-//       division: "Old Bowenpally",
-//       section: "Hasmathpet",
-//       file: "Ward.html",
-//       icon: <FileChartColumnIncreasing className="text-green-500 w-10 h-10" />,
-//     },
-//   ];
-
-//   const robotReports = [
-//     {
-//       id: "robot1",
-//       title: "Robot Fleet Performance RP001",
-//       division: "Old Bowenpally",
-//       section: "Hasmathpet",
-//       file: "Robot.html",
-//       icon: <Bot className="text-purple-500 w-10 h-10" />,
-//     },
-//     {
-//       id: "robot2",
-//       title: "Robot Fleet Performance RP002",
-//       division: "Old Bowenpally",
-//       section: "Hasmathpet",
-//       file: "robo_reports_s.html",
-//       icon: <Bot className="text-purple-500 w-10 h-10" />,
-//     },
-//   ];
-
-//   const allReports = [...manholeReports, ...wardReports, ...robotReports];
-//   const sections = selectedDivision
-//     ? divisionsByDivision[selectedDivision] || []
-//     : [];
-
-//   // ✅ Dynamic filter reports
-//   const getFilteredReports = (type) => {
-//     let filtered = allReports.filter(
-//       (r) => r.division === selectedDivision && r.section === selectedSection
-//     );
-
-//     if (type === "manhole") {
-//       filtered = filtered.filter((r) => manholeReports.includes(r));
-//     } else if (type === "ward") {
-//       filtered = filtered.filter((r) => wardReports.includes(r));
-//     } else if (type === "robot") {
-//       filtered = filtered.filter((r) => robotReports.includes(r));
-//     }
-
-//     return filtered;
-//   };
-
-//   const handleCardClick = (type) => {
-//     if (!searchClicked) return;
-//     setDisplayReports(getFilteredReports(type));
-//     setActiveCard(type);
-//   };
-
-//   const handleSearch = () => {
-//     setSearchClicked(true);
-
-//     if (!selectedDivision || !selectedSection) {
-//       setDisplayReports([]);
-//       setActiveCard("");
-//       return;
-//     }
-
-//     const results = getFilteredReports("all");
-//     setDisplayReports(results);
-//     setActiveCard("all");
-//   };
-
-//   return (
-//     <>
-//       {/* Title */}
-//       <section className="section1">
-//         <h1>Reports & Analytics</h1>
-//         <p>Generate and manage system reports and data exports</p>
-//       </section>
-
-//       {/* Filters */}
-//       <section className="flex flex-wrap gap-2 align-top justify-center mb-10 mt-5 p-4 rounded-xl w-full max-w-6xl mx-auto place-items-start ">
-//         {/* Division Dropdown */}
-//         <div className="flex-1 max-w-[350px]">
-//           <select
-//             value={selectedDivision}
-//             onChange={(e) => {
-//               setSelectedDivision(e.target.value);
-//               setSelectedSection("");
-//               setDisplayReports([]);
-//               setSearchClicked(false);
-//             }}
-//             className="w-full shadow-md rounded-xl px-4 py-2.5 place-items-start "
-//           >
-//             <option value="">Select Division</option>
-//             {divisions.map((div) => (
-//               <option key={div} value={div}>
-//                 {displayDivisionNames[div] || div}
-//               </option>
-//             ))}
-//           </select>
-//           {searchClicked && !selectedDivision && (
-//             <p className="text-red-500 text-sm mt-1 flex justify-self-start h-[15px]">
-//               Division is required
-//             </p>
-//           )}
-//         </div>
-
-//         {/* Section Dropdown */}
-//         <div className="flex-1 max-w-[350px]">
-//           <select
-//             value={selectedSection}
-//             onChange={(e) => {
-//               setSelectedSection(e.target.value);
-//               setDisplayReports([]);
-//               setSearchClicked(false);
-//             }}
-//             className="w-full shadow-md rounded-xl px-4 py-2.5 place-items-start"
-//             disabled={!selectedDivision}
-//           >
-//             <option value="">Select Section</option>
-//             {sections.map((sec) => (
-//               <option key={sec} value={sec}>
-//                 {sec}
-//               </option>
-//             ))}
-//           </select>
-
-//           {searchClicked && !selectedSection && (
-//             <p className="text-red-500 text-sm mt-1 flex justify-self-start h-[15px]">
-//               Section is required
-//             </p>
-//           )}
-//         </div>
-
-//         {/* Search Button */}
-//         <button
-//           onClick={handleSearch}
-//           className="cursor-pointer self-start bg-[#1A8BA8] text-white px-6 py-2 rounded-xl hover:bg-[#166f86] flex items-center gap-2 shadow-xl btn-hover transition duration-500"
-//         >
-//           <img
-//             src="/icons/search-icon.png"
-//             alt="Search"
-//             className="w-5 h-5"
-//           />
-//           Search Reports
-//         </button>
-//       </section>
-
-//       {/* Reports List */}
-//       <section className="w-full max-w-6xl px-[2vw] mx-auto">
-//         {searchClicked ? (
-//           !selectedDivision || !selectedSection ? null : displayReportsState.length > 0 ? (
-//             <div className="space-y-4">
-//               {/* Summary Cards */}
-//               <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 w-full max-w-screen-xl mx-auto px-4">
-//                 {[
-//                   { type: "all", label: "All Reports", icon: <File color="#1A8BA8" /> },
-//                   {
-//                     type: "manhole",
-//                     label: "Manhole Reports",
-//                     icon: <ChartLine color="#1A8BA8" />,
-//                   },
-//                   {
-//                     type: "ward",
-//                     label: "Ward Reports",
-//                     icon: <FileChartColumnIncreasing color="#1A8BA8" />,
-//                   },
-//                   {
-//                     type: "robot",
-//                     label: "Robot Reports",
-//                     icon: <Bot style={{ color: "#1A8BA8" }} />,
-//                   },
-//                 ].map((card) => {
-//                   const count = getFilteredReports(card.type).length;
-//                   return (
-//                     <div
-//                       key={card.type}
-//                       onClick={() => handleCardClick(card.type)}
-//                       className={`p-4 rounded-xl shadow text-center cursor-pointer 
-//                         ${
-//                           activeCard === card.type
-//                             ? "bg-blue-100 border border-blue-500"
-//                             : "bg-white"
-//                         } 
-//                         hover:bg-gray-100`}
-//                     >
-//                       {React.cloneElement(card.icon, {
-//                         className: "mx-auto mb-2 w-10 h-10",
-//                       })}
-//                       <p className="font-medium">{card.label}</p>
-//                       <p className="text-lg font-bold">{count}</p>
-//                     </div>
-//                   );
-//                 })}
-//               </section>
-
-//               {/* Report Items */}
-//               {displayReportsState.map((r) => (
-//                 <div
-//                   key={r.id}
-//                   className="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center"
-//                 >
-//                   <div className="flex items-center gap-2 text-black-400 font-semibold ">
-//                     {r.icon}
-//                     <span>{r.title}</span>
-//                   </div>
-//                   <button
-//                     onClick={() => setPopupReport(r)}
-//                     className=" cursor-pointer bg-gray-100 px-6 py-4 rounded-lg hover:bg-[#1A8BA8] text-lg btn-hover transition duration-500"
-//                   >
-//                     View
-//                   </button>
-//                 </div>
-//               ))}
-//             </div>
-//           ) : (
-//             <p className="text-gray-500 font-semibold">No reports available</p>
-//           )
-//         ) : null}
-//       </section>
-
-//       {/* Popup Modal */}
-//       {popupReport && (
-//         <section className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-1300">
-//           <div className="bg-white p-6 rounded-xl shadow-lg w-11/12 md:w-2/3 h-[100vh] relative">
-//             <button
-//               onClick={() => setPopupReport(null)}
-//               className="absolute top-3 right-3 text-gray-600 hover:text-black text-2xl"
-//             >
-//               &times;
-//             </button>
-//             <h3 className="text-xl font-bold mb-4">{popupReport.title}</h3>
-//             <iframe
-//               src={`/reports/${popupReport.file}`}
-//               className="w-full h-full border rounded-lg"
-//               title={popupReport.title}
-//             />
-//           </div>
-//         </section>
-//       )}
-//     </>
-//   );
-// }
- 
-
-
-
-
-
-
-
-
-
-
-// import React, { useState } from "react";
-// import { File, ChartLine, FileChartColumnIncreasing, Bot } from "lucide-react";
-
-// export default function Reports() {
-//   const divisions = [
-//     "ALL",
-//     "Old Bowenpally",
-//     "SR Nagar",
-//     "Kukatpally",
-//     "Durgam Cheruvu",
-//     "Hafeezpet",
-//     "Manikonda",
-//   ];
-
-//   const divisionsByDivision = {
-//     "SR Nagar": ["Borabanda", "Somajiguda", "Yellareddyguda", "Jubille Hills", "Vengalroanagar", "Fathenagar"],
-//     Kukatpally: ["Vivekanandha Nagar","Yellammabanda","Moosapet","Bharathnagar","Motinagar","Gayatrinagar","Balnagar","KPHB","Balaginagar","Hasmathpet"],
-//     "Durgam Cheruvu": ["Nallagandla", "Madhapur", "Kondapur", "Gachibowli"],
-//     Hafeezpet: ["Chandanagar", "Warangal West", "Hanamkonda"],
-//     Manikonda: ["Jalpally", "Thukkuguda", "Kismathpur", "Manikonda", "Shamshabad"],
-//     "Old Bowenpally": ["Tadbund", "Mallikarjuna Nagar", "Hasmathpet", "Bapuji Nagar"],
-//   };
-
-//   const displayDivisionNames = {
-//     "SR Nagar": "Division 6 (SR Nagar)",
-//     Kukatpally: "Division 9 (Kukatpally)",
-//     "Durgam Cheruvu": "Division 4 (Durgam Cheruvu)",
-//     Hafeezpet: "Division 3 (Hafeezpet)",
-//     Manikonda: "Division 5 (Manikonda)",
-//     "Old Bowenpally": "Division 4 (Old Bowenpally)",
-//   };
-
-//   // Reports Data
-//   const manholeReports = [
-//     { id: "manhole1", title: "Zone A Manhole Analysis", division: "Old Bowenpally", section: "Hasmathpet", file: "Manhole_1.html", icon: <ChartLine className="text-blue-500 w-10 h-10" /> },
-//     { id: "manhole2", title: "Zone B Manhole Analysis", division: "Old Bowenpally", section: "Hasmathpet", file: "manhole_report.html", icon: <ChartLine className="text-blue-500 w-10 h-10" /> },
-//     { id: "manhole3", title: "Zone C Manhole Analysis", division: "Old Bowenpally", section: "Hasmathpet", file: "analytics_report.html", icon: <ChartLine className="text-blue-500 w-10 h-10" /> },
-//   ];
-
-//   const wardReports = [
-//     { id: "ward1", title: "Ward A Incident Summary", division: "Old Bowenpally", section: "Hasmathpet", file: "Ward.html", icon: <FileChartColumnIncreasing className="text-green-500 w-10 h-10" /> },
-//   ];
-
-//   const robotReports = [
-//     { id: "robot1", title: "Robot Fleet Performance RP001", division: "Old Bowenpally", section: "Hasmathpet", file: "Robot.html", icon: <Bot className="text-purple-500 w-10 h-10" /> },
-//     { id: "robot2", title: "Robot Fleet Performance RP002", division: "Old Bowenpally", section: "Hasmathpet", file: "robo_reports_s.html", icon: <Bot className="text-purple-500 w-10 h-10" /> },
-//   ];
-
-//   const allReports = [...manholeReports, ...wardReports, ...robotReports];
-
-//   // State
-//   const [selectedDivision, setSelectedDivision] = useState("");
-//   const [selectedSection, setSelectedSection] = useState("");
-//   const [popupReport, setPopupReport] = useState(null);
-//   const [displayReportsState, setDisplayReports] = useState([]);
-//   const [activeCard, setActiveCard] = useState("");
-//   const [searchClicked, setSearchClicked] = useState(false);
-//   const [allDivisionList, setAllDivisionList] = useState([]);
-
-//   const sections =
-//     selectedDivision && selectedDivision !== "ALL"
-//       ? divisionsByDivision[selectedDivision] || []
-//       : [];
-
-//   // Filtering
-//   const getFilteredReports = (type, division = selectedDivision, section = selectedSection) => {
-//     let filtered = allReports.filter((r) => r.division === division && r.section === section);
-
-//     if (type === "manhole") filtered = filtered.filter((r) => manholeReports.includes(r));
-//     if (type === "ward") filtered = filtered.filter((r) => wardReports.includes(r));
-//     if (type === "robot") filtered = filtered.filter((r) => robotReports.includes(r));
-
-//     return filtered;
-//   };
-
-//   const handleCardClick = (type) => {
-//     if (!searchClicked) return;
-//     if (selectedDivision === "ALL") return; // cards only for single division+section
-//     setDisplayReports(getFilteredReports(type));
-//     setActiveCard(type);
-//   };
-
-//   const handleSearch = () => {
-//     setSearchClicked(true);
-
-//     if (selectedDivision === "ALL") {
-//       const list = divisions
-//         .filter((d) => d !== "ALL")
-//         .map((div) => {
-//           const count = allReports.filter((r) => r.division === div).length;
-//           return { division: div, count };
-//         });
-//       setAllDivisionList(list);
-//       setDisplayReports([]);
-//       setActiveCard("all");
-//       return;
-//     }
-
-//     if (!selectedDivision || !selectedSection) {
-//       setDisplayReports([]);
-//       setActiveCard("");
-//       return;
-//     }
-
-//     const results = allReports.filter(
-//       (r) => r.division === selectedDivision && r.section === selectedSection
-//     );
-//     setDisplayReports(results);
-//     setActiveCard("all");
-//   };
-
-//   return (
-//     <>
-//       {/* Title */}
-//       <section className="section1">
-//         <h1>Reports & Analytics</h1>
-//         <p>Generate and manage system reports and data exports</p>
-        
-//       </section>
-
-//       {/* Filters */}
-//       <section className="flex flex-wrap gap-2 justify-center mb-10 mt-5 p-4 rounded-xl w-full max-w-6xl mx-auto border">
-//         {/* Division Dropdown */}
-//         <div className="flex-1 max-w-[350px]  ">
-         
-//            <select
-//             value={selectedDivision}
-//             onChange={(e) => {
-//               setSelectedDivision(e.target.value);
-//               setSelectedSection("");
-//               setDisplayReports([]);
-//               setSearchClicked(false);
-//               setAllDivisionList([]);
-//             }}
-//             className="w-full shadow-md rounded-xl px-4 py-2.5 cursor-pointer"
-          
-//           >
-          
-//             <option value="">Select Division</option>
-//             {divisions.map((div) => (
-//               <option key={div} value={div}>
-//                 {displayDivisionNames[div] || div}
-//               </option>
-//             ))}
-//           </select>
-//           {searchClicked && !selectedDivision && (
-//             <p className="text-red-500 text-sm mt-1 ">Division is required</p>
-//           )}
-//         </div>
-
-//         {/* Section Dropdown */}
-//         <div className="flex-1 max-w-[350px]">
-          
-//           <select
-//             value={selectedSection}
-//             onChange={(e) => {
-//               setSelectedSection(e.target.value);
-//               setDisplayReports([]);
-//               setSearchClicked(false);
-//             }}
-//             className={`w-full shadow-md rounded-xl cursor-pointer px-4 py-2.5 ${
-//               !selectedDivision || selectedDivision === "ALL"
-//                 ? "opacity-40 cursor-not-allowed"
-//                 : ""
-//             }`}
-//             disabled={!selectedDivision || selectedDivision === "ALL"}
-//           >
-//             <option value="">Select Section</option>
-//             {sections.map((sec) => (
-//               <option key={sec} value={sec}>
-//                 {sec}
-//               </option>
-//             ))}
-//           </select>
-
-//           {searchClicked && selectedDivision !== "ALL" && !selectedSection && (
-//             <p className="text-red-500 text-sm mt-1">Section is required</p>
-//           )}
-//         </div>
-
-//         {/* Search Button */}
-//         <button
-//           onClick={handleSearch}
-//           className="self-start cursor-pointer bg-[#1A8BA8] text-white px-6 py-2 rounded-xl hover:bg-[#166f86] flex items-center gap-2 shadow-xl btn-hover transition duration-500"
-//         >
-//           <img src="/icons/search-icon.png" alt="Search" className="w-5 h-5" />
-//           Search Reports
-//         </button>
-//       </section>
-
-//       {/* Reports */}
-//       <section className="w-full max-w-6xl px-[2vw] mx-auto">
-//         {searchClicked ? (
-//           selectedDivision === "ALL" ? (
-//             allDivisionList.length > 0 ? (
-//               <div className="space-y-4">
-//                 {allDivisionList.map((d) => (
-//                   <div key={d.division} className="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center">
-//                     <span className="font-semibold">
-//                       {d.division} ({d.count})
-//                     </span>
-//                     <button
-//                       onClick={() =>
-//                         setDisplayReports(allReports.filter((r) => r.division === d.division))
-//                       }
-//                       className="bg-gray-100 px-6 py-2 rounded-lg hover:bg-[#1A8BA8] transition btn-hover  duration-500 cursor-pointer"
-//                     >
-//                       View
-//                     </button>
-//                   </div>
-//                 ))}
-//               </div>
-//             ) : (
-//               <p className="text-gray-500 font-semibold">No reports available</p>
-//             )
-//           ) : !selectedDivision || !selectedSection ? null : displayReportsState.length > 0 ? (
-//             <div className="space-y-4">
-//               {/* Summary Cards */}
-//               <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-//                 {[
-//                   { type: "all", label: "All Reports", icon: <File color="#1A8BA8" /> },
-//                   { type: "manhole", label: "Manhole Reports", icon: <ChartLine color="#1A8BA8" /> },
-//                   { type: "ward", label: "Ward Reports", icon: <FileChartColumnIncreasing color="#1A8BA8" /> },
-//                   { type: "robot", label: "Robot Reports", icon: <Bot style={{ color: "#1A8BA8" }} /> },
-//                 ].map((card) => {
-//                   const count = getFilteredReports(card.type).length;
-//                   return (
-//                     <div
-//                       key={card.type}
-//                       onClick={() => handleCardClick(card.type)}
-//                       className={`p-4 rounded-xl shadow text-center cursor-pointer ${
-//                         activeCard === card.type ? "bg-blue-100 border border-blue-500" : "bg-white"
-//                       } hover:bg-gray-100`}
-//                     >
-//                       {React.cloneElement(card.icon, { className: "mx-auto mb-2 w-10 h-10" })}
-//                       <p className="font-medium">{card.label}</p>
-//                       <p className="text-lg font-bold">{count}</p>
-//                     </div>
-//                   );
-//                 })}
-//               </section>
-
-//               {/* Report Items */}
-//               {displayReportsState.map((r) => (
-//                 <div key={r.id} className="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center">
-//                   <div className="flex items-center gap-2 font-semibold">
-//                     {r.icon}
-//                     <span>{r.title}</span>
-//                   </div>
-//                   <button
-//                     onClick={() => setPopupReport(r)}
-//                     className="bg-gray-100 px-6 py-2 rounded-lg hover:bg-[#1A8BA8] btn-hover transition duration-500 cursor-pointer"
-//                   >
-//                     View
-//                   </button>
-//                 </div>
-//               ))}
-//             </div>
-//           ) : (
-//             <p className="text-gray-500 font-semibold">No reports available</p>
-//           )
-//         ) : null}
-//       </section>
-
-//       {/* Popup */}
-//       {popupReport && (
-//         <section className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-950">
-//           <div className="bg-white p-6 rounded-xl shadow-lg w-11/12 md:w-2/3 h-[100vh] relative">
-//             <button
-//               onClick={() => setPopupReport(null)}
-//               className="absolute top-3 right-3 text-gray-600 hover:text-black text-2xl"
-//             >
-//               &times;
-//             </button>
-//             <h3 className="text-xl font-bold mb-4">{popupReport.title}</h3>
-//             <iframe
-//               src={`/reports/${popupReport.file}`}
-//               className="w-full h-full border rounded-lg"
-//               title={popupReport.title}
-//             />
-//           </div>
-//         </section>
-//       )}
-//     </>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
 import React, { useState } from "react";
 import { File, ChartLine, FileChartColumnIncreasing, Bot } from "lucide-react";
 
 export default function Reports() {
   const divisions = [
-    "ALL",
+    "ALL Divisions",
     "Old Bowenpally",
     "SR Nagar",
     "Kukatpally",
@@ -734,9 +83,7 @@ export default function Reports() {
       division: "Old Bowenpally",
       section: "Hasmathpet",
       file: "Ward.html",
-      icon: (
-        <FileChartColumnIncreasing className="text-green-500 w-10 h-10" />
-      ),
+      icon: <FileChartColumnIncreasing className="text-green-500 w-10 h-10" />,
     },
   ];
 
@@ -769,6 +116,7 @@ export default function Reports() {
   const [activeCard, setActiveCard] = useState("");
   const [searchClicked, setSearchClicked] = useState(false);
   const [allDivisionList, setAllDivisionList] = useState([]);
+  const [expandedDivision, setExpandedDivision] = useState(null);
 
   const sections =
     selectedDivision && selectedDivision !== "ALL"
@@ -797,7 +145,7 @@ export default function Reports() {
 
   const handleCardClick = (type) => {
     if (!searchClicked) return;
-    if (selectedDivision === "ALL") return;
+    if (selectedDivision === "ALL Divisions") return;
     setDisplayReports(getFilteredReports(type));
     setActiveCard(type);
   };
@@ -805,9 +153,9 @@ export default function Reports() {
   const handleSearch = () => {
     setSearchClicked(true);
 
-    if (selectedDivision === "ALL") {
+    if (selectedDivision === "ALL Divisions") {
       const list = divisions
-        .filter((d) => d !== "ALL")
+        .filter((d) => d !== "ALL Divisions")
         .map((div) => {
           const count = allReports.filter((r) => r.division === div).length;
           return { division: div, count };
@@ -854,6 +202,7 @@ export default function Reports() {
               setDisplayReports([]);
               setSearchClicked(false);
               setAllDivisionList([]);
+              setExpandedDivision(null);
             }}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-[#1A8BA8] focus:border-[#1A8BA8] cursor-pointer"
           >
@@ -865,7 +214,7 @@ export default function Reports() {
             ))}
           </select>
           {searchClicked && !selectedDivision && (
-            <p className="text-red-500 text-sm mt-1">**Division is required</p>
+            <p className="text-red-500 text-xs mt-1 flex items-start">*Division is required</p>
           )}
         </div>
 
@@ -881,12 +230,11 @@ export default function Reports() {
               setDisplayReports([]);
               setSearchClicked(false);
             }}
-            className={`w-full border border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-[#1A8BA8] focus:border-[#1A8BA8] cursor-pointer ${
-              !selectedDivision || selectedDivision === "ALL"
+            className={`w-full border border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-[#1A8BA8] focus:border-[#1A8BA8] cursor-pointer ${!selectedDivision || selectedDivision === "ALL"
                 ? "opacity-40 cursor-not-allowed"
                 : ""
-            }`}
-            disabled={!selectedDivision || selectedDivision === "ALL"}
+              }`}
+            disabled={!selectedDivision || selectedDivision === "ALL Divisions"}
           >
             <option value="">Select Section</option>
             {sections.map((sec) => (
@@ -896,17 +244,13 @@ export default function Reports() {
             ))}
           </select>
 
-          {searchClicked && selectedDivision !== "ALL" && !selectedSection && (
-            <p className="text-red-500 text-sm mt-1">Section is required</p>
+          {searchClicked && selectedDivision !== "ALL Divisions" && !selectedSection && (
+            <p className="text-red-500 text-xs mt-1 flex items-start">*Section is required</p>
           )}
         </div>
-
-        {/* Search Button */}
-        <div className="flex flex-col justify-end">
-          <button
+         <button
             onClick={handleSearch}
-            className="cursor-pointer bg-[#1A8BA8] text-white px-6 py-2 rounded-xl hover:bg-[#166f86] flex items-center gap-2 shadow-xl btn-hover transition duration-500"
-          >
+            className=" self-start justify-items-start cursor-pointer bg-[#1A8BA8] text-white px-6 py-2 rounded-xl mt-7 hover:bg-[#166f86] flex items-center gap-2 shadow-xl btn-hover transition duration-500 "          >
             <img
               src="/icons/search-icon.png"
               alt="Search"
@@ -914,33 +258,63 @@ export default function Reports() {
             />
             Search Reports
           </button>
+
+        {/* Search Button */}
+        <div className="flex flex-col justify-end ">
+         
         </div>
       </section>
 
       {/* Reports */}
       <section className="w-full max-w-6xl px-[2vw] mx-auto">
         {searchClicked ? (
-          selectedDivision === "ALL" ? (
+          selectedDivision === "ALL Divisions" ? (
             allDivisionList.length > 0 ? (
               <div className="space-y-4">
                 {allDivisionList.map((d) => (
                   <div
                     key={d.division}
-                    className="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center"
+                    className="bg-white p-4 rounded-xl shadow-sm"
                   >
-                    <span className="font-semibold">
-                      {d.division} ({d.count})
-                    </span>
-                    <button
-                      onClick={() =>
-                        setDisplayReports(
-                          allReports.filter((r) => r.division === d.division)
-                        )
-                      }
-                      className="bg-gray-100 px-6 py-2 rounded-lg hover:bg-[#1A8BA8] transition duration-300 cursor-pointer btn-hover "
-                    >
-                      View
-                    </button>
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold">
+                        {d.division} ({d.count})
+                      </span>
+                      <button
+                        onClick={() =>
+                          setExpandedDivision(
+                            expandedDivision === d.division ? null : d.division
+                          )
+                        }
+                        className="bg-gray-100 px-6 py-2 rounded-lg hover:bg-[#1A8BA8]  hover:text-white transition duration-300 cursor-pointer btn-hover"
+                      >
+                        {expandedDivision === d.division ? "Hide" : "View"}
+                      </button>
+                    </div>
+
+                    {expandedDivision === d.division && (
+                      <div className="mt-4 space-y-2">
+                        {allReports
+                          .filter((r) => r.division === d.division)
+                          .map((r) => (
+                            <div
+                              key={r.id}
+                              className="bg-gray-50 p-3 rounded-lg shadow-sm flex justify-between items-center"
+                            >
+                              <div className="flex items-center gap-2 font-semibold">
+                                {r.icon}
+                                <span>{r.title}</span>
+                              </div>
+                              <button
+                                onClick={() => setPopupReport(r)}
+                                className="bg-gray-100 px-6 py-2 rounded-lg  hover:bg-[#1A8BA8] hover:text-white btn-hover transition duration-500 cursor-pointer"
+                              >
+                                View
+                              </button>
+                            </div>
+                          ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -968,9 +342,7 @@ export default function Reports() {
                   {
                     type: "ward",
                     label: "Ward Reports",
-                    icon: (
-                      <FileChartColumnIncreasing color="#1A8BA8" />
-                    ),
+                    icon: <FileChartColumnIncreasing color="#1A8BA8" />,
                   },
                   {
                     type: "robot",
@@ -983,11 +355,10 @@ export default function Reports() {
                     <div
                       key={card.type}
                       onClick={() => handleCardClick(card.type)}
-                      className={`p-4 rounded-xl shadow text-center cursor-pointer ${
-                        activeCard === card.type
+                      className={`p-4 rounded-xl shadow text-center cursor-pointer ${activeCard === card.type
                           ? "bg-blue-100 border border-blue-500"
                           : "bg-white"
-                      } hover:bg-gray-100`}
+                        } hover:bg-gray-100`}
                     >
                       {React.cloneElement(card.icon, {
                         className: "mx-auto mb-2 w-10 h-10",
@@ -1011,7 +382,7 @@ export default function Reports() {
                   </div>
                   <button
                     onClick={() => setPopupReport(r)}
-                    className="bg-gray-100 px-6 py-2 rounded-lg hover:bg-[#1A8BA8] btn-hover transition duration-500 cursor-pointer"
+                    className="bg-gray-100 px-6 py-2 rounded-lg hover:bg-[#1A8BA8] hover:text-white btn-hover transition duration-500 cursor-pointer"
                   >
                     View
                   </button>
@@ -1026,7 +397,7 @@ export default function Reports() {
 
       {/* Popup */}
       {popupReport && (
-        <section className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-950">
+        <section className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-1000">
           <div className="bg-white p-6 rounded-xl shadow-lg w-11/12 md:w-2/3 h-[100vh] relative">
             <button
               onClick={() => setPopupReport(null)}

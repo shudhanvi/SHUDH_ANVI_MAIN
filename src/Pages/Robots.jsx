@@ -131,49 +131,52 @@ export default function Robots() {
   }, [selectedDivision, data]);
 
   // ✅ updated handleFilter with proper messages
-  const handleFilter = () => {
-    setHasSearched(true);
-    setMessage("");
+// ✅ new state
+const [divisionError, setDivisionError] = useState("");
 
-    if (!selectedDivision) {
-      setFilteredData([]);
-      setMessage("Please select a division.");
-      return;
+// ✅ updated handleFilter
+const handleFilter = () => {
+  setHasSearched(true);
+  setMessage("");
+  setDivisionError(""); // reset error
+
+  if (!selectedDivision) {
+    setFilteredData([]);
+    setDivisionError("*Division required"); // <-- specific error
+    return;
+  }
+
+  let filtered = data.filter((item) => item.division === selectedDivision);
+
+  if (selectedArea) {
+    filtered = filtered.filter((item) => item.section === selectedArea);
+  }
+
+  if (fromDate && toDate) {
+    filtered = filtered.filter((item) => {
+      const ts = new Date(item.timestamp);
+      return ts >= fromDate && ts <= toDate;
+    });
+  }
+
+  const latestByRobot = {};
+  for (const row of filtered) {
+    const ts = new Date(row.timestamp);
+    if (
+      !latestByRobot[row.robo_id] ||
+      ts > new Date(latestByRobot[row.robo_id].timestamp)
+    ) {
+      latestByRobot[row.robo_id] = row;
     }
+  }
 
-    let filtered = data.filter((item) => item.division === selectedDivision);
+  const limited = Object.values(latestByRobot);
+  if (limited.length === 0) {
+    setMessage("No data available for selected area.");
+  }
 
-    if (selectedArea) {
-      filtered = filtered.filter((item) => item.section === selectedArea);
-    }
-
-    if (fromDate && toDate) {
-      filtered = filtered.filter((item) => {
-        const ts = new Date(item.timestamp);
-        return ts >= fromDate && ts <= toDate;
-      });
-    }
-
-    const latestByRobot = {};
-
-    for (const row of filtered) {
-      const ts = new Date(row.timestamp);
-
-      if (
-        !latestByRobot[row.robo_id] ||
-        ts > new Date(latestByRobot[row.robo_id].timestamp)
-      ) {
-        latestByRobot[row.robo_id] = row;
-      }
-    }
-
-    const limited = Object.values(latestByRobot);
-    if (limited.length === 0) {
-      setMessage("No data available for selected area.");
-    }
-
-    setFilteredData(limited);
-  };
+  setFilteredData(limited);
+};
 
   const [showResults, setShowResults] = useState(false);
 
@@ -201,20 +204,23 @@ export default function Robots() {
   const activeRecord = selectedHistory || selectedDevice;
 
   return (
-    <div className="">
+    <div className="w-full px-[10px]">
       <section className="section1 mx-auto">
         <h1>Robot Fleet Management</h1>
         <p>Monitor your autonomus drainage robots</p>
       </section>
       {/* Filters */}
       <section className="flex justify-center h-auto w-full mt-6">
-        <div className="flex flex-wrap gap-4 bg-white h-35 p-4 rounded-lg border border-gray-300">
+        <div className="flex flex-wrap gap-4 bg-white min-h-35 p-4 rounded-lg border border-gray-300">
           {/* Division */}
           <div className="m-auto text-start">
             <label className="block font-semibold mb-1">Division</label>
             <select
               value={selectedDivision}
-              onChange={(e) => setSelectedDivision(e.target.value)}
+              onChange={(e) => {
+                setSelectedDivision(e.target.value);
+                setDivisionError('')
+              }}
               className="border border-gray-300 rounded-md p-2 w-48 min-w-[12rem]"
             >
               <option value="" className="text-xs">
@@ -226,6 +232,9 @@ export default function Robots() {
                 </option>
               ))}
             </select>
+            
+              <p className="text-red-500 text-xs mt-1 ml-2 h-[20px]">{divisionError}</p>
+          
           </div>
 
           {/* Section */}
@@ -245,6 +254,7 @@ export default function Robots() {
                 </option>
               ))}
             </select>
+            <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
           </div>
 
           {/* From Date */}
@@ -256,6 +266,7 @@ export default function Robots() {
               className="border border-gray-300 rounded-md p-2 w-48"
               placeholderText="Pick a date"
             />
+            <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
           </div>
 
           {/* To Date */}
@@ -267,29 +278,33 @@ export default function Robots() {
               className="border border-gray-300 rounded-md p-2 w-48"
               placeholderText="Pick a date"
             />
+            <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
           </div>
 
           {/* Button */}
-          <div className="flex m-auto">
+          <div className=" m-auto">
             <button
-              className="bg-[#1A8BA8] text-white px-4 py-2.5 rounded-[16px] flex items-center gap-2 cursor-pointer mt-5.5"
+              className="bg-[#1A8BA8] text-white px-6 py-2 rounded-[16px] flex items-center gap-2 cursor-pointer mt-5.5  btn-hover transition-all duration-150"
               onClick={handleFilter}
             >
               <span>
                 <img
                   src="/icons/search-icon.png"
                   alt="Search Icon"
-                  className=" btn-hover"
+                  className="inline-block w-4 h-4"
                 />
               </span>
               View Bots
             </button>
+          <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
+
           </div>
         </div>
+        
       </section>
 
       {/* Display Filtered Data */}
-      <section className=" w-[1400px] px-20">
+      <section className="max-w-[1400px] px-5">
         {filteredData.length > 0 ? (
           <>
             <div className="h-20 flex justify-between text-2xl text-bold mx-20 mt-10">
@@ -303,7 +318,7 @@ export default function Robots() {
                 <div
                   key={idx}
                   onClick={() => openRoboCardPopUp(item)}
-                  className="cursor-pointer bg-white border border-gray-200 rounded-xl  px-2 h-80 max-w hover:shadow-xl hover:shadow-blue-200 hover:scale-100 transition-shadow duration-100"
+                  className="cursor-pointer bg-white border border-gray-200 rounded-xl  px-2 h-80 max-w hover:shadow-lg hover:shadow-[#1A8BA850] hover:scale-101 transition-all duration-110"
                 >
                   <div className="flex flex-row">
                     <img
@@ -608,13 +623,13 @@ export default function Robots() {
                     />
                   </div>
                   <div className=" flex justify-center w-full ">
-                    <p className=" flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px]  w-full text-white rounded-[16px] cursor-pointer">
+                    <button className=" flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px]  w-full text-white rounded-[16px] cursor-pointer btn-hover">
                       <Download
-                        className="inline-block w-5 h-5 mr-1 "
+                        className="inline-block w-5 h-5 mr-1  "
                         color="white"
                       />
                       Generate Operation Report
-                    </p>
+                    </button>
                   </div>
                 </div>
 
@@ -628,7 +643,7 @@ export default function Robots() {
                       Filter by Date Range
                     </h1>
                   </div>
-                  <div className="flex flex-row w-full justify-between mb-5 mt-3 gap-2">
+                  <div className="flex flex-row w-full justify-between mb-5 mt-3 gap-2 ">
                     <div className="text-start w-[45%] mt-2 ">
                       <label className="block text-[16px] text-[#676D7E100] mb-1">
                         From Date
@@ -671,7 +686,7 @@ export default function Robots() {
                     </div>
                     <div>
                       <button
-                        className="bg-[#1A8BA8] cursor-pointer text-white rounded-md h-10 text-sm px-6 mt-8.5"
+                        className="bg-[#1A8BA8] cursor-pointer text-white rounded-md h-10 text-sm px-6 mt-8.5 btn-hover"
                         onClick={apply}
                       >
                         Filter
@@ -705,7 +720,7 @@ export default function Robots() {
                               {new Date(history.timestamp).toLocaleTimeString()}
                             </span>
                             <button
-                              className="text-white text-xs rounded cursor-pointer bg-blue-500 h-8 p-2"
+                              className="text-white text-sm rounded cursor-pointer bg-blue-500 h-8 p-2"
                               onClick={() => setSelectedHistory(history)}
                             >
                               View More
