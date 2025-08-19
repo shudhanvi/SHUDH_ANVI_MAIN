@@ -131,52 +131,52 @@ export default function Robots() {
   }, [selectedDivision, data]);
 
   // ✅ updated handleFilter with proper messages
-// ✅ new state
-const [divisionError, setDivisionError] = useState("");
+  // ✅ new state
+  const [divisionError, setDivisionError] = useState("");
 
-// ✅ updated handleFilter
-const handleFilter = () => {
-  setHasSearched(true);
-  setMessage("");
-  setDivisionError(""); // reset error
+  // ✅ updated handleFilter
+  const handleFilter = () => {
+    setHasSearched(true);
+    setMessage("");
+    setDivisionError(""); // reset error
 
-  if (!selectedDivision) {
-    setFilteredData([]);
-    setDivisionError("*Division required"); // <-- specific error
-    return;
-  }
-
-  let filtered = data.filter((item) => item.division === selectedDivision);
-
-  if (selectedArea) {
-    filtered = filtered.filter((item) => item.section === selectedArea);
-  }
-
-  if (fromDate && toDate) {
-    filtered = filtered.filter((item) => {
-      const ts = new Date(item.timestamp);
-      return ts >= fromDate && ts <= toDate;
-    });
-  }
-
-  const latestByRobot = {};
-  for (const row of filtered) {
-    const ts = new Date(row.timestamp);
-    if (
-      !latestByRobot[row.robo_id] ||
-      ts > new Date(latestByRobot[row.robo_id].timestamp)
-    ) {
-      latestByRobot[row.robo_id] = row;
+    if (!selectedDivision) {
+      setFilteredData([]);
+      setDivisionError("*Division required"); // <-- specific error
+      return;
     }
-  }
 
-  const limited = Object.values(latestByRobot);
-  if (limited.length === 0) {
-    setMessage("No data available for selected area.");
-  }
+    let filtered = data.filter((item) => item.division === selectedDivision);
 
-  setFilteredData(limited);
-};
+    if (selectedArea) {
+      filtered = filtered.filter((item) => item.section === selectedArea);
+    }
+
+    if (fromDate && toDate) {
+      filtered = filtered.filter((item) => {
+        const ts = new Date(item.timestamp);
+        return ts >= fromDate && ts <= toDate;
+      });
+    }
+
+    const latestByRobot = {};
+    for (const row of filtered) {
+      const ts = new Date(row.timestamp);
+      if (
+        !latestByRobot[row.robo_id] ||
+        ts > new Date(latestByRobot[row.robo_id].timestamp)
+      ) {
+        latestByRobot[row.robo_id] = row;
+      }
+    }
+
+    const limited = Object.values(latestByRobot);
+    if (limited.length === 0) {
+      setMessage("No data available for selected area.");
+    }
+
+    setFilteredData(limited);
+  };
 
   const [showResults, setShowResults] = useState(false);
 
@@ -219,7 +219,7 @@ const handleFilter = () => {
               value={selectedDivision}
               onChange={(e) => {
                 setSelectedDivision(e.target.value);
-                setDivisionError('')
+                setDivisionError("");
               }}
               className="border border-gray-300 rounded-md p-2 w-48 min-w-[12rem]"
             >
@@ -232,9 +232,10 @@ const handleFilter = () => {
                 </option>
               ))}
             </select>
-            
-              <p className="text-red-500 text-xs mt-1 ml-2 h-[20px]">{divisionError}</p>
-          
+
+            <p className="text-red-500 text-xs mt-1 ml-2 h-[20px]">
+              {divisionError}
+            </p>
           </div>
 
           {/* Section */}
@@ -296,11 +297,9 @@ const handleFilter = () => {
               </span>
               View Bots
             </button>
-          <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
-
+            <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
           </div>
         </div>
-        
       </section>
 
       {/* Display Filtered Data */}
@@ -409,7 +408,7 @@ const handleFilter = () => {
             <div className="bg-white w-11/12 lg:w-3/4 rounded-lg p-6 overflow-y-auto max-h-[100vh] relative right-5 top-5 shadow-2xl border border-gray-300">
               <button
                 onClick={() => closeRoboCardPopUp()}
-                className="absolute right-6 text-gray-500 hover:text-black text-5xl top-[10px] cursor-pointer "
+                className="popup-cancel-btn absolute right-6 text-gray-500 hover:text-black top-[10px] cursor-pointer"
               >
                 ×
               </button>

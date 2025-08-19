@@ -401,7 +401,7 @@ export default function Reports() {
           <div className="bg-white p-6 rounded-xl shadow-lg w-11/12 md:w-2/3 h-[100vh] relative">
             <button
               onClick={() => setPopupReport(null)}
-              className="absolute top-3 right-3 text-gray-600 hover:text-black text-2xl"
+              className="popup-cancel-btn absolute top-3 right-3 text-gray-600 hover:text-black text-2xl"
             >
               &times;
             </button>
