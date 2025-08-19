@@ -85,15 +85,13 @@ main .section1{
 }
 
 
-button{
+button:not(.popup-btn){
   font-size: 16px !important;
   font-weight: 400 !important;
-  /* min-height: 48px !important; */
-  /* border-radius: 16px !important; */
 }
-/* input, select{
-  min-height: 48px !important;
-} */
+.popup-btn{
+ font-size: 36px;
+}
 .btn-blue, .btn-blue-outline{
   color: #fff;
   padding: 10px 15px;
