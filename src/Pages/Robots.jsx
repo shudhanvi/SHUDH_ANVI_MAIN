@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Papa from "papaparse";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Bot, Calendar, Download, MapPin, Funnel } from "lucide-react";
+import { Bot, Calendar, Download, MapPin, Funnel, CalendarIcon, ClockIcon } from "lucide-react";
 import { Clock } from "lucide-react";
 import { Trash } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
@@ -22,6 +22,8 @@ export default function Robots() {
   const [detailedfromdate, setDetailedFromDate] = useState(null);
   const [detailedtodate, setDetailedToDate] = useState(null);
   const [selectedHistory, setSelectedHistory] = useState(null);
+  const [loading, setLoading] = useState(true); 
+
 
   // Modal state
   const [selectedDevice, setSelectedDevice] = useState(null);
@@ -83,39 +85,45 @@ useEffect(() => {
 
   // 2. Fetch server data and place it on top
   const fetchServerData = async () => {
-    try {
-      console.log("🌐 Fetching server data...");
-      const response = await fetch(
-        "https://sewage-bot-backend.onrender.com/api/data",
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+  try {
+    console.log("🌐 Fetching server data...");
+    setMessage("Loading data from Server......."); // <-- show message in UI
+    setLoading(true);
 
-      if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-      const serverData = await response.json();
-      console.log("✅ Server data:", serverData);
-
-      if (Array.isArray(serverData) && serverData.length > 0) {
-        setData((prev) => {
-          // server data first, CSV (prev) after
-          const combined = [...serverData, ...prev];
-
-          // update divisions
-          const uniqueDivisions = [
-            ...new Set(combined.map((item) => item.division)),
-          ];
-          setDivisions(uniqueDivisions);
-
-          return combined;
-        });
+    const response = await fetch(
+      "https://sewage-bot-backend.onrender.com/api/data",
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
       }
-    } catch (error) {
-      console.warn("⚠ Server fetch failed:", error.message);
+    );
+
+    if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+    const serverData = await response.json();
+    console.log("✅ Server data:", serverData);
+
+    if (Array.isArray(serverData) && serverData.length > 0) {
+      setData((prev) => {
+        // server data first, CSV (prev) after
+        const combined = [...serverData, ...prev];
+
+        // update divisions
+        const uniqueDivisions = [
+          ...new Set(combined.map((item) => item.division)),
+        ];
+        setDivisions(uniqueDivisions);
+
+        return combined;
+      });
     }
-  };
+  } catch (error) {
+    console.warn("⚠ Server fetch failed:", error.message);
+    setMessage("⚠ Failed to load data from server, using local CSV.");
+  } finally {
+    setLoading(false); // ✅ stop showing loading
+  }
+};
 
   fetchServerData();
 }, []);
@@ -313,7 +321,11 @@ useEffect(() => {
 
       {/* Display Filtered Data */}
       <section className="max-w-[1400px] px-5">
-        {filteredData.length > 0 ? (
+         {loading ? (
+    <p className="text-gray-800 text-center text-xl mt-4  animate-pulse">
+      {message}
+    </p>
+        ):filteredData.length > 0 ? (
           <>
             <div className="h-20 flex justify-between text-2xl text-bold mx-20 mt-10">
               <h1>Showing Bots from {selectedDivision} </h1>
@@ -423,7 +435,7 @@ useEffect(() => {
               </button>
 
               {/* Modal Content */}
-              <div className="flex flex-row justify-around pt-5">
+              <div className="flex flex-row justify-between pt-5">
                 <div className="text-start w-[48%]">
                   <h1 className="text-start text-[18px]  mb-2">
                     Operational Details
@@ -435,7 +447,7 @@ useEffect(() => {
                   </h1>
                 </div>
               </div>
-              <div className="flex flex-row justify-around ">
+              <div className="flex flex-row justify-between px-1 ">
                 <div className="w-[48%] ">
                   <div className="flex flex-col justify-start text-gray-500 w-full">
                     <span className="text-start text-[14px] text-[#676D7E]">
@@ -713,7 +725,7 @@ useEffect(() => {
                     </div>
                   </div>
 
-                  <div className="min-h-screen h-227 shadow overflow-y-auto  rounded-md p-2">
+                  <div className="max-h-80 shadow overflow-y-auto  rounded-md p-2 px-8">
                     <ul className="space-y-3">
                       {showResults &&
                         detailedFilteredData.map((history, index) => (
@@ -721,25 +733,19 @@ useEffect(() => {
                             key={index}
                             className="flex items-center justify-between pb-5"
                           >
-                            <span>
-                              <img
-                                src="/icons/calendar-icon.png"
-                                alt=""
-                                className="inline-block h-5 mr-2"
-                              />
+                            <div>
+                            <span className="mr-8">
+                              <CalendarIcon className="h-4 inline-block  " />
                               {new Date(history.timestamp).toLocaleDateString()}
                             </span>
-                            <span>
-                              <img
-                                src="/icons/clock-icon.png"
-                                alt=""
-                                className="inline-block h-5 mr-2"
-                                color="black"
-                              />
+                            <span className="mr-8">
+                              <ClockIcon className="h-4 inline-block" />
+                               
                               {new Date(history.timestamp).toLocaleTimeString()}
                             </span>
+                            </div>
                             <button
-                              className="text-white text-sm rounded cursor-pointer bg-blue-500 h-8 p-2"
+                              className="btn-view-more text-white  rounded-[6px] cursor-pointer bg-blue-500 h-8 p-2"
                               onClick={() => setSelectedHistory(history)}
                             >
                               View More
