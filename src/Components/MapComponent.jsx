@@ -90,7 +90,7 @@ const MapComponent = () => {
           if (!grouped[name]) grouped[name] = [];
           grouped[name].push(coord);
         });
-        console.log("grouped : ", grouped);
+        // console.log("grouped : ", grouped);
         setWardPolygons(grouped);
       })
       .catch((err) => console.error("Error loading ward coordinates:", err));
@@ -109,11 +109,11 @@ const MapComponent = () => {
         // Ward Options for User
         // Hasmathpet, Tadbund, Mallikarjuna Nagar, Balaji Nagar
         // filtering dummyWardsData
-        const allWardsL = DummyWardData 
-          // ? DummyWardData.length > 0
-          // : DummyWardData?.filter(
-          //     (each) => each.ward_name.toLowerCase() !== "hasmathpet"
-          //   );
+        const allWardsL = DummyWardData;
+        // ? DummyWardData.length > 0
+        // : DummyWardData?.filter(
+        //     (each) => each.ward_name.toLowerCase() !== "hasmathpet"
+        //   );
         // allWardsL.push(...jsonData);
         allWardsL.sort();
         // console.log("wardjsonData : ", allWardsL);
@@ -200,7 +200,7 @@ const MapComponent = () => {
 
   // SetWard Mapping Runs on Ward Input Changes
   useEffect(() => {
-    if (selectedWard !== "HasmathPet" && selectedWard) {
+    if (selectedWard !== "Hasmathpet" && selectedWard) {
       const SetWardMapping = async () => {
         const wardGeoData = await setGeocode(selectedWard);
 
@@ -208,7 +208,7 @@ const MapComponent = () => {
           const newLat = wardGeoData.lat;
           const newLon = wardGeoData.lon;
           // console.log("mapping warded", { lat: newLat, lon: newLon });
-          setMapCenter({ lat: newLat, lng: newLon });
+          setMapCenter({ lat: newLat, lng: newLon, zoom: 15 });
         }
         // ✅ Normalize polygon
         //   let polygons = [];
@@ -270,11 +270,14 @@ const MapComponent = () => {
   };
 
   const handleMarkerClick = (point) => {
+    console.log("point : ", point);
     const ops = findMatchingOps(point.latitude, point.longitude);
     setSelectedOps(ops);
     setSelectedManholeLocation(point);
     setLatInput(point.latitude);
     setLonInput(point.longitude);
+    // RecenterMap(point.latitude, point.longitude, 10)
+    setMapCenter({ lat: point.latitude, lng: point.longitude, zoom: 20 });
   };
 
   const handleClosePopup = () => {
@@ -320,7 +323,7 @@ const MapComponent = () => {
         }}
       >
         {/* Top box */}
-        <div className="shadow-md shadow-gray-500 p-6 mb-4 rounded bg-white">
+        <div className="border-1 border-[#333] p-6 rounded-xl bg-white">
           <div className="flex justify-between align-middle flex-wrap gap-2">
             <p className="font-semibold text-md">
               Interactive Hotspot Manhole Map
@@ -416,7 +419,7 @@ const MapComponent = () => {
               {selectedWard && wardPolygons[selectedWard] && (
                 <>
                   <ZoomToWard coordinates={wardPolygons[selectedWard]} />
-                  {console.log("poly ", wardPolygons)}
+                  {/* {console.log("poly ", wardPolygons)} */}
                   <Polygon
                     positions={wardPolygons[selectedWard]}
                     pathOptions={{
@@ -493,7 +496,7 @@ const MapComponent = () => {
 
       {/* Right section: POP UPS */}
       <div
-        className="db-popup-container overflow-x-hidden overflow-y-auto"
+        className="db-popup-container overflow-x-hidden h-[665px] overflow-y-auto"
         style={{
           width: selectedManholeLocation || selectedWard ? "35%" : "0%",
         }}

@@ -3,12 +3,12 @@ import "./App.css";
 
 import ScrollToTop from "./Components/ScrollToTop";
 import Header from "./Components/Header";
-import NotFound from "./pages/NotFound";
 
-import Dashboard from "./pages/Dashboard";
-import Robots from "./pages/Robots";
-import Reports from "./pages/Reports";
+import Dashboard from "./Pages/Dashboard";
+import Robots from "./Pages/Robots";
+import Reports from "./Pages/Reports"
 import Highlights from "./Pages/Highlights";
+import NotFound from "./Pages/NotFound";
 
 function App() {
   return (
