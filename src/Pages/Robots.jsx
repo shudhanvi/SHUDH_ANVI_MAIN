@@ -545,8 +545,10 @@ export default function Robots() {
 
                     </div>
 
+
                     <div className="flex items-center justify-center max-w-[120px] m-auto  flex-shrink-1">
                       <div style={{ width: "100%", height: "auto", aspectRatio: 1 / 1 }}>
+                  
                         <CircularProgressbar
                           value={
                             activeRecord.gas_level?.toLowerCase() === "low"
