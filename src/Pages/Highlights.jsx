@@ -10,7 +10,7 @@ const EmergencyBlockage = () => {
       header: true,
       complete: (result) => {
         if (result.data && result.data.length > 0) {
-          console.log(result.data);
+          // console.log(result.data);
           setData(result.data[0]); // first row for this section
         }
       },
@@ -161,7 +161,7 @@ const EmergencyBlockage = () => {
       </div>
 
       <section className="mt-8 px-10">
-        <div className="bg-[#ffffff] rounded-xl  p-6  mx-auto mt-12 h-screen">
+        <div className="bg-[#ffffff] rounded-xl  p-6  mx-auto mt-12 h-auto">
           <h2 className="text-3xl  text-center mb-2">
             Emergency Manhole Blockage Cleared in Record Time
           </h2>

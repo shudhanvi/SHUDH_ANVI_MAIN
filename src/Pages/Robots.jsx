@@ -59,7 +59,7 @@ export default function Robots() {
       }
     }, [lat, lng, map]);
     return null;
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -230,7 +230,7 @@ export default function Robots() {
               value={selectedDivision}
               onChange={(e) => {
                 setSelectedDivision(e.target.value);
-                setDivisionError('')
+                setDivisionError("");
               }}
               className="border border-gray-300 rounded-md p-2 w-48 min-w-[12rem]"
             >
@@ -244,8 +244,9 @@ export default function Robots() {
               ))}
             </select>
 
-            <p className="text-red-500 text-xs mt-1 ml-2 h-[20px]">{divisionError}</p>
-
+            <p className="text-red-500 text-xs mt-1 ml-2 h-[20px]">
+              {divisionError}
+            </p>
           </div>
 
           {/* Section */}
@@ -308,10 +309,8 @@ export default function Robots() {
               View Bots
             </button>
             <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
-
           </div>
         </div>
-
       </section>
 
       {/* Display Filtered Data */}
@@ -535,32 +534,57 @@ export default function Robots() {
                       {activeRecord.section}
                     </span>
                   </div>
-                  <div className="flex flex-row mt-[24px] border border-gray-500 p-2 py-5 rounded-2xl " >
+                  <div className="flex flex-row mt-[24px] border border-gray-500 p-2 py-5 rounded-2xl ">
                     <div className="flex flex-col text-start text-[14px] text-[#676D7E] gap-y-2  w-[60%]">
-                      <h1 className="text-[18px] text-black font-bold">Gas Level</h1>
-                      <p>Methane(CH4) : {"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CH4}ppm</span></p>
-                      <p>Carbon Monoxide(CO) :{"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CO}ppm</span></p>
-                      <p>Hydrogen Sulphate(H2S) : {"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).H2S}ppm</span></p>
-
+                      <h1 className="text-[18px] text-black font-bold">
+                        Gas Level
+                      </h1>
+                      <p>
+                        Methane(CH4) : {"  "}
+                        <span className="text-[16px] text-[#21232C]">
+                          {" "}
+                          {JSON.parse(activeRecord.gas_data).CH4}ppm
+                        </span>
+                      </p>
+                      <p>
+                        Carbon Monoxide(CO) :{"  "}
+                        <span className="text-[16px] text-[#21232C]">
+                          {" "}
+                          {JSON.parse(activeRecord.gas_data).CO}ppm
+                        </span>
+                      </p>
+                      <p>
+                        Hydrogen Sulphate(H2S) : {"  "}
+                        <span className="text-[16px] text-[#21232C]">
+                          {" "}
+                          {JSON.parse(activeRecord.gas_data).H2S}ppm
+                        </span>
+                      </p>
                     </div>
 
                     <div className="flex items-center justify-center px-5">
-                      <div style={{ width: 120, height: "auto", aspectRatio: 1 / 1 }}>
+                      <div
+                        style={{
+                          width: 120,
+                          height: "auto",
+                          aspectRatio: 1 / 1,
+                        }}
+                      >
                         <CircularProgressbar
                           value={
                             activeRecord.gas_level?.toLowerCase() === "low"
                               ? 22
                               : activeRecord.gas_level?.toLowerCase() ===
                                 "medium"
-                                ? 55
-                                : activeRecord.gas_level?.toLowerCase() === "high"
-                                  ? 80
-                                  : 0
+                              ? 55
+                              : activeRecord.gas_level?.toLowerCase() === "high"
+                              ? 80
+                              : 0
                           }
                           text={
                             activeRecord.gas_level
                               ? activeRecord.gas_level.charAt(0).toUpperCase() +
-                              activeRecord.gas_level.slice(1).toLowerCase()
+                                activeRecord.gas_level.slice(1).toLowerCase()
                               : "N/A"
                           }
                           styles={buildStyles({
@@ -571,8 +595,8 @@ export default function Robots() {
                                 ? "red"
                                 : activeRecord.gas_level?.toLowerCase() ===
                                   "medium"
-                                  ? "orange"
-                                  : "green",
+                                ? "orange"
+                                : "green",
                             trailColor: "#eee",
                             strokeLinecap: "round",
                           })}

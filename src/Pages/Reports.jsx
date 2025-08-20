@@ -35,8 +35,19 @@ export default function Reports() {
     ],
     "Durgam Cheruvu": ["Nallagandla", "Madhapur", "Kondapur", "Gachibowli"],
     Hafeezpet: ["Chandanagar", "Warangal West", "Hanamkonda"],
-    Manikonda: ["Jalpally", "Thukkuguda", "Kismathpur", "Manikonda", "Shamshabad"],
-    "Old Bowenpally": ["Tadbund", "Mallikarjuna Nagar", "Hasmathpet", "Bapuji Nagar"],
+    Manikonda: [
+      "Jalpally",
+      "Thukkuguda",
+      "Kismathpur",
+      "Manikonda",
+      "Shamshabad",
+    ],
+    "Old Bowenpally": [
+      "Tadbund",
+      "Mallikarjuna Nagar",
+      "Hasmathpet",
+      "Bapuji Nagar",
+    ],
   };
 
   const displayDivisionNames = {
@@ -214,7 +225,9 @@ export default function Reports() {
             ))}
           </select>
           {searchClicked && !selectedDivision && (
-            <p className="text-red-500 text-xs mt-1 flex items-start">*Division is required</p>
+            <p className="text-red-500 text-xs mt-1 flex items-start">
+              *Division is required
+            </p>
           )}
         </div>
 
@@ -230,10 +243,11 @@ export default function Reports() {
               setDisplayReports([]);
               setSearchClicked(false);
             }}
-            className={`w-full border border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-[#1A8BA8] focus:border-[#1A8BA8] cursor-pointer ${!selectedDivision || selectedDivision === "ALL Divisions"
-              ? "opacity-40 cursor-not-allowed"
-              : ""
-              }`}
+            className={`w-full border border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-[#1A8BA8] focus:border-[#1A8BA8] cursor-pointer ${
+              !selectedDivision || selectedDivision === "ALL Divisions"
+                ? "opacity-40 cursor-not-allowed"
+                : ""
+            }`}
             disabled={!selectedDivision || selectedDivision === "ALL Divisions"}
           >
             <option value="">Select Section</option>
@@ -244,25 +258,24 @@ export default function Reports() {
             ))}
           </select>
 
-          {searchClicked && selectedDivision !== "ALL Divisions" && !selectedSection && (
-            <p className="text-red-500 text-xs mt-1 flex items-start">*Section is required</p>
-          )}
+          {searchClicked &&
+            selectedDivision !== "ALL Divisions" &&
+            !selectedSection && (
+              <p className="text-red-500 text-xs mt-1 flex items-start">
+                *Section is required
+              </p>
+            )}
         </div>
         <button
           onClick={handleSearch}
-          className=" self-start justify-items-start cursor-pointer bg-[#1A8BA8] text-white px-6 py-2 rounded-xl mt-7 hover:bg-[#166f86] flex items-center gap-2 shadow-xl btn-hover transition duration-500 "          >
-          <img
-            src="/icons/search-icon.png"
-            alt="Search"
-            className="w-5 h-5"
-          />
+          className=" self-start justify-items-start cursor-pointer bg-[#1A8BA8] text-white px-6 py-2 rounded-xl mt-7 hover:bg-[#166f86] flex items-center gap-2 shadow-xl btn-hover transition duration-500 "
+        >
+          <img src="/icons/search-icon.png" alt="Search" className="w-5 h-5" />
           Search Reports
         </button>
 
         {/* Search Button */}
-        <div className="flex flex-col justify-end ">
-
-        </div>
+        <div className="flex flex-col justify-end "></div>
       </section>
 
       {/* Reports */}
@@ -323,8 +336,8 @@ export default function Reports() {
                 No reports available
               </p>
             )
-          ) : !selectedDivision || !selectedSection ? null : displayReportsState.length >
-            0 ? (
+          ) : !selectedDivision ||
+            !selectedSection ? null : displayReportsState.length > 0 ? (
             <div className="space-y-4">
               {/* Summary Cards */}
               <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -355,10 +368,11 @@ export default function Reports() {
                     <div
                       key={card.type}
                       onClick={() => handleCardClick(card.type)}
-                      className={`p-4 rounded-xl shadow text-center cursor-pointer ${activeCard === card.type
-                        ? "bg-blue-100 border border-blue-500"
-                        : "bg-white"
-                        } hover:bg-gray-100`}
+                      className={`p-4 rounded-xl shadow text-center cursor-pointer ${
+                        activeCard === card.type
+                          ? "bg-blue-100 border border-blue-500"
+                          : "bg-white"
+                      } hover:bg-gray-100`}
                     >
                       {React.cloneElement(card.icon, {
                         className: "mx-auto mb-2 w-10 h-10",
