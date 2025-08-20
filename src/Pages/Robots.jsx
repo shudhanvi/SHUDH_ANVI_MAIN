@@ -263,6 +263,7 @@ export default function Robots() {
                 <option key={i} value={section} className="text-xs">
                   {section}
                 </option>
+                
               ))}
             </select>
             <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
@@ -536,7 +537,7 @@ export default function Robots() {
                     </span>
                   </div>
                   <div className="flex flex-row mt-[24px] border border-gray-500 p-2 py-5 rounded-2xl " >
-                    <div className="flex flex-col text-start text-[14px] text-[#676D7E] gap-y-2  w-[60%]">
+                    <div className="flex flex-col text-start text-[14px] text-[#676D7E] gap-y-2  w-max-content  flex-shrink-0">
                       <h1 className="text-[18px] text-black font-bold">Gas Level</h1>
                       <p>Methane(CH4) : {"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CH4}ppm</span></p>
                       <p>Carbon Monoxide(CO) :{"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CO}ppm</span></p>
@@ -544,8 +545,10 @@ export default function Robots() {
 
                     </div>
 
-                    <div className="flex items-center justify-center px-5">
-                      <div style={{ width: 120, height: "auto", aspectRatio: 1 / 1 }}>
+
+                    <div className="flex items-center justify-center max-w-[120px] m-auto  flex-shrink-1">
+                      <div style={{ width: "100%", height: "auto", aspectRatio: 1 / 1 }}>
+                  
                         <CircularProgressbar
                           value={
                             activeRecord.gas_level?.toLowerCase() === "low"
@@ -716,7 +719,7 @@ export default function Robots() {
                     </div>
                   </div>
 
-                  <div className="max-h-227 shadow overflow-y-auto  rounded-md p-2">
+                  <div className="min-h-screen h-227 shadow overflow-y-auto  rounded-md p-2">
                     <ul className="space-y-3">
                       {showResults &&
                         detailedFilteredData.map((history, index) => (
