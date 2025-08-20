@@ -105,7 +105,7 @@ const PredictComp = () => {
     <div className="predict-comp w-full max-w-[600px] p-5 space-y-6 bg-white rounded-lg shadow-md mx-auto">
       {/* Box-1 Clog Risk */}
       <div className="flex-1 shadow shadow-gray-300 bg-white border border-gray-200 rounded-xl p-4 text-left">
-        <h2 className="font-semibold text-xl mb-1">Colg Risk Prediction</h2>
+        <h2 className="font-semibold text-xl mb-1">Clog Risk Prediction</h2>
         <p className="text-gray-600 mb-3 text-sm font-semibold">
           See risks before they surge.
         </p>

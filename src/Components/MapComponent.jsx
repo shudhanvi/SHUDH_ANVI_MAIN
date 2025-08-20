@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Polygon, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Polygon,
+  useMap,
+} from "react-leaflet";
 import L from "leaflet";
-import { CheckCircle, Clock, AlertTriangle, Navigation } from "lucide-react";
-import ManholeDetails from "./ManholeDetails";
-import WardDetails from "./WardDetails";
+import { CheckCircle, Clock, AlertTriangle, Ear } from "lucide-react";
+import ManholePopUp from "./ManholePopUp";
 import ReactDOMServer from "react-dom/server";
 import "leaflet/dist/leaflet.css";
 import Papa from "papaparse";
@@ -12,6 +17,10 @@ import * as XLSX from "xlsx";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import WardDetailsPopUp from "./WardDetailsPopUp";
+import { DummyWardData } from "../../public/datafiles/DummyWardData";
+import useGeoCode from "./GeoCoding";
+import FilterableWardSelect from "./FilterableWardSelect";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -37,10 +46,15 @@ const MapComponent = () => {
   const [selectedWard, setSelectedWard] = useState(null);
   const [wardPolygons, setWardPolygons] = useState({});
 
+  // using geocode for mapping by area names
+  const setGeocode = useGeoCode();
+
   //recenter map with lat/long values
-  const RecenterMap = ({ lat, lng, zoom }) => {   
+  const RecenterMap = ({ lat, lng, zoom }) => {
+    // console.log('RecenterMap', lat, lng, zoom, selectedWard)
     const map = useMap();
     useEffect(() => {
+      // console.log('mapping');
       map.setView([lat, lng], zoom);
     }, [lat, lng, zoom, map]);
     return null;
@@ -76,21 +90,35 @@ const MapComponent = () => {
           if (!grouped[name]) grouped[name] = [];
           grouped[name].push(coord);
         });
+        // console.log("grouped : ", grouped);
         setWardPolygons(grouped);
       })
       .catch((err) => console.error("Error loading ward coordinates:", err));
   }, []);
 
-  // Load ward data from Excel file in public folder
+  // Load WardData from Excel file and Adding Other in public folder
   useEffect(() => {
     const loadWardData = async () => {
       try {
-        const response = await fetch("/datafiles/ward_data.xlsx");
-        const arrayBuffer = await response.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
-        setWardData(jsonData);
+        // const response = await fetch("/datafiles/ward_data.xlsx");
+        // const arrayBuffer = await response.arrayBuffer();
+        // const workbook = XLSX.read(arrayBuffer, { type: "array" });
+        // const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        // const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+        // Ward Options for User
+        // Hasmathpet, Tadbund, Mallikarjuna Nagar, Balaji Nagar
+        // filtering dummyWardsData
+        const allWardsL = DummyWardData;
+        // ? DummyWardData.length > 0
+        // : DummyWardData?.filter(
+        //     (each) => each.ward_name.toLowerCase() !== "hasmathpet"
+        //   );
+        // allWardsL.push(...jsonData);
+        allWardsL.sort();
+        // console.log("wardjsonData : ", allWardsL);
+
+        setWardData(allWardsL);
       } catch (error) {
         console.error("Error loading ward data:", error);
       }
@@ -100,7 +128,7 @@ const MapComponent = () => {
 
   // Load CSV data + mock ops
   useEffect(() => {
-    Papa.parse("/datafiles/manholeData.csv", {
+    Papa.parse("/datafiles/ManholeData2.csv", {
       download: true,
       header: true,
       complete: (result) => {
@@ -118,6 +146,7 @@ const MapComponent = () => {
             raw: row,
           }));
 
+        // console.log("parsedData : ", parsedData)
         setManholePoints(parsedData);
 
         // Mock operation data
@@ -165,9 +194,49 @@ const MapComponent = () => {
         ];
         setOperationData(mockOperationData);
       },
-      error: (err) => console.error("CSV parsing failed:", err)
+      error: (err) => console.error("CSV parsing failed:", err),
     });
   }, []);
+
+  // SetWard Mapping Runs on Ward Input Changes
+  useEffect(() => {
+    if (selectedWard !== "Hasmathpet" && selectedWard) {
+      const SetWardMapping = async () => {
+        const wardGeoData = await setGeocode(selectedWard);
+
+        if (wardGeoData) {
+          const newLat = wardGeoData.lat;
+          const newLon = wardGeoData.lon;
+          // console.log("mapping warded", { lat: newLat, lon: newLon });
+          setMapCenter({ lat: newLat, lng: newLon, zoom: 15 });
+        }
+        // ✅ Normalize polygon
+        //   let polygons = [];
+        //   if (wardGeoData.geojson?.type === "Polygon") {
+        //     polygons = [
+        //       wardGeoData.geojson.coordinates[0].map(([lng, lat]) => [
+        //         lat,
+        //         lng,
+        //       ]),
+        //     ];
+        //   } else if (wardGeoData.geojson?.type === "MultiPolygon") {
+        //     polygons = wardGeoData.geojson.coordinates.map((poly) =>
+        //       poly[0].map(([lng, lat]) => [lat, lng])
+        //     );
+        //   }
+
+        //   // ✅ Save polygon(s) to state for rendering
+        //   const updatedWardPolygons = {...wardPolygons, [selectedWard] : polygons};
+        //   console.log('polygons :', updatedWardPolygons);
+        //   setWardPolygons(updatedWardPolygons)
+        // }
+
+        // console.log("mapping warded", wardGeoData);
+      };
+
+      SetWardMapping();
+    }
+  }, [selectedWard]);
 
   const getStatusIcon = (lastCleaned) => {
     const now = new Date();
@@ -201,15 +270,20 @@ const MapComponent = () => {
   };
 
   const handleMarkerClick = (point) => {
+    console.log("point : ", point);
     const ops = findMatchingOps(point.latitude, point.longitude);
     setSelectedOps(ops);
     setSelectedManholeLocation(point);
     setLatInput(point.latitude);
     setLonInput(point.longitude);
+    // RecenterMap(point.latitude, point.longitude, 10)
+    setMapCenter({ lat: point.latitude, lng: point.longitude, zoom: 20 });
   };
 
   const handleClosePopup = () => {
+    // console.log('closing')
     setSelectedManholeLocation(null);
+    setSelectedWard(null);
   };
 
   const handleGenerateReport = (type) => {
@@ -222,7 +296,7 @@ const MapComponent = () => {
         current: selectedOps[0],
       },
     };
-    
+
     // Save to localStorage (since we can't use it in artifacts, this is for reference)
     // In a real implementation, you'd save this to your backend or state management
     console.log("Report generated:", report);
@@ -237,14 +311,19 @@ const MapComponent = () => {
   });
 
   // Get unique ward names for the dropdown
-  const uniqueWards = [...new Set(wardData.map((d) => d.ward_name))];
+  // const uniqueWards = [...new Set(wardData.map((d) => d.ward_name))];
 
   return (
-    <div className="w-full">
+    <div className="map-container w-full flex gap-1">
       {/* Left section: top box + map */}
-      <div className="transition-all relative duration-500 w-full">
+      <div
+        className="transition-all relative duration-500 w-full"
+        style={{
+          width: selectedManholeLocation || selectedWard ? "65%" : "100%",
+        }}
+      >
         {/* Top box */}
-        <div className="shadow-lg shadow-gray-500 p-6 mb-4 rounded bg-white">
+        <div className="shadow-md shadow-gray-500 p-6 rounded bg-white">
           <div className="flex justify-between align-middle flex-wrap gap-2">
             <p className="font-semibold text-md">
               Interactive Hotspot Manhole Map
@@ -255,7 +334,7 @@ const MapComponent = () => {
                   key={f}
                   onClick={() => {
                     setFilter(f);
-                    console.log('tab', f);
+                    console.log("tab", f);
                   }}
                   style={{ paddingBlock: "5px", borderRadius: "5px" }}
                   className={`${
@@ -307,24 +386,12 @@ const MapComponent = () => {
               >
                 Go
               </button>
-              <select
-                onChange={(e) => setSelectedWard(e.target.value)}
-                value={selectedWard || ""}
-                className="text-sm hover:shadow-md cursor-pointer hover:shadow-gray-100 py-2 border-0.5 border-gray-500 outline-1 rounded-sm bg-white hover:bg-gray-50 px-3 w-auto max-w-[150px]"
-              >
-                <option value="" className="bg-white hover:bg-[rgba(30, 154, 176, 1)] px-2">
-                  Select Ward
-                </option>
-                {uniqueWards.map((ward, i) => (
-                  <option
-                    key={i}
-                    value={ward}
-                    className="bg-white hover:bg-[rgba(30, 154, 176, 1)] px-2"
-                  >
-                    {ward}
-                  </option>
-                ))}
-              </select>
+              <FilterableWardSelect
+                wardData={wardData}
+                selectedWard={selectedWard}
+                setSelectedWard={setSelectedWard}
+                setSelectedManholeLocation={setSelectedManholeLocation}
+              />
             </div>
           </div>
 
@@ -341,46 +408,62 @@ const MapComponent = () => {
               zoom={zoom}
               style={{ height: "100%", width: "100%" }}
             >
-              <RecenterMap lat={mapCenter.lat} lng={mapCenter.lng} zoom={zoom} />
+              <RecenterMap
+                lat={mapCenter.lat}
+                lng={mapCenter.lng}
+                zoom={zoom}
+              />
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              
+
               {/* Ward polygon */}
               {selectedWard && wardPolygons[selectedWard] && (
                 <>
                   <ZoomToWard coordinates={wardPolygons[selectedWard]} />
+                  {/* {console.log("poly ", wardPolygons)} */}
                   <Polygon
                     positions={wardPolygons[selectedWard]}
-                    pathOptions={{ color: "#1d4ed8", weight: 2, fillOpacity: 0.1 }}
+                    pathOptions={{
+                      color: "#1d4ed8",
+                      weight: 2,
+                      fillOpacity: 0.1,
+                    }}
                   />
                 </>
               )}
 
               {filteredPoints.map((point) => {
                 const status = getStatusIcon(point.lastCleaned);
-                
+
                 const imageIcon =
-                  (point.type === 'fair' || point.type === 'good')
-                    ? 'icons/completed-icon.png'
-                    : (point.type === 'poor' ? 'icons/warning-orange-icon.png' : 'icons/warning-red-icon.png');
-                
-                const titleBox = ReactDOMServer.renderToString((
+                  point.type === "fair" || point.type === "good"
+                    ? "icons/completed-icon.png"
+                    : point.type === "poor"
+                    ? "icons/warning-orange-icon.png"
+                    : "icons/warning-red-icon.png";
+
+                const titleBox = ReactDOMServer.renderToString(
                   <div className="map-pin-titleBox flex justify-center align-middle gap-1">
-                    <img src={imageIcon} alt={imageIcon} className="object-contain w-full h-auto max-w-[25px] aspect-square" />
+                    <img
+                      src={imageIcon}
+                      alt={imageIcon}
+                      className="object-contain w-full h-auto max-w-[25px] aspect-square"
+                    />
                     <div className="text-gray-500 flex flex-col justify-start text-left">
-                      <span className="text-sm text-black font-[600]">{point.manhole_id}</span>
+                      <span className="text-sm text-black font-[600]">
+                        {point.manhole_id}
+                      </span>
                       <span className="text-[12px]">Industrial Area</span>
                     </div>
                   </div>
-                ));
+                );
 
                 const customIcon = L.divIcon({
-                  html: 
-                  `<div class="map-manhole-icon" style="background-color:${status.color};width:20px;aspect-ratio:1/1;border-radius:50%;border:3px solid #eee;">
+                  html: `<div class="map-manhole-icon" style="background-color:${status.color};width:20px;aspect-ratio:1/1;border-radius:50%;border:3px solid #eee;">
                     ${titleBox}
                   </div>`,
                   className: "",
                 });
-                
+
                 return (
                   <Marker
                     key={point.id}
@@ -409,11 +492,19 @@ const MapComponent = () => {
             </div>
           </div>
         </div>
+      </div>
 
+      {/* Right section: POP UPS */}
+      <div
+        className="db-popup-container overflow-x-hidden h-[665px] overflow-y-auto"
+        style={{
+          width: selectedManholeLocation || selectedWard ? "35%" : "0%",
+        }}
+      >
         {/* Ward Details Popup */}
-        {selectedWard && (
-          <div className="mt-4">
-            <WardDetails
+        {selectedManholeLocation === "" && selectedWard && (
+          <div className="dB-Popup w-full flex justify-start h-full place-items-start transition-all duration-500">
+            <WardDetailsPopUp
               selectedWard={selectedWard}
               setSelectedWard={setSelectedWard}
               wardData={wardData}
@@ -423,8 +514,8 @@ const MapComponent = () => {
 
         {/* Sidebar Manhole PopUp */}
         {selectedManholeLocation && (
-          <div className="dB-Manhole-Popup w-96 h-auto place-items-center transition-all duration-500 bg-ray-100 border-gra-300 p-4">
-            <ManholeDetails
+          <div className="dB-Popup w-full flex justify-start place-items-start h-full  transition-all duration-500">
+            <ManholePopUp
               selectedLocation={selectedManholeLocation}
               selectedOps={selectedOps}
               onClose={handleClosePopup}
@@ -433,6 +524,7 @@ const MapComponent = () => {
           </div>
         )}
       </div>
+      {/* POPup ended */}
     </div>
   );
 };

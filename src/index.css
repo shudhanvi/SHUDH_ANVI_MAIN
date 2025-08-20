@@ -1,14 +1,16 @@
 @import "tailwindcss";
 
-*{
+* {
   box-sizing: border-box;
 }
-#root{
+
+#root {
   margin: 0 !important;
   padding: 0 !important;
   width: 100vw;
 }
-body{
+
+body {
   width: 100vw;
   position: relative;
   overflow-x: hidden;
@@ -22,19 +24,27 @@ body{
   align-items: center;
 }
 
-header{
+header {
   left: 50%;
-  right: 50%;
-  transform: translate(-50%,-50%);
-  z-index: 900;
-  .active-nav-link{
+  transform: translateX(-50%);
+  z-index: 900 !important;
+  /* animation: name duration timing-function delay iteration-count direction fill-mode; */
+  animation: headerScaleIn 1s ease-in-out 0s 1 forwards;
+
+  .active-nav-link {
     color: #1E9AB0;
     border-color: #1E9AB0;
     font-weight: 900;
   }
 }
 
-main .section1{
+main {
+  /* animation: textFadeIn 1s ease-in-out 0.2s 1 forwards; */
+  padding-bottom: 100px;
+}
+
+
+main .section1 {
   width: 100%;
   max-width: 1000px;
   display: flex;
@@ -42,30 +52,63 @@ main .section1{
   justify-content: center;
   align-content: center;
   gap: 5px;
-  padding: 20px 10px ;
-  h1,p{
+  padding: 10px;
+  padding-top: 40px;
+
+  h1,
+  p {
     margin: 0;
     padding: 0;
   }
-  h1{
+
+  h1 {
     font-size: 32px;
-    font-weight: bold;
+    font-weight: 500;
   }
-  p{font-size: 16px; color: #657086;}
+
+  p {
+    font-size: 16px;
+    color: #657086;
+  }
 }
 
-.icon-bg-blue{
+/*  */
+/* OVERRIDE STYLINGS */
+.leaflet-container {
+  position: sticky !important;
+  z-index: 899 !important;
+}
+
+.react-datepicker-popper {
+  z-index: 951 !important;
+}
+
+/*  */
+
+.icon-bg-blue {
   background-color: #0380FC1A
 }
-.icon-bg-green{
+
+.icon-bg-green {
   background-color: #16A2491A
 }
-.icon-bg-red{
+
+.icon-bg-red {
   background-color: #EF43431A
 }
 
 
-.btn-blue, .btn-blue-outline{
+button:not(.popup-btn):not(.manhole-popup-btn) {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+}
+
+.popup-btn {
+  font-size: 36px;
+}
+
+.btn-blue,
+.btn-blue-outline {
   color: #fff;
   padding: 10px 15px;
   border-radius: 10px;
@@ -75,76 +118,118 @@ main .section1{
   outline: none;
   transition: all 0.3s ease-in-out;
 }
-.btn-hover:hover{
+
+.btn-hover:hover {
   border-radius: 0px;
   transform: scale(1.01);
   box-shadow: 0 2px 10px #00000020;
 }
-.btn-blue{
+
+.btn-blue {
   background-color: rgba(30, 154, 176, 1);
   color: #fff;
 }
-.btn-blue-outline{
+
+.btn-blue-outline {
   background-color: transparent;
   color: #000;
 }
 
-.map-manhole-icon{
+.map-manhole-icon {
   position: relative;
   width: 10px;
   height: auto;
   aspect-ratio: 1/1;
 }
-.map-manhole-icon:hover{
-  .map-pin-titleBox{
+
+.map-manhole-icon:hover {
+  .map-pin-titleBox {
     display: flex;
     visibility: visible;
   }
 }
-.map-pin-titleBox{
+
+.manhole-popup-btn {
+  font-size: 12px !important;
+}
+
+.map-pin-titleBox {
   /* width: 100px; */
   height: auto;
   border-radius: 10px;
   padding: 10px;
   display: none;
   position: absolute;
-  bottom: 125%; /* above the circle */
+  bottom: 125%;
+  /* above the circle */
   left: 50%;
   transform: translateX(-50%);
   background: #fff;
   box-shadow: 0 0 5px #aaa;
   white-space: nowrap;
 }
+
 /* .leaflet-grab{
   cursor: grab !important;
 } */
-.dB-Manhole-Popup{
-  position: fixed;
-  top: 0;
-  right: 0;
-  transform: translateY(-50%,-50%);
-  z-index: 9990;
+
+body::-webkit-scrollbar,
+.dB-Manhole-Popup>div::-webkit-scrollbar {
+  width: 6px;
+  /* thinner scrollbar */
 }
 
-
-body::-webkit-scrollbar, .dB-Manhole-Popup >div::-webkit-scrollbar {
-  width: 6px; /* thinner scrollbar */
+body::-webkit-scrollbar-thumb,
+.dB-Manhole-Popup>div::-webkit-scrollbar-thumb {
+  background-color: #000;
+  /* black thumb */
+  border-radius: 4px;
+  /* smooth rounded edges */
 }
 
-body::-webkit-scrollbar-thumb, .dB-Manhole-Popup >div::-webkit-scrollbar-thumb {
-  background-color: #000; /* black thumb */
-  border-radius: 4px; /* smooth rounded edges */
+body::-webkit-scrollbar-track,
+.dB-Manhole-Popup>div::-webkit-scrollbar-track {
+  background: white;
+  /* no track color */
 }
 
-body::-webkit-scrollbar-track, .dB-Manhole-Popup >div::-webkit-scrollbar-track {
-  background: white; /* no track color */
-}
-
-.manhole-popup-box{
+.manhole-popup-box {
   background-color: white;
 }
 
 
 .maintainence-card * {
   cursor: auto;
+}
+
+
+
+/* ============================================== */
+/* ===============  Map Anim Keyframes Styles  ================== */
+/* ============================================== */
+@keyframes headerScaleIn {
+  from {
+    opacity: 0;
+    visibility: hidden;
+    top: -40px;
+  }
+
+  to {
+    opacity: 1;
+    visibility: visible;
+    top: 20px;
+  }
+}
+
+@keyframes textFadeIn {
+  from {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  to {
+    opacity: 1;
+    visibility: visible;
+    z-index: 910;
+  }
 }
