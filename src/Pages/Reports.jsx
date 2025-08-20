@@ -231,8 +231,8 @@ export default function Reports() {
               setSearchClicked(false);
             }}
             className={`w-full border border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-[#1A8BA8] focus:border-[#1A8BA8] cursor-pointer ${!selectedDivision || selectedDivision === "ALL Divisions"
-                ? "opacity-40 cursor-not-allowed"
-                : ""
+              ? "opacity-40 cursor-not-allowed"
+              : ""
               }`}
             disabled={!selectedDivision || selectedDivision === "ALL Divisions"}
           >
@@ -248,20 +248,20 @@ export default function Reports() {
             <p className="text-red-500 text-xs mt-1 flex items-start">*Section is required</p>
           )}
         </div>
-         <button
-            onClick={handleSearch}
-            className=" self-start justify-items-start cursor-pointer bg-[#1A8BA8] text-white px-6 py-2 rounded-xl mt-7 hover:bg-[#166f86] flex items-center gap-2 shadow-xl btn-hover transition duration-500 "          >
-            <img
-              src="/icons/search-icon.png"
-              alt="Search"
-              className="w-5 h-5"
-            />
-            Search Reports
-          </button>
+        <button
+          onClick={handleSearch}
+          className=" self-start justify-items-start cursor-pointer bg-[#1A8BA8] text-white px-6 py-2 rounded-xl mt-7 hover:bg-[#166f86] flex items-center gap-2 shadow-xl btn-hover transition duration-500 "          >
+          <img
+            src="/icons/search-icon.png"
+            alt="Search"
+            className="w-5 h-5"
+          />
+          Search Reports
+        </button>
 
         {/* Search Button */}
         <div className="flex flex-col justify-end ">
-         
+
         </div>
       </section>
 
@@ -356,8 +356,8 @@ export default function Reports() {
                       key={card.type}
                       onClick={() => handleCardClick(card.type)}
                       className={`p-4 rounded-xl shadow text-center cursor-pointer ${activeCard === card.type
-                          ? "bg-blue-100 border border-blue-500"
-                          : "bg-white"
+                        ? "bg-blue-100 border border-blue-500"
+                        : "bg-white"
                         } hover:bg-gray-100`}
                     >
                       {React.cloneElement(card.icon, {

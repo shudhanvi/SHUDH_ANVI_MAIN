@@ -5,7 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Bot, Calendar, Download, MapPin, Funnel } from "lucide-react";
 import { Clock } from "lucide-react";
 import { Trash } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup,useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
@@ -142,52 +142,52 @@ export default function Robots() {
   }, [selectedDivision, data]);
 
   // ✅ updated handleFilter with proper messages
-// ✅ new state
-const [divisionError, setDivisionError] = useState("");
+  // ✅ new state
+  const [divisionError, setDivisionError] = useState("");
 
-// ✅ updated handleFilter
-const handleFilter = () => {
-  setHasSearched(true);
-  setMessage("");
-  setDivisionError(""); // reset error
+  // ✅ updated handleFilter
+  const handleFilter = () => {
+    setHasSearched(true);
+    setMessage("");
+    setDivisionError(""); // reset error
 
-  if (!selectedDivision) {
-    setFilteredData([]);
-    setDivisionError("*Division required"); // <-- specific error
-    return;
-  }
-
-  let filtered = data.filter((item) => item.division === selectedDivision);
-
-  if (selectedArea) {
-    filtered = filtered.filter((item) => item.section === selectedArea);
-  }
-
-  if (fromDate && toDate) {
-    filtered = filtered.filter((item) => {
-      const ts = new Date(item.timestamp);
-      return ts >= fromDate && ts <= toDate;
-    });
-  }
-
-  const latestByRobot = {};
-  for (const row of filtered) {
-    const ts = new Date(row.timestamp);
-    if (
-      !latestByRobot[row.robo_id] ||
-      ts > new Date(latestByRobot[row.robo_id].timestamp)
-    ) {
-      latestByRobot[row.robo_id] = row;
+    if (!selectedDivision) {
+      setFilteredData([]);
+      setDivisionError("*Division required"); // <-- specific error
+      return;
     }
-  }
 
-  const limited = Object.values(latestByRobot);
-  if (limited.length === 0) {
-    setMessage("No data available for selected area.");
-  }
+    let filtered = data.filter((item) => item.division === selectedDivision);
 
-  setFilteredData(limited);
-};
+    if (selectedArea) {
+      filtered = filtered.filter((item) => item.section === selectedArea);
+    }
+
+    if (fromDate && toDate) {
+      filtered = filtered.filter((item) => {
+        const ts = new Date(item.timestamp);
+        return ts >= fromDate && ts <= toDate;
+      });
+    }
+
+    const latestByRobot = {};
+    for (const row of filtered) {
+      const ts = new Date(row.timestamp);
+      if (
+        !latestByRobot[row.robo_id] ||
+        ts > new Date(latestByRobot[row.robo_id].timestamp)
+      ) {
+        latestByRobot[row.robo_id] = row;
+      }
+    }
+
+    const limited = Object.values(latestByRobot);
+    if (limited.length === 0) {
+      setMessage("No data available for selected area.");
+    }
+
+    setFilteredData(limited);
+  };
 
   const [showResults, setShowResults] = useState(false);
 
@@ -243,9 +243,9 @@ const handleFilter = () => {
                 </option>
               ))}
             </select>
-            
-              <p className="text-red-500 text-xs mt-1 ml-2 h-[20px]">{divisionError}</p>
-          
+
+            <p className="text-red-500 text-xs mt-1 ml-2 h-[20px]">{divisionError}</p>
+
           </div>
 
           {/* Section */}
@@ -263,6 +263,7 @@ const handleFilter = () => {
                 <option key={i} value={section} className="text-xs">
                   {section}
                 </option>
+                
               ))}
             </select>
             <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
@@ -307,11 +308,11 @@ const handleFilter = () => {
               </span>
               View Bots
             </button>
-          <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
+            <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
 
           </div>
         </div>
-        
+
       </section>
 
       {/* Display Filtered Data */}
@@ -461,17 +462,17 @@ const handleFilter = () => {
                   </div>
                   <div className="grid grid-cols-2 w-full text-start text-[14px] text-[#676D7E] mt-5 gap-y-6">
                     <span className="flex flex-row">
-                        <Bot
-                          className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
-                          color="#0380FC"
-                        />
-                        <span className="flex flex-col ml-2">
-                          Device Id{" "}
-                          <span className="text-[#21232C] text-[16px]">
-                            {activeRecord.robo_id}
-                          </span>
+                      <Bot
+                        className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
+                        color="#0380FC"
+                      />
+                      <span className="flex flex-col ml-2">
+                        Device Id{" "}
+                        <span className="text-[#21232C] text-[16px]">
+                          {activeRecord.robo_id}
                         </span>
                       </span>
+                    </span>
                     <span className="flex flex-row">
                       <Calendar
                         className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
@@ -501,7 +502,7 @@ const handleFilter = () => {
                         </span>
                       </span>
                     </span>
-                    
+
                     <span className="flex flex-row">
                       <Clock
                         className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md"
@@ -526,41 +527,41 @@ const handleFilter = () => {
                         </span>
                       </span>
                     </span>
-                     <span>
-                        {" "}
-                        <MapPin
-                          className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md"
-                          color="#0380FC"
-                        />
-                        {activeRecord.section}
-                      </span>
+                    <span>
+                      {" "}
+                      <MapPin
+                        className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md"
+                        color="#0380FC"
+                      />
+                      {activeRecord.section}
+                    </span>
                   </div>
                   <div className="flex flex-row mt-[24px] border border-gray-500 p-2 py-5 rounded-2xl " >
-                    <div className="flex flex-col text-start text-[14px] text-[#676D7E] gap-y-2  w-[60%]">
+                    <div className="flex flex-col text-start text-[14px] text-[#676D7E] gap-y-2  w-max-content  flex-shrink-0">
                       <h1 className="text-[18px] text-black font-bold">Gas Level</h1>
-                    <p>Methane(CH4) : { "  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CH4}ppm</span></p>
-                    <p>Carbon Monoxide(CO) :{ "  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CO}ppm</span></p>
-                    <p>Hydrogen Sulphate(H2S) : { "  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).H2S}ppm</span></p>
-                     
+                      <p>Methane(CH4) : {"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CH4}ppm</span></p>
+                      <p>Carbon Monoxide(CO) :{"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CO}ppm</span></p>
+                      <p>Hydrogen Sulphate(H2S) : {"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).H2S}ppm</span></p>
+
                     </div>
 
-                    <div className="flex items-center justify-center px-5">
-                      <div style={{ width: 120, height:"auto",aspectRatio:1/1 }}>
+                    <div className="flex items-center justify-center max-w-[120px] m-auto  flex-shrink-1">
+                      <div style={{ width: "100%", height: "auto", aspectRatio: 1 / 1 }}>
                         <CircularProgressbar
                           value={
                             activeRecord.gas_level?.toLowerCase() === "low"
                               ? 22
                               : activeRecord.gas_level?.toLowerCase() ===
                                 "medium"
-                              ? 55
-                              : activeRecord.gas_level?.toLowerCase() === "high"
-                              ? 80
-                              : 0
+                                ? 55
+                                : activeRecord.gas_level?.toLowerCase() === "high"
+                                  ? 80
+                                  : 0
                           }
                           text={
                             activeRecord.gas_level
                               ? activeRecord.gas_level.charAt(0).toUpperCase() +
-                                activeRecord.gas_level.slice(1).toLowerCase()
+                              activeRecord.gas_level.slice(1).toLowerCase()
                               : "N/A"
                           }
                           styles={buildStyles({
@@ -571,8 +572,8 @@ const handleFilter = () => {
                                 ? "red"
                                 : activeRecord.gas_level?.toLowerCase() ===
                                   "medium"
-                                ? "orange"
-                                : "green",
+                                  ? "orange"
+                                  : "green",
                             trailColor: "#eee",
                             strokeLinecap: "round",
                           })}
@@ -583,10 +584,10 @@ const handleFilter = () => {
 
                   <div className=" w-full text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2 ">
                     <div className="flex flex-row justify-between">
-                    <h1 className=" pb-1 text-start">
-                      {activeRecord.location}
-                    </h1>
-                    <h1>Manhole ID : {activeRecord.device_id}</h1>
+                      <h1 className=" pb-1 text-start">
+                        {activeRecord.location}
+                      </h1>
+                      <h1>Manhole ID : {activeRecord.device_id}</h1>
                     </div>
                     {/* Map Container */}
                     <div className="bd-gray">
@@ -608,8 +609,8 @@ const handleFilter = () => {
                               <Marker position={[lat, lng]}>
                                 <Popup>{activeRecord.location}</Popup>
                               </Marker>
-                              
-                              <RecenterMap lat={lat} lng={lng}/>
+
+                              <RecenterMap lat={lat} lng={lng} />
                             </MapContainer>
                           );
                         })()
@@ -716,7 +717,7 @@ const handleFilter = () => {
                     </div>
                   </div>
 
-                  <div className="max-h-227 shadow overflow-y-auto  rounded-md p-2">
+                  <div className="min-h-screen h-227 shadow overflow-y-auto  rounded-md p-2">
                     <ul className="space-y-3">
                       {showResults &&
                         detailedFilteredData.map((history, index) => (
