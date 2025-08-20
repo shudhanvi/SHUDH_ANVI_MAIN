@@ -35,7 +35,7 @@ export default function Robots() {
     setSelectedDevice(device);
     setSelectedHistory(null);
 
-    let filtereds = data.filter((item) => item.robo_id === device.robo_id);
+    let filtereds = data.filter((item) => item.device_id === device.device_id);
 
     filtereds = filtereds.sort(
       (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
@@ -61,69 +61,65 @@ export default function Robots() {
     return null;
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
+useEffect(() => {
+  // 1. Load CSV immediately
+  setMessage("Loading Robots Data...");
+  Papa.parse("/datafiles/records_updated.csv", {
+    download: true,
+    header: true,
+    complete: (result) => {
+      console.log("📂 Local CSV loaded:", result.data);
+      setData(result.data);
 
-      try {
-        console.log("Fetching data from server...");
-        const response = await fetch(
-          "https://sewage-bot-poc.onrender.com/api/data",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            signal: controller.signal,
-          }
-        );
+      const uniqueDivisions = [
+        ...new Set(result.data.map((item) => item.division)),
+      ];
+      setDivisions(uniqueDivisions);
+    },
+    error: (err) => {
+      console.error("❌ Failed to load CSV:", err);
+    },
+  });
 
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          throw new Error(`Server error: ${response.status}`);
+  // 2. Fetch server data and place it on top
+  const fetchServerData = async () => {
+    try {
+      console.log("🌐 Fetching server data...");
+      const response = await fetch(
+        "https://sewage-bot-backend.onrender.com/api/data",
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
         }
+      );
 
-        const serverData = await response.json();
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
-        if (Array.isArray(serverData) && serverData.length > 0) {
-          console.log("✅ Data loaded from server");
-          setData(serverData);
+      const serverData = await response.json();
+      console.log("✅ Server data:", serverData);
+
+      if (Array.isArray(serverData) && serverData.length > 0) {
+        setData((prev) => {
+          // server data first, CSV (prev) after
+          const combined = [...serverData, ...prev];
+
+          // update divisions
           const uniqueDivisions = [
-            ...new Set(serverData.map((item) => item.division)),
+            ...new Set(combined.map((item) => item.division)),
           ];
           setDivisions(uniqueDivisions);
-          return;
-        } else {
-          throw new Error("Server returned empty data");
-        }
-      } catch (error) {
-        console.warn(
-          "⚠ Server fetch failed/empty, falling back to CSV:",
-          error.message
-        );
 
-        Papa.parse("/datafiles/records_updated.csv", {
-          download: true,
-          header: true,
-          complete: (result) => {
-            console.log("✅ Data loaded from CSV fallback");
-            setData(result.data);
-            const uniqueDivisions = [
-              ...new Set(result.data.map((item) => item.division)),
-            ];
-            setDivisions(uniqueDivisions);
-          },
-          error: (err) => {
-            console.error("❌ Failed to load fallback CSV:", err);
-          },
+          return combined;
         });
       }
-    };
+    } catch (error) {
+      console.warn("⚠ Server fetch failed:", error.message);
+    }
+  };
 
-    fetchData();
-  }, []);
+  fetchServerData();
+}, []);
+
 
   useEffect(() => {
     if (selectedDivision) {
@@ -131,7 +127,7 @@ export default function Robots() {
         ...new Set(
           data
             .filter((item) => item.division === selectedDivision)
-            .map((item) => item.section)
+            .map((item) => item.area)
         ),
       ];
       setAreas(divisionAreas);
@@ -160,7 +156,7 @@ export default function Robots() {
     let filtered = data.filter((item) => item.division === selectedDivision);
 
     if (selectedArea) {
-      filtered = filtered.filter((item) => item.section === selectedArea);
+      filtered = filtered.filter((item) => item.area === selectedArea);
     }
 
     if (fromDate && toDate) {
@@ -174,10 +170,10 @@ export default function Robots() {
     for (const row of filtered) {
       const ts = new Date(row.timestamp);
       if (
-        !latestByRobot[row.robo_id] ||
-        ts > new Date(latestByRobot[row.robo_id].timestamp)
+        !latestByRobot[row.device_id] ||
+        ts > new Date(latestByRobot[row.device_id].timestamp)
       ) {
-        latestByRobot[row.robo_id] = row;
+        latestByRobot[row.device_id] = row;
       }
     }
 
@@ -195,7 +191,7 @@ export default function Robots() {
     if (!selectedDevice) return;
 
     let filtereds = data.filter(
-      (item) => item.robo_id === selectedDevice.robo_id
+      (item) => item.device_id === selectedDevice.device_id
     );
 
     if (detailedfromdate && detailedtodate) {
@@ -348,7 +344,7 @@ export default function Robots() {
                               className="inline-block w-4 h-4 mr-1"
                             />
                           </span>
-                          Device ID: {item.robo_id}
+                          Device ID: {item.device_id}
                         </p>
                         <p className="flex items-center mb-2">
                           <span className="text-lg">
@@ -379,7 +375,7 @@ export default function Robots() {
                               className="inline-block w-4 h-4 mr-1"
                             />
                           </span>
-                          Ward: {item.section}
+                          Ward: {item.area}
                         </p>
                       </div>
                     </div>
@@ -457,7 +453,7 @@ export default function Robots() {
                         alt=""
                         className="inline-block w-4  mr-1 "
                       />
-                      Section:{activeRecord.section}
+                      Section:{activeRecord.area}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 w-full text-start text-[14px] text-[#676D7E] mt-5 gap-y-6">
@@ -469,7 +465,7 @@ export default function Robots() {
                       <span className="flex flex-col ml-2">
                         Device Id{" "}
                         <span className="text-[#21232C] text-[16px]">
-                          {activeRecord.robo_id}
+                          {activeRecord.device_id}
                         </span>
                       </span>
                     </span>
@@ -533,22 +529,20 @@ export default function Robots() {
                         className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md"
                         color="#0380FC"
                       />
-                      {activeRecord.section}
+                      {activeRecord.area}
                     </span>
                   </div>
                   <div className="flex flex-row mt-[24px] border border-gray-500 p-2 py-5 rounded-2xl " >
                     <div className="flex flex-col text-start text-[14px] text-[#676D7E] gap-y-2  w-max-content  flex-shrink-0">
                       <h1 className="text-[18px] text-black font-bold">Gas Level</h1>
-                      <p>Methane(CH4) : {"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CH4}ppm</span></p>
-                      <p>Carbon Monoxide(CO) :{"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).CO}ppm</span></p>
-                      <p>Hydrogen Sulphate(H2S) : {"  "}<span className="text-[16px] text-[#21232C]">  {JSON.parse(activeRecord.gas_data).H2S}ppm</span></p>
+                      <p>Methane(CH4) : {"  "}<span className="text-[16px] text-[#21232C]">  {activeRecord?.gas_data ? JSON.parse(activeRecord.gas_data).CH4 : "N/A"} ppm</span></p>
+                      <p>Carbon Monoxide(CO) :{"  "}<span className="text-[16px] text-[#21232C]">  {activeRecord?.gas_data ? JSON.parse(activeRecord.gas_data).CO : "N/A"} ppm</span></p>
+                      <p>Hydrogen Sulphate(H2S) : {"  "}<span className="text-[16px] text-[#21232C]">  {activeRecord?.gas_data ? JSON.parse(activeRecord.gas_data).H2S : "N/A"} ppm</span></p>
 
                     </div>
 
-
                     <div className="flex items-center justify-center max-w-[120px] m-auto  flex-shrink-1">
                       <div style={{ width: "100%", height: "auto", aspectRatio: 1 / 1 }}>
-                  
                         <CircularProgressbar
                           value={
                             activeRecord.gas_level?.toLowerCase() === "low"
@@ -589,7 +583,7 @@ export default function Robots() {
                       <h1 className=" pb-1 text-start">
                         {activeRecord.location}
                       </h1>
-                      <h1>Manhole ID : {activeRecord.device_id}</h1>
+                      <h1>Manhole ID : {activeRecord?.manhole_id || "Unknown"}</h1>
                     </div>
                     {/* Map Container */}
                     <div className="bd-gray">
@@ -629,8 +623,8 @@ export default function Robots() {
                     <h1>After</h1>
                     <img
                       src={
-                        activeRecord.image_url
-                          ? activeRecord.image_url
+                        activeRecord.before_path.startsWith('http')
+                          ? activeRecord.before_path
                           : "/images/before.png"
                       }
                       alt="Operation"
@@ -639,8 +633,8 @@ export default function Robots() {
 
                     <img
                       src={
-                        activeRecord.image_url
-                          ? activeRecord.image_url
+                        activeRecord.after_path.startsWith('http')
+                          ? activeRecord.after_path
                           : "/images/after.png"
                       }
                       alt="Operation"

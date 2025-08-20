@@ -52,7 +52,8 @@ main .section1 {
   justify-content: center;
   align-content: center;
   gap: 5px;
-  padding: 20px 10px;
+  padding: 10px;
+  padding-top: 40px;
 
   h1,
   p {
@@ -97,7 +98,7 @@ main .section1 {
 }
 
 
-button:not(.popup-btn) {
+button:not(.popup-btn):not(.manhole-popup-btn) {
   font-size: 16px !important;
   font-weight: 400 !important;
 }
@@ -148,6 +149,10 @@ button:not(.popup-btn) {
   }
 }
 
+.manhole-popup-btn {
+  font-size: 12px !important;
+}
+
 .map-pin-titleBox {
   /* width: 100px; */
   height: auto;
@@ -167,8 +172,6 @@ button:not(.popup-btn) {
 /* .leaflet-grab{
   cursor: grab !important;
 } */
-.dB-Popup {}
-
 
 body::-webkit-scrollbar,
 .dB-Manhole-Popup>div::-webkit-scrollbar {
