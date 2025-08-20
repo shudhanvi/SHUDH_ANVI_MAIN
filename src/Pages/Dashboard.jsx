@@ -10,21 +10,21 @@ import { ChartLine, CircleCheckBig, ShieldCheck, X } from "lucide-react";
 const DashboardCardsContent = [
   {
     label: "Predict",
-    bgColor: "#EFF2F9",
+    bgColor: "#E5E7EB",
     icon: <ChartLine size={25} color="#0380FC" />,
     iconBg: "#0380FC21",
     desc: "Forecasting Risk",
   },
   {
     label: "Prevent",
-    bgColor: "#F4EBF4",
+    bgColor: "#E5E7EB",
     icon: <ShieldCheck size={30} color="#FF8FFF" />,
     iconBg: "#FF8FFF1A",
     desc: "Schedule Mantenance",
   },
   {
     label: "Cure",
-    bgColor: "#EFF8F3",
+    bgColor: "#E5E7EB",
     icon: <CircleCheckBig size={25} color="#61CB7E" />,
     iconBg: "#61CB7E33",
     desc: "Resolve Issues",
@@ -72,16 +72,15 @@ const Dashboard = () => {
           {DashboardCardsContent.map((i) => (
             <li
               key={i.label}
-              className="w-full max-md:w-max max-md:self-center text-gray-900 place-content-center rounded-xl hover:scale-103 shadow-sm shadow-gray-300 hover:shadow-md hover:shadow-gray-500 hover:-translate-y-1 transition-all duration-200"
-              style={{ backgroundColor: i.bgColor }}
+              className="w-full max-md:w-max max-md:self-center text-gray-900 place-content-center rounded-xl hover:scale-103 shadow-sm border-1 border-[#E5E7EB] hover:shadow-md hover:-translate-y-1 transition-all duration-200"
+              style={{boxShadow: "1px 7px 26px 0px #00000012"}}
             >
               <button
                 type="button"
                 onClick={() => {
                   updateActiveCard(i.label);
                 }}
-                className="w-full aspect-[16/10] flex justify-center align-middle gap-3 mx-auto cursor-pointer place-items-center bg-amber-200 rounded-xl text-lg text-[rgba(9, 10, 12, 1)] font-semibold p-5 w-full max-w-sm aspect-auto place-content-center"
-                style={{ backgroundColor: i.bgColor }}
+                className="w-full aspect-[16/10] flex justify-center align-middle gap-3 mx-auto cursor-pointer place-items-center rounded-xl text-lg text-[rgba(9, 10, 12, 1)] font-semibold p-5 w-full max-w-sm aspect-auto place-content-center"
               >
                 <span className="w-full flex flex-col text-left">
                   <h5 className="text-lg font-[600] font-[Sansation]">

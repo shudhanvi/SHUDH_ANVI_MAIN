@@ -59,7 +59,7 @@ const ManholePopUp = ({
   };
 
   return (
-    <div className="manhole-popup-box bg-grey-50 rounded-xl border-1 border-t-0 border-gray-300 shadow-md shadow-gray-500 w-full">
+    <div className="manhole-popup-box bg-grey-50 rounded-xl border-1 border-t-0 border-[#333] w-full">
       {/* Header */}
       <div className="w-full flex justify-between rounded-xl align-middle place-items-center gap-2 p-4 border-y-1 border-b-gray-300 sticky top-0 bg-white">
         <h4 className="font-[600]">Manhole Details</h4>
@@ -120,10 +120,10 @@ const ManholePopUp = ({
       </div>
 
       {/* Generate Report, Book Bot Button */}
-      <div className="w-full flex justify-around align-middle gap-2 my-4 px-2 pb-5">
+      <div className="w-full flex justify-around overflow-hidden align-middle gap-2 my-4 px-2 pb-5">
         <button
           onClick={() => onGenerateReport("maintenance")}
-          className="manhole-popup-btn w-1/2 btn-hover text-[10px] whitespace-nowrap self-center border-1 border-[#16A249] text-[#16A249] hover:text-white hover:bg-[#16A249] px-6 py-2 rounded-lg font-medium cursor-pointer btn-hover transition-all"
+          className="manhole-popup-btn w-1/2 text-[10px] whitespace-nowrap self-center border-1 border-[#16A249] text-[#16A249] hover:text-white hover:bg-[#16A249] px-6 py-2 rounded-lg font-medium cursor-pointer btn-hover transition-all"
         >
           Generate Report
         </button>
@@ -132,7 +132,7 @@ const ManholePopUp = ({
             onClose();
             confirm("Successfully booked a bot.");
           }}
-          className="manhole-popup-btn w-1/2 btn-hover text-[10px] whitespace-nowrap self-center bg-[#1E9AB0] text-white px-6 py-2 rounded-lg font-medium cursor-pointer btn-hover transition-all duration-120"
+          className="manhole-popup-btn w-1/2 text-[10px] whitespace-nowrap self-center bg-[#1E9AB0] text-white px-6 py-2 rounded-lg font-medium cursor-pointer btn-hover transition-all duration-120"
         >
           Assign a Bot
         </button>
