@@ -323,7 +323,7 @@ const MapComponent = () => {
         }}
       >
         {/* Top box */}
-        <div className="shadow-md shadow-gray-500 p-6 rounded bg-white">
+        <div className="border-1 border-[#333] p-6 rounded-xl bg-white">
           <div className="flex justify-between align-middle flex-wrap gap-2">
             <p className="font-semibold text-md">
               Interactive Hotspot Manhole Map
