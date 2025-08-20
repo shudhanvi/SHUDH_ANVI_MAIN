@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ward Report - Hasmathpet</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,17 +15,20 @@
       background-color: #f9fafb;
       color: #000;
     }
+
     header {
       background: #1f2937;
       color: white;
       padding: 15px;
       text-align: center;
     }
+
     .container {
       max-width: 1300px;
       margin: auto;
       padding: 20px;
     }
+
     /* Card Grid */
     .card-grid {
       display: grid;
@@ -32,15 +36,17 @@
       gap: 15px;
       margin-bottom: 20px;
     }
+
     .card {
       background: white;
       border-radius: 12px;
       padding: 15px;
       display: flex;
       align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
       border: 1px solid #e5e7eb;
     }
+
     .card-icon {
       background: #f3f4f6;
       border-radius: 8px;
@@ -49,16 +55,19 @@
       margin-right: 12px;
       color: #4b5563;
     }
+
     .card-content h3 {
       margin: 0;
       font-size: 1.2rem;
       font-weight: 600;
     }
+
     .card-content p {
       margin: 0;
       color: #6b7280;
       font-size: 0.9rem;
     }
+
     /* Charts Grid */
     .charts-grid {
       display: grid;
@@ -66,18 +75,21 @@
       gap: 20px;
       margin-bottom: 20px;
     }
+
     .chart-card {
       background: white;
       padding: 15px;
       border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
       border: 1px solid #e5e7eb;
     }
+
     .chart-card h3 {
       font-size: 1rem;
       margin-bottom: 10px;
       text-align: center;
     }
+
     /* Two-column section */
     .two-col {
       display: grid;
@@ -85,35 +97,45 @@
       gap: 20px;
       margin-bottom: 20px;
     }
+
     .section {
       background: white;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
       border: 1px solid #e5e7eb;
     }
+
     h2 {
       margin-bottom: 15px;
       font-size: 1.3rem;
       border-left: 4px solid #3b82f6;
       padding-left: 10px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       background: white;
     }
-    table, th, td {
+
+    table,
+    th,
+    td {
       border: 1px solid #d1d5db;
     }
-    th, td {
+
+    th,
+    td {
       padding: 8px;
       text-align: left;
     }
+
     th {
       background-color: #f9fafb;
       font-weight: 600;
     }
+
     /* Images row */
     .image-row {
       display: flex;
@@ -121,30 +143,35 @@
       gap: 10px;
       margin-bottom: 20px;
     }
+
     .image-row div {
       flex: 1;
       min-width: 250px;
       text-align: center;
     }
+
     .image-row img {
       width: 100%;
       border-radius: 8px;
       border: 1px solid #d1d5db;
     }
+
     canvas {
       max-width: 100%;
       height: auto !important;
     }
   </style>
 </head>
-<body>
-<header>
-  <h1>Ward Report - Hasmathpet</h1>
-  <p>Comprehensive analysis of manhole network, operational records, and area data</p>
-</header>
 
-<div class="container">
-  <h1> <div  style="  text-align: center; 
+<body>
+  <header>
+    <h1>Ward Report - Hasmathpet</h1>
+    <p>Comprehensive analysis of manhole network, operational records, and area data</p>
+  </header>
+
+  <div class="container">
+    <h1>
+      <div style="  text-align: center; 
     font-weight: 900; 
     font-family: 'Segoe UI', Tahoma, sans-serif; 
     font-size: 1.5rem; 
@@ -152,21 +179,57 @@
     border-radius: 8px; 
     padding: 5px; 
     margin-bottom: 20px;">
-    Ward META Data
-</div>
+        Ward META Data
+      </div>
 
-  <!-- General Information -->
-  <div class="card-grid">
-  
-    <div class="card"><div class="card-icon"><i class="fa-solid fa-map"></i></div><div class="card-content"><h3>726,916.26</h3><p>Total Area (sq m)</p></div></div>
-    <div class="card"><div class="card-icon"><i class="fa-solid fa-fire"></i></div><div class="card-content"><h3>82,350.66</h3><p>Slum Area (sq m)</p></div></div>
-    <div class="card"><div class="card-icon"><i class="fa-solid fa-water"></i></div><div class="card-content"><h3>178,908.15</h3><p>Waterbody (sq m)</p></div></div>
-    <div class="card"><div class="card-icon"><i class="fa-solid fa-ruler-combined"></i></div><div class="card-content"><h3>2,273.81</h3><p>Perimeter (m)</p></div></div>
-    <div class="card"><div class="card-icon"><i class="fa-solid fa-fire-flame-curved"></i></div><div class="card-content"><h3>20</h3><p>Hotspots</p></div></div>
-    <div class="card"><div class="card-icon"><i class="fa-solid fa-robot"></i></div><div class="card-content"><h3>15</h3><p>Robots</p></div></div>
-  </div>
+      <!-- General Information -->
+      <div class="card-grid">
 
-<h1 style="
+        <div class="card">
+          <div class="card-icon"><i class="fa-solid fa-map"></i></div>
+          <div class="card-content">
+            <h3>726,916.26</h3>
+            <p>Total Area (sq m)</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon"><i class="fa-solid fa-fire"></i></div>
+          <div class="card-content">
+            <h3>82,350.66</h3>
+            <p>Slum Area (sq m)</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon"><i class="fa-solid fa-water"></i></div>
+          <div class="card-content">
+            <h3>178,908.15</h3>
+            <p>Waterbody (sq m)</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon"><i class="fa-solid fa-ruler-combined"></i></div>
+          <div class="card-content">
+            <h3>2,273.81</h3>
+            <p>Perimeter (m)</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
+          <div class="card-content">
+            <h3>20</h3>
+            <p>Hotspots</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon"><i class="fa-solid fa-robot"></i></div>
+          <div class="card-content">
+            <h3>15</h3>
+            <p>Robots</p>
+          </div>
+        </div>
+      </div>
+
+      <h1 style="
     text-align: center; 
     font-weight: 900; 
     font-family: 'Segoe UI', Tahoma, sans-serif; 
@@ -176,118 +239,203 @@
     padding: 5px; 
     margin-bottom: 20px;
 ">
-    Ward Analysis
-</h1>
+        Ward Analysis
+      </h1>
 
 
-</h1>
+    </h1>
 
-  <!-- 8 Pie Charts -->
-  <div class="charts-grid">
-    <div class="chart-card"><h3>Land Use Mix</h3><canvas id="pie1"></canvas></div>
-    <div class="chart-card"><h3>Manhole Condition</h3><canvas id="pie2"></canvas></div>
-    <div class="chart-card"><h3>Sewer Length by Area</h3><canvas id="pie3"></canvas></div>
-    <div class="chart-card"><h3>Waste by Blockage</h3><canvas id="pie4"></canvas></div>
-    <div class="chart-card"><h3>Junction Type Share</h3><canvas id="pie5"></canvas></div>
-    <div class="chart-card"><h3>Clogging Share</h3><canvas id="pie6"></canvas></div>
-    <div class="chart-card"><h3>Robots by Area</h3><canvas id="pie7"></canvas></div>
-    <div class="chart-card"><h3>Hotspot Share</h3><canvas id="pie8"></canvas></div>
-  </div>
-
-  <!-- Operation Images -->
-  <div class="section">
-    <h2>Ward Operation</h2>
-    <div class="image-row">
-      <div><img src="pic1.jpg" alt="Before Operation"><p style="font-size: x-large; font-weight: 700;">Landuse</p></div>
-      <div><img src="pic2.jpg" alt="During Operation"><p style="font-size: x-large; font-weight: 700;">Hotspot</p></div>
-      <div><img src="pic3.jpg" alt="After Operation"><p style="font-size: x-large; font-weight: 700;">Surface</p></div>
-      <div><img src="pic4.png" alt="Operation Result" style="width: 60%;" ><p style="font-size: x-large; font-weight: 700;"> Sewage Network</p></div>
+    <!-- 8 Pie Charts -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Land Use Mix</h3><canvas id="pie1"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Manhole Condition</h3><canvas id="pie2"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Sewer Length by Area</h3><canvas id="pie3"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Waste by Blockage</h3><canvas id="pie4"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Junction Type Share</h3><canvas id="pie5"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Clogging Share</h3><canvas id="pie6"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Robots by Area</h3><canvas id="pie7"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Hotspot Share</h3><canvas id="pie8"></canvas>
+      </div>
     </div>
-  </div>
 
-  <!-- Top Manholes & Sewer Areas -->
-  <div class="two-col">
+    <!-- Operation Images -->
     <div class="section">
-      <h2>Top Manholes by Clog Incidents</h2>
-      <table>
-        <tr><th>Manhole ID</th><th>Condition</th><th>Incidents</th></tr>
-        <tr><td>MH-0016</td><td>Good</td><td>8</td></tr>
-        <tr><td>MH-0049</td><td>Good</td><td>8</td></tr>
-        <tr><td>MH-0025</td><td>Good</td><td>8</td></tr>
-        <tr><td>MH-0024</td><td>Fair</td><td>8</td></tr>
-        <tr><td>MH-0044</td><td>Fair</td><td>8</td></tr>
-      </table>
+      <h2>Ward Operation</h2>
+      <div class="image-row">
+        <div><img src="pic1.jpg" alt="Before Operation">
+          <p style="font-size: x-large; font-weight: 700;">Landuse</p>
+        </div>
+        <div><img src="pic2.jpg" alt="During Operation">
+          <p style="font-size: x-large; font-weight: 700;">Hotspot</p>
+        </div>
+        <div><img src="pic3.jpg" alt="After Operation">
+          <p style="font-size: x-large; font-weight: 700;">Surface</p>
+        </div>
+        <div><img src="pic4.png" alt="Operation Result" style="width: 60%;">
+          <p style="font-size: x-large; font-weight: 700;"> Sewage Network</p>
+        </div>
+      </div>
     </div>
-    <div class="section">
-      <h2>Sewer Areas: Length & Robots</h2>
-      <table>
-        <tr><th>Area Type</th><th>Length (km)</th><th>Robots</th></tr>
-        <tr><td>Residential</td><td>12.93</td><td>10</td></tr>
-        <tr><td>Slum</td><td>12.87</td><td>10</td></tr>
-        <tr><td>Waterbody</td><td>16.23</td><td>10</td></tr>
-        <tr><td>Residential</td><td>11.84</td><td>10</td></tr>
-        <tr><td>Slum</td><td>17.55</td><td>10</td></tr>
-      </table>
+
+    <!-- Top Manholes & Sewer Areas -->
+    <div class="two-col">
+      <div class="section">
+        <h2>Top Manholes by Clog Incidents</h2>
+        <table>
+          <tr>
+            <th>Manhole ID</th>
+            <th>Condition</th>
+            <th>Incidents</th>
+          </tr>
+          <tr>
+            <td>MH-0016</td>
+            <td>Good</td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td>MH-0049</td>
+            <td>Good</td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td>MH-0025</td>
+            <td>Good</td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td>MH-0024</td>
+            <td>Fair</td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td>MH-0044</td>
+            <td>Fair</td>
+            <td>8</td>
+          </tr>
+        </table>
+      </div>
+      <div class="section">
+        <h2>Sewer Areas: Length & Robots</h2>
+        <table>
+          <tr>
+            <th>Area Type</th>
+            <th>Length (km)</th>
+            <th>Robots</th>
+          </tr>
+          <tr>
+            <td>Residential</td>
+            <td>12.93</td>
+            <td>10</td>
+          </tr>
+          <tr>
+            <td>Slum</td>
+            <td>12.87</td>
+            <td>10</td>
+          </tr>
+          <tr>
+            <td>Waterbody</td>
+            <td>16.23</td>
+            <td>10</td>
+          </tr>
+          <tr>
+            <td>Residential</td>
+            <td>11.84</td>
+            <td>10</td>
+          </tr>
+          <tr>
+            <td>Slum</td>
+            <td>17.55</td>
+            <td>10</td>
+          </tr>
+        </table>
+      </div>
     </div>
+
+    <!-- Ops Averages -->
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon"><i class="fa-solid fa-trash"></i></div>
+        <div class="card-content">
+          <h3>5.97</h3>
+          <p>Avg Waste (kg)</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon"><i class="fa-solid fa-stopwatch"></i></div>
+        <div class="card-content">
+          <h3>22.79</h3>
+          <p>Avg Time (mins)</p>
+        </div>
+      </div>
+
+    </div>
+
   </div>
-
-  <!-- Ops Averages -->
-  <div class="card-grid">
-    <div class="card"><div class="card-icon"><i class="fa-solid fa-trash"></i></div><div class="card-content"><h3>5.97</h3><p>Avg Waste (kg)</p></div></div>
-    <div class="card"><div class="card-icon"><i class="fa-solid fa-stopwatch"></i></div><div class="card-content"><h3>22.79</h3><p>Avg Time (mins)</p></div></div>
-
-  </div>
-
-</div>
-<div class="container">
-  <h1> <div  style="  text-align: center; 
+  <div class="container">
+    <h1>
+      <div style="  text-align: center; 
     font-weight: 400; 
     font-family: 'Segoe UI', Tahoma, sans-serif; 
     font-size: 1.5rem; 
    
   
     padding: 5px; 
-    margin-bottom: 20px;">    <p><strong>Hasmathpet Ward</strong> spans <strong>726,916 sq.m</strong>, with significant water bodies and slum areas, 
-  requiring focused sewer maintenance and hotspot management.</p>
-  <p>Key priorities: Repair poor manholes (MH-0024),(MH-0044), address clog-prone junctions, and protect waterbody-adjacent sewers.</p>
-    
-</div>
+    margin-bottom: 20px;">
+        <p><strong>Hasmathpet Ward</strong> spans <strong>726,916 sq.m</strong>, with significant water bodies and slum
+          areas,
+          requiring focused sewer maintenance and hotspot management.</p>
+        <p>Key priorities: Repair poor manholes (MH-0024),(MH-0044), address clog-prone junctions, and protect
+          waterbody-adjacent sewers.</p>
 
-</div>
+      </div>
 
- 
+  </div>
 
-
-
-<script>
-Chart.register(ChartDataLabels);
-function pieChart(id, labels, data, colors) {
-  new Chart(document.getElementById(id), {
-    type: 'pie',
-    data: { labels: labels, datasets: [{ data: data, backgroundColor: colors }] },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom' },
-        datalabels: {
-          color: '#fff',
-          formatter: (value, ctx) => {
-            let total = ctx.chart.data.datasets[0].data.reduce((a,b) => a+b, 0);
-            return ((value / total) * 100).toFixed(1) + "%";
+  <script>
+    Chart.register(ChartDataLabels);
+    function pieChart(id, labels, data, colors) {
+      new Chart(document.getElementById(id), {
+        type: 'pie',
+        data: { labels: labels, datasets: [{ data: data, backgroundColor: colors }] },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' },
+            datalabels: {
+              color: '#fff',
+              formatter: (value, ctx) => {
+                let total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                return ((value / total) * 100).toFixed(1) + "%";
+              }
+            }
           }
         }
-      }
+      });
     }
-  });
-}
-pieChart('pie1',['Slum','Waterbody','Other'],[82350,178908,465657],['#f59e0b','#3b82f6','#10b981']);
-pieChart('pie2',['Fair','Critical','Poor','Good'],[22,8,10,10],['#fbbf24','#ef4444','#fb923c','#22c55e']);
-pieChart('pie3',['Residential','Slum','Waterbody'],[24.77,30.42,16.23],['#3b82f6','#f59e0b','#8b5cf6']);
-pieChart('pie4',['High','Low','Medium'],[5.77,5.82,6.33],['#8b5cf6','#f59e0b','#10b981']);
-pieChart('pie5',['Y-Junction','Bend','Multi-Inlet','Straight','Cross'],[11,10,12,10,12],['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6']);
-pieChart('pie6',['Bend','Cross','Multi-Inlet','Straight','Y-Junction'],[59,33,41,42,50],['#ef4444','#8b5cf6','#3b82f6','#10b981','#f59e0b']);
-pieChart('pie7',['Residential','Slum','Waterbody'],[10,10,10],['#3b82f6','#f59e0b','#8b5cf6']);
-pieChart('pie8',['Hotspot','Non-Hotspot'],[20,80],['#ef4444','#22c55e']);
-</script>
+    pieChart('pie1', ['Slum', 'Waterbody', 'Other'], [82350, 178908, 465657], ['#f59e0b', '#3b82f6', '#10b981']);
+    pieChart('pie2', ['Fair', 'Critical', 'Poor', 'Good'], [22, 8, 10, 10], ['#fbbf24', '#ef4444', '#fb923c', '#22c55e']);
+    pieChart('pie3', ['Residential', 'Slum', 'Waterbody'], [24.77, 30.42, 16.23], ['#3b82f6', '#f59e0b', '#8b5cf6']);
+    pieChart('pie4', ['High', 'Low', 'Medium'], [5.77, 5.82, 6.33], ['#8b5cf6', '#f59e0b', '#10b981']);
+    pieChart('pie5', ['Y-Junction', 'Bend', 'Multi-Inlet', 'Straight', 'Cross'], [11, 10, 12, 10, 12], ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6']);
+    pieChart('pie6', ['Bend', 'Cross', 'Multi-Inlet', 'Straight', 'Y-Junction'], [59, 33, 41, 42, 50], ['#ef4444', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b']);
+    pieChart('pie7', ['Residential', 'Slum', 'Waterbody'], [10, 10, 10], ['#3b82f6', '#f59e0b', '#8b5cf6']);
+    pieChart('pie8', ['Hotspot', 'Non-Hotspot'], [20, 80], ['#ef4444', '#22c55e']);
+  </script>
 </body>
+
 </html>
