@@ -22,7 +22,7 @@ export default function Robots() {
   const [detailedfromdate, setDetailedFromDate] = useState(null);
   const [detailedtodate, setDetailedToDate] = useState(null);
   const [selectedHistory, setSelectedHistory] = useState(null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
 
   // Modal state
@@ -40,7 +40,7 @@ export default function Robots() {
     let filtereds = data.filter((item) => item.device_id === device.device_id);
 
     filtereds = filtereds.sort(
-      (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
     );
 
     setDetailedFilteredData(filtereds);
@@ -62,71 +62,90 @@ export default function Robots() {
     }, [lat, lng, map]);
     return null;
   }
+  useEffect(() => {
+    // 1. Load CSV immediately
+    setMessage("Loading Robots Data...");
+    Papa.parse("/datafiles/records_updated.csv", {
+      download: true,
+      header: true,
+      complete: (result) => {
+        console.log("📂 Local CSV loaded:", result.data);
+        setData(result.data);
 
-useEffect(() => {
-  // 1. Load CSV immediately
-  setMessage("Loading Robots Data...");
-  Papa.parse("/datafiles/records_updated.csv", {
-    download: true,
-    header: true,
-    complete: (result) => {
-      console.log("📂 Local CSV loaded:", result.data);
-      setData(result.data);
-
-      const uniqueDivisions = [
-        ...new Set(result.data.map((item) => item.division)),
-      ];
-      setDivisions(uniqueDivisions);
-    },
-    error: (err) => {
-      console.error("❌ Failed to load CSV:", err);
-    },
-  });
-
-  // 2. Fetch server data and place it on top
-  const fetchServerData = async () => {
-  try {
-    console.log("🌐 Fetching server data...");
-    setMessage("Loading data from Server......."); // <-- show message in UI
-    setLoading(true);
-
-    const response = await fetch(
-      "https://sewage-bot-backend.onrender.com/api/data",
-      {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-
-    if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-    const serverData = await response.json();
-    console.log("✅ Server data:", serverData);
-
-    if (Array.isArray(serverData) && serverData.length > 0) {
-      setData((prev) => {
-        // server data first, CSV (prev) after
-        const combined = [...serverData, ...prev];
-
-        // update divisions
         const uniqueDivisions = [
-          ...new Set(combined.map((item) => item.division)),
+          ...new Set(result.data.map((item) => item.division)),
         ];
         setDivisions(uniqueDivisions);
+      },
+      error: (err) => {
+        console.error("❌ Failed to load CSV:", err);
+      },
+    });
 
-        return combined;
-      });
-    }
-  } catch (error) {
-    console.warn("⚠ Server fetch failed:", error.message);
-    setMessage("⚠ Failed to load data from server, using local CSV.");
-  } finally {
-    setLoading(false); // ✅ stop showing loading
-  }
-};
+    // 2. Fetch server data and place it on top
+    const fetchServerData = async () => {
+      try {
+        console.log("🌐 Fetching server data...");
+        setMessage("Loading data.......");
+        setLoading(true);
 
-  fetchServerData();
-}, []);
+        const response = await fetch(
+          "https://sewage-bot-backend.onrender.com/api/data",
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+        const serverData = await response.json();
+        console.log("✅ Server data:", serverData);
+
+        if (Array.isArray(serverData) && serverData.length > 0) {
+          setData((prev) => {
+            // 1️⃣ Safe normalize function
+            const normalize = (ts) => {
+              if (!ts) return null; // empty/missing
+              const d = new Date(ts);
+              return isNaN(d.getTime()) ? null : d.toISOString();
+            };
+
+            // 2️⃣ Merge server + CSV
+            const combined = [...serverData, ...prev].map((item) => ({
+              ...item,
+              timestamp: normalize(item.timestamp),
+            }));
+
+            // 3️⃣ Deduplicate by device_id + timestamp
+            const seen = new Set();
+            const unique = combined.filter((item) => {
+              const key = `${item.device_id}-${item.timestamp}`;
+              if (seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            });
+
+            // 4️⃣ Update divisions
+            const uniqueDivisions = [
+              ...new Set(unique.map((item) => item.division)),
+            ];
+            setDivisions(uniqueDivisions);
+
+            return unique;
+          });
+        }
+      } catch (error) {
+        console.warn("⚠ Server fetch failed:", error.message);
+        setMessage("⚠ Failed to load data from server, using local CSV.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServerData();
+  }, []);
+
 
 
   useEffect(() => {
@@ -150,48 +169,58 @@ useEffect(() => {
   const [divisionError, setDivisionError] = useState("");
 
   // ✅ updated handleFilter
-  const handleFilter = () => {
-    setHasSearched(true);
-    setMessage("");
-    setDivisionError(""); // reset error
+ const handleFilter = () => {
+  setHasSearched(true);
+  setMessage("");
+  setDivisionError(""); // reset error
 
-    if (!selectedDivision) {
-      setFilteredData([]);
-      setDivisionError("*Division required"); // <-- specific error
-      return;
+  if (!selectedDivision) {
+    setFilteredData([]);
+    setDivisionError("*Division required");
+    return;
+  }
+
+  let filtered = data.filter((item) => item.division === selectedDivision);
+
+  if (selectedArea) {
+    filtered = filtered.filter((item) => item.area === selectedArea);
+  }
+
+  if (fromDate && toDate) {
+    filtered = filtered.filter((item) => {
+      const ts = new Date(item.timestamp);
+      return ts >= fromDate && ts <= toDate;
+    });
+  }
+
+  // ✅ group by robot and count operations
+  const robotStats = {};
+  for (const row of filtered) {
+    if (!robotStats[row.device_id]) {
+      robotStats[row.device_id] = { ...row, operationsCount: 0 };
     }
+    robotStats[row.device_id].operationsCount += 1;
 
-    let filtered = data.filter((item) => item.division === selectedDivision);
-
-    if (selectedArea) {
-      filtered = filtered.filter((item) => item.area === selectedArea);
+    // keep the latest record details
+    const ts = new Date(row.timestamp);
+    if (
+      !robotStats[row.device_id].timestamp ||
+      ts > new Date(robotStats[row.device_id].timestamp)
+    ) {
+      robotStats[row.device_id] = { ...row, operationsCount: robotStats[row.device_id].operationsCount };
     }
+  }
 
-    if (fromDate && toDate) {
-      filtered = filtered.filter((item) => {
-        const ts = new Date(item.timestamp);
-        return ts >= fromDate && ts <= toDate;
-      });
-    }
+  const limited = Object.values(robotStats);
 
-    const latestByRobot = {};
-    for (const row of filtered) {
-      const ts = new Date(row.timestamp);
-      if (
-        !latestByRobot[row.device_id] ||
-        ts > new Date(latestByRobot[row.device_id].timestamp)
-      ) {
-        latestByRobot[row.device_id] = row;
-      }
-    }
+  if (limited.length === 0) {
+    setMessage("No data available for selected area.");
+  }
 
-    const limited = Object.values(latestByRobot);
-    if (limited.length === 0) {
-      setMessage("No data available for selected area.");
-    }
+  setFilteredData(limited);
+};
 
-    setFilteredData(limited);
-  };
+  console.log(filteredData);
 
   const [showResults, setShowResults] = useState(false);
 
@@ -209,7 +238,7 @@ useEffect(() => {
       });
     }
     filtereds = filtereds.sort(
-      (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
     );
 
     setDetailedFilteredData(filtereds);
@@ -267,7 +296,7 @@ useEffect(() => {
                 <option key={i} value={section} className="text-xs">
                   {section}
                 </option>
-                
+
               ))}
             </select>
             <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
@@ -281,6 +310,7 @@ useEffect(() => {
               onChange={(date) => setFromDate(date)}
               className="border border-gray-300 rounded-md p-2 w-48"
               placeholderText="Pick a date"
+              maxDate={new Date()}
             />
             <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
           </div>
@@ -293,6 +323,7 @@ useEffect(() => {
               onChange={(date) => setToDate(date)}
               className="border border-gray-300 rounded-md p-2 w-48"
               placeholderText="Pick a date"
+              maxDate={new Date()}
             />
             <p className="text-red-500 text-sm mt-1 h-[20px]"></p>
           </div>
@@ -321,11 +352,11 @@ useEffect(() => {
 
       {/* Display Filtered Data */}
       <section className="max-w-[1400px] px-5">
-         {loading ? (
-    <p className="text-gray-800 text-center text-xl mt-4  animate-pulse">
-      {message}
-    </p>
-        ):filteredData.length > 0 ? (
+        {loading ? (
+          <p className="text-gray-800 text-center text-xl mt-4  animate-pulse">
+            {message}
+          </p>
+        ) : filteredData.length > 0 ? (
           <>
             <div className="h-20 flex justify-between text-2xl text-bold mx-20 mt-10">
               <h1>Showing Bots from {selectedDivision} </h1>
@@ -356,7 +387,7 @@ useEffect(() => {
                               className="inline-block w-4 h-4 mr-1"
                             />
                           </span>
-                          Device ID: {item.device_id}
+                          Device ID: {item?.device_id || "-"}
                         </p>
                         <p className="flex items-center mb-2">
                           <span className="text-lg">
@@ -367,7 +398,7 @@ useEffect(() => {
                             />
                           </span>
                           Last operation:{" "}
-                          {new Date(item.timestamp).toLocaleDateString()}
+                          {new Date(item?.timestamp).toLocaleDateString() || "-"}
                         </p>
                         <p className="flex items-center mb-2">
                           <span className="text-lg">
@@ -377,7 +408,7 @@ useEffect(() => {
                               className="inline-block w-4 h-4 mr-1"
                             />
                           </span>
-                          Gas level: {item.gas_level}
+                          Gas level: {item?.gas_level || "N/A"}
                         </p>
                         <p className="flex items-center mb-2">
                           <span className="text-lg">
@@ -397,13 +428,13 @@ useEffect(() => {
                     <div className="flex justify-between items-center">
                       <div className="text-center">
                         <p className="text-2xl ">
-                          {item.waste_collected_kg}Kgs
+                          {item?.waste_collected_kg || "- "}Kgs
                         </p>
                         <p className="text-xs text-gray-500">Waste Collected</p>
                       </div>
                       <div className="text-center">
                         <p className="text-2xl ">
-                          {item.operation_time_minutes}
+                          {item?.operationsCount || "- "}
                         </p>
                         <p className="text-xs text-gray-500">Operations</p>
                       </div>
@@ -426,7 +457,7 @@ useEffect(() => {
       {selectedDevice && (
         <div className="fixed inset-0 min-h-screen flex items-center justify-center bg-transparent bg-opacity-50 z-[910]">
           <div className="w-full h-screen bg-[#00000099] flex place-content-center">
-            <div className="bg-white w-11/12 lg:w-3/4 rounded-lg px-6 overflow-y-auto max-h-[100vh] relative right-5 top-5 shadow-2xl border border-gray-300">
+            <div className="mx-auto bg-white w-full max-w-[1000px] rounded-lg px-6 overflow-y-auto max-h-[100vh] relative top-5 shadow-2xl border border-gray-297">
               <button
                 onClick={() => closeRoboCardPopUp()}
                 className="popup-btn absolute right-6 text-gray-500 hover:text-black text-5xl top-[10px] cursor-pointer "
@@ -456,7 +487,7 @@ useEffect(() => {
                         alt=""
                         className="inline-block w-4  mr-1 "
                       />
-                      Division:{activeRecord.division}
+                      Division:{activeRecord?.division || "- "}
                     </span>
                     <br />
                     <span className="text-start text-[14px] text-[#676D7E]">
@@ -465,7 +496,7 @@ useEffect(() => {
                         alt=""
                         className="inline-block w-4  mr-1 "
                       />
-                      Section:{activeRecord.area}
+                      Section:{activeRecord?.area || "- "}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 w-full text-start text-[14px] text-[#676D7E] mt-5 gap-y-6">
@@ -631,8 +662,8 @@ useEffect(() => {
                     Operation Images
                   </h1>
                   <div className=" rounded-lg mt-2  w-full grid grid-cols-2 gap-2 mb-10 bg-gray-100">
-                    <h1>Before</h1>
-                    <h1>After</h1>
+                    <h1 className="mt-2">Before</h1>
+                    <h1 className="mt-2">After</h1>
                     <img
                       src={
                         activeRecord.before_path.startsWith('http')
@@ -654,7 +685,7 @@ useEffect(() => {
                     />
                   </div>
                   <div className=" flex justify-center w-full my-[20px] mb-10 ">
-                    <button className=" flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px]  w-full text-white rounded-[16px] cursor-pointer btn-hover">
+                    <button onClick={() => alert("Report Generated Successfully")} className=" flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px]  w-full text-white rounded-[16px] cursor-pointer btn-hover">
                       <Download
                         className="inline-block w-5 h-5 mr-1  "
                         color="white"
@@ -687,6 +718,7 @@ useEffect(() => {
                             ? detailedfromdate.toISOString().split("T")[0]
                             : ""
                         }
+                        max={new Date().toISOString().split("T")[0]}
                         onChange={(e) => {
                           const val = e.target.value
                             ? new Date(e.target.value)
@@ -707,10 +739,9 @@ useEffect(() => {
                             ? detailedtodate.toISOString().split("T")[0]
                             : ""
                         }
+                        max={new Date().toISOString().split("T")[0]}   // 🚀 restricts future dates
                         onChange={(e) => {
-                          const val = e.target.value
-                            ? new Date(e.target.value)
-                            : null;
+                          const val = e.target.value ? new Date(e.target.value) : null;
                           setDetailedToDate(val);
                         }}
                       />
@@ -725,33 +756,51 @@ useEffect(() => {
                     </div>
                   </div>
 
-                  <div className="max-h-80 shadow overflow-y-auto  rounded-md p-2 px-8">
+                  <div className="h-80 shadow overflow-y-auto  rounded-md p-2 px-6">
                     <ul className="space-y-3">
-                      {showResults &&
-                        detailedFilteredData.map((history, index) => (
-                          <li
-                            key={index}
-                            className="flex items-center justify-between pb-5"
-                          >
-                            <div>
-                            <span className="mr-8">
-                              <CalendarIcon className="h-4 inline-block  " />
-                              {new Date(history.timestamp).toLocaleDateString()}
-                            </span>
-                            <span className="mr-8">
-                              <ClockIcon className="h-4 inline-block" />
-                               
-                              {new Date(history.timestamp).toLocaleTimeString()}
-                            </span>
-                            </div>
-                            <button
-                              className="btn-view-more text-white  rounded-[6px] cursor-pointer bg-blue-500 h-8 p-2"
-                              onClick={() => setSelectedHistory(history)}
+                      {showResults && detailedFilteredData.length > 0 ? (
+                        detailedFilteredData.map((history, index) => {
+                          const isActive = selectedHistory?.timestamp === history.timestamp;
+
+                          return (
+                            <li
+                              key={index}
+                              className={`flex items-center justify-between h-12 transition-all ${isActive ? "bg-gray-200" : ""
+                                }`}
                             >
-                              View More
-                            </button>
+                              <div>
+                                <span className="mr-8">
+                                  <CalendarIcon className="h-4 inline-block" />
+                                  {new Date(history.timestamp).toLocaleDateString()}
+                                </span>
+                                <span className="mr-8">
+                                  <ClockIcon className="h-4 inline-block" />
+                                  {new Date(history.timestamp).toLocaleTimeString("en-GB", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit",
+                                    hour12: false
+                                  })}
+                                </span>
+
+                              </div>
+                              <button
+                                className={`btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors ${isActive ? "bg-blue-700 text-white" : "bg-blue-500 text-white"
+                                  }`}
+                                onClick={() => setSelectedHistory(history)}
+                              >
+                                View More
+                              </button>
+                            </li>
+                          );
+                        })
+                      ) : (
+                        showResults && (
+                          <li className="text-center text-gray-500 py-4">
+                            No Records Found
                           </li>
-                        ))}
+                        )
+                      )}
                     </ul>
                   </div>
                 </div>

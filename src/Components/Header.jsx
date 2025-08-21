@@ -19,6 +19,7 @@ const Header = () => {
       alt="anvi-robotics-logo"
       className="max-w-[100px] object-cover"
     />
+    <link rel="preload" as="image" href="/logos/anvi-robotics-logo.png" />
     <h1 className="font-thin text-[24px]">PROJECT SHUDH</h1>
     <nav className="flex justify-between align-middle gap-5 underline-offset-5">
       <Link to="/" 
