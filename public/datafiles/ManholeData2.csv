@@ -1,0 +1,51 @@
+id,area_name,latitude,longitude,diameter_m,depth_manhole_m,type_of_manhole,type_of_pipeline,num_connections,junction_type,cover_type,installation_year,estimated_life_span_years,nearby_landuse,population_density_per_sqkm,last_operation_date,history_of_clogging_incidents,condition,predicted_next_cleaning_date,flow_in_m3_s,flow_out_m3_s,water_level_m,age_of_pipeline_years
+MH-0001,Hasmathpet,17.47687,78.48737,0.83,5,Rectangular,HDPE,6,Straight,Composite,2019,73,Mixed Use,16408.18,11-08-2025,3,Fair,20-11-2024,5.34,5.53,2.34,6
+MH-0002,Hasmathpet,17.47538,78.49033,1.33,1.99,Oval,PVC,3,Straight,Composite,1978,32,Commercial,17168.02,14-08-2025,1,Good,16-03-2025,3.7,3.61,1.44,47
+MH-0003,Hasmathpet,17.47494,78.49012,1.47,1.87,Rectangular,PVC,7,Straight,Composite,1970,35,Commercial,15513.65,16-08-2025,1,Good,06-09-2023,6.73,6.7,1.17,55
+MH-0004,Hasmathpet,17.47689,78.4904,1.48,1.6,Rectangular,HDPE,1,Multi-Inlet,Cast Iron,2014,34,Mixed Use,15829.57,20-08-2025,7,Poor,25-01-2026,5.82,5.66,0.88,11
+MH-0005,Hasmathpet,17.47418,78.48935,1.27,3.87,Square,HDPE,5,Bend,Composite,1985,41,Commercial,23771.73,15-08-2025,3,Poor,10-01-2026,3.03,3.15,2.57,40
+MH-0006,Hasmathpet,17.47159,78.48674,1.22,4.23,Rectangular,PVC,7,Straight,Steel,2006,63,Commercial,24634.63,18-08-2025,5,Fair,11-10-2025,6.53,6.45,3.52,19
+MH-0007,Hasmathpet,17.47199,78.48605,0.81,3.75,Square,Ductile Iron,3,Bend,Steel,1998,66,Residential,20249.96,13-08-2025,3,Good,26-07-2024,2.21,2.31,2.72,27
+MH-0008,Hasmathpet,17.47257,78.48621,1.35,3.83,Oval,RCC,7,Y-Junction,Steel,1988,53,Residential,24810.33,21-08-2025,5,Critical,01-10-2025,5.14,5.38,0.57,37
+MH-0009,Hasmathpet,17.47463,78.48677,1.35,3.61,Circular,Ductile Iron,2,Bend,Concrete,1992,72,Mixed Use,16541.5,10-08-2025,1,Fair,29-05-2024,2.19,2.14,2.17,33
+MH-0010,Hasmathpet,17.47413,78.48618,0.97,5.52,Circular,Concrete,4,Bend,Cast Iron,1979,70,Residential,24993.15,16-08-2025,6,Poor,21-08-2025,3.5,3.46,1.91,46
+MH-0011,Hasmathpet,17.47618,78.48589,0.89,4.4,Circular,Clay,5,Y-Junction,Concrete,1990,29,Commercial,24337.76,12-08-2025,3,Poor,02-12-2024,0.35,0.35,2.93,35
+MH-0012,Hasmathpet,17.47271,78.49019,0.77,4.46,Square,HDPE,6,Straight,Cast Iron,1987,37,Mixed Use,23507.23,19-08-2025,2,Fair,11-02-2026,6.09,6.19,0.37,38
+MH-0013,Hasmathpet,17.47364,78.49117,1.39,3.44,Circular,HDPE,4,Y-Junction,Composite,1972,49,Residential,15469.75,15-08-2025,6,Critical,05-12-2023,6.76,6.8,1.15,53
+MH-0014,Hasmathpet,17.47323,78.48908,1.36,5.37,Oval,HDPE,8,Y-Junction,Steel,2000,34,Commercial,24702.77,07-08-2025,6,Critical,01-08-2025,4.51,4.63,3.57,25
+MH-0015,Hasmathpet,17.47253,78.48877,0.71,4.85,Circular,HDPE,1,Cross-Junction,Composite,2016,47,Mixed Use,20640.25,18-08-2025,0,Poor,13-08-2025,1.72,1.7,2.07,9
+MH-0016,Hasmathpet,17.47438,78.48527,1.11,2.72,Circular,Clay,7,Multi-Inlet,Concrete,1981,32,Residential,17565.98,14-08-2025,6,Critical,03-10-2023,6.42,6.13,2.24,44
+MH-0017,Hasmathpet,17.47831,78.48902,0.71,4.25,Square,Concrete,2,Y-Junction,Concrete,2004,54,Residential,17963.92,09-08-2025,0,Good,01-06-2023,4.28,4.48,1.31,21
+MH-0018,Hasmathpet,17.47055,78.48942,0.8,5.24,Oval,PVC,8,Cross-Junction,Cast Iron,1988,71,Residential,20366.8,20-08-2025,1,Good,10-01-2024,2.73,2.7,4.55,37
+MH-0019,Hasmathpet,17.47113,78.48866,1.31,1.89,Oval,Concrete,1,Multi-Inlet,Steel,1976,61,Commercial,18347.58,15-08-2025,8,Critical,20-10-2023,1.14,1.19,0.13,49
+MH-0020,Hasmathpet,17.47209,78.48903,1.05,4.42,Square,Ductile Iron,7,Cross-Junction,Concrete,2001,41,Residential,15350.79,06-08-2025,6,Good,22-11-2024,0.96,0.99,3.35,24
+MH-0021,Hasmathpet,17.47306,78.48897,1.11,3.46,Rectangular,Concrete,8,Bend,Concrete,2021,49,Residential,20992.88,17-08-2025,6,Good,08-04-2024,6.27,6.06,2.88,4
+MH-0022,Hasmathpet,17.47385,78.48937,1.46,4.3,Rectangular,Concrete,8,Y-Junction,Steel,1978,38,Commercial,23551.64,16-08-2025,7,Good,27-08-2023,1.04,1.01,3.63,47
+MH-0023,Hasmathpet,17.47491,78.48935,0.92,4.28,Circular,HDPE,8,Bend,Composite,2016,61,Commercial,16344.4,14-08-2025,4,Good,01-01-2024,3.01,3.04,1.22,9
+MH-0024,Hasmathpet,17.47545,78.48904,1.33,2.63,Square,Concrete,4,Bend,Composite,1985,66,Commercial,24664.06,20-08-2025,8,Good,23-02-2023,4.13,4.04,1.97,40
+MH-0025,Hasmathpet,17.47602,78.48871,1.33,2.85,Square,Concrete,3,Multi-Inlet,Cast Iron,1982,32,Mixed Use,19894.42,19-08-2025,6,Critical,23-04-2024,0.31,0.32,0.49,43
+MH-0026,Hasmathpet,17.47672,78.48833,1.46,2.6,Oval,RCC,3,Straight,Steel,1970,30,Mixed Use,20526.21,05-08-2025,2,Poor,20-06-2025,5.74,5.49,0.13,55
+MH-0027,Hasmathpet,17.47728,78.48777,0.78,4.22,Circular,Clay,5,Bend,Concrete,2015,79,Residential,19473.48,18-08-2025,1,Critical,26-03-2025,2.13,2.23,1,10
+MH-0028,Hasmathpet,17.47774,78.48714,1.47,5.36,Rectangular,Clay,4,Multi-Inlet,Cast Iron,1978,58,Commercial,24717.05,14-08-2025,1,Critical,23-04-2025,3.57,3.4,0.57,47
+MH-0029,Hasmathpet,17.47805,78.48641,0.63,5.38,Circular,Clay,7,Bend,Concrete,1970,32,Mixed Use,20570.3,21-08-2025,3,Poor,15-07-2023,1.53,1.55,3.56,55
+MH-0030,Hasmathpet,17.47809,78.48574,1.34,3.46,Circular,PVC,3,Y-Junction,Concrete,2006,41,Commercial,16777.76,12-08-2025,4,Fair,07-06-2025,4.36,4.34,0.66,19
+MH-0031,Hasmathpet,17.47802,78.48498,0.78,3.2,Square,HDPE,5,Straight,Steel,1986,23,Mixed Use,23068.73,17-08-2025,8,Good,22-05-2024,1.83,1.74,1.88,39
+MH-0032,Hasmathpet,17.47796,78.48425,1.32,3.53,Circular,RCC,5,Y-Junction,Concrete,1995,58,Commercial,20601.99,15-08-2025,4,Fair,14-02-2024,5.19,4.98,3.08,30
+MH-0033,Hasmathpet,17.47789,78.48351,1.32,4.59,Oval,PVC,4,Straight,Concrete,1995,69,Mixed Use,16176.03,19-08-2025,5,Good,19-07-2025,6.21,5.98,2.25,30
+MH-0034,Hasmathpet,17.47777,78.48275,1.47,5.48,Oval,Clay,3,Straight,Cast Iron,2015,74,Mixed Use,23587.82,08-08-2025,5,Poor,02-01-2024,1.42,1.38,3.04,10
+MH-0035,Hasmathpet,17.47743,78.48202,1.21,5.31,Oval,RCC,4,Multi-Inlet,Cast Iron,2014,25,Commercial,18482.75,20-08-2025,1,Critical,07-01-2026,1.98,2.04,2.61,11
+MH-0036,Hasmathpet,17.47702,78.48126,0.76,3.12,Circular,Concrete,7,Cross-Junction,Concrete,2000,25,Commercial,15972.68,16-08-2025,6,Poor,13-01-2024,6.72,6.75,2.44,25
+MH-0037,Hasmathpet,17.47657,78.48052,0.99,1.93,Square,Ductile Iron,4,Bend,Composite,1979,68,Commercial,19436.78,13-08-2025,0,Good,13-12-2025,3.1,3.24,1.55,46
+MH-0038,Hasmathpet,17.47603,78.47976,1.02,4.11,Oval,Ductile Iron,4,Multi-Inlet,Cast Iron,2006,54,Residential,24780.53,17-08-2025,8,Poor,11-12-2023,0.71,0.72,0.75,19
+MH-0039,Hasmathpet,17.47551,78.479,1.4,5.89,Circular,Clay,7,Bend,Concrete,1975,40,Mixed Use,21625.84,14-08-2025,3,Poor,02-03-2025,0.2,0.19,5.18,50
+MH-0040,Hasmathpet,17.47501,78.47823,0.7,3.58,Rectangular,Clay,3,Y-Junction,Steel,1981,69,Mixed Use,16872.07,11-08-2025,1,Poor,15-08-2023,1.91,1.83,0.63,44
+MH-0041,Hasmathpet,17.47453,78.47747,1.33,5.88,Rectangular,Concrete,3,Bend,Cast Iron,2017,36,Mixed Use,17498.35,18-08-2025,1,Critical,25-05-2025,3.97,4.06,1.54,8
+MH-0042,Hasmathpet,17.47407,78.4767,1.16,2.86,Oval,PVC,6,Bend,Concrete,1998,56,Commercial,24449.82,07-08-2025,7,Poor,24-12-2023,0.7,0.71,0.87,27
+MH-0043,Hasmathpet,17.47359,78.47594,0.84,4.66,Circular,Ductile Iron,5,Straight,Concrete,2008,22,Residential,24455.78,21-08-2025,8,Good,04-05-2024,3.03,2.96,0.8,17
+MH-0044,Hasmathpet,17.47309,78.47517,1.44,3.87,Circular,PVC,2,Bend,Cast Iron,2006,74,Commercial,22281.12,19-08-2025,0,Poor,21-04-2025,0.58,0.59,1.49,19
+MH-0045,Hasmathpet,17.47257,78.47441,1.47,5.07,Circular,Ductile Iron,2,Y-Junction,Cast Iron,1987,68,Commercial,22287.83,15-08-2025,0,Critical,16-02-2026,5.02,5.1,2.18,38
+MH-0046,Hasmathpet,17.47209,78.47364,0.99,1.59,Oval,Clay,7,Bend,Composite,2013,35,Mixed Use,24950.76,09-08-2025,6,Poor,25-03-2026,2.75,2.81,0.94,12
+MH-0047,Hasmathpet,17.47164,78.47288,1.34,2.96,Oval,HDPE,8,Y-Junction,Steel,1975,35,Mixed Use,17834.2,20-08-2025,3,Poor,18-08-2025,3.45,3.37,0.52,50
+MH-0048,Hasmathpet,17.47209,78.47364,0.69,1.67,Square,Ductile Iron,1,Y-Junction,Steel,1987,71,Commercial,24441.49,14-08-2025,7,Fair,27-11-2024,4.8,4.74,0.72,38
+MH-0049,Hasmathnagar,17.47164,78.47288,0.97,5.14,Oval,HDPE,1,Straight,Cast Iron,1974,75,Commercial,15143.22,17-08-2025,7,Critical,29-10-2023,4.02,3.88,3.73,51
+MH-0050,Hasmathnagar,17.47118,78.47211,1.44,3.55,Oval,Ductile Iron,2,Multi-Inlet,Cast Iron,1975,24,Commercial,20654.14,16-08-2025,2,Fair,10-05-2024,4.35,4.25,1.38,50

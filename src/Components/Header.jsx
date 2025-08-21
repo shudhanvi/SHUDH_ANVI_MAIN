@@ -13,12 +13,13 @@ const Header = () => {
   } 
 
   return (
-  <header className="w-[95%] md:w-[90%] fixed p-2 rounded-2xl top-[60px] max-w-[1200px] bg-black m-auto flex justify-around flex-wrap place-items-center align-middle font-[Sansation] text-white">
+  <header className="w-[95%] md:w-[90%] fixed p-2 rounded-2xl max-w-[1200px] bg-white bg[#FAFAFA33] border-1 border-black m-auto flex justify-around flex-wrap place-items-center align-middle font-[Sansation] text-black">
     <img
       src="/logos/anvi-robotics-logo.png"
       alt="anvi-robotics-logo"
-      className="max-w-[120px] object-cover"
+      className="max-w-[100px] object-cover"
     />
+    <link rel="preload" as="image" href="/logos/anvi-robotics-logo.png" />
     <h1 className="font-thin text-[24px]">PROJECT SHUDH</h1>
     <nav className="flex justify-between align-middle gap-5 underline-offset-5">
       <Link to="/" 
