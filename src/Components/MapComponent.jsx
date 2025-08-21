@@ -71,7 +71,7 @@ const MapComponent = () => {
     return null;
   };
 
-  const [zoom, setZoom] = useState(17);
+  const [zoom, setZoom] = useState(15);
   const [filter, setFilter] = useState("all");
 
   // Load ward coordinates from Excel file in public folder

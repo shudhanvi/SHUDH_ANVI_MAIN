@@ -31,7 +31,7 @@ const EmergencyBlockage = () => {
         </p>
       </section>
 
-      <section>
+      <section className="max-w-full">
         <div className=" flex justify-evenly px-5  mt-8">
           {/* Robot Section */}
           <div className=" flex flex-row bg-[#ffffff] w-[70%] h-[330px] p-6 rounded-lg border border-gray-300">
@@ -39,7 +39,7 @@ const EmergencyBlockage = () => {
               <img
                 src="/images/Robo.jpg"
                 alt="Robot"
-                className="  h-[225px] w-[328px] rounded-2xl object-cover object-right"
+                className="  h-[225px] w-[328px] rounded-2xl object-cover object-[65%]"
               />
             </div>
             <div className=" ">
@@ -160,7 +160,7 @@ const EmergencyBlockage = () => {
         </div>
       </div>
 
-      <section className="mt-8 px-10">
+      <section className="mt-8 px-10 max-w-full">
         <div className="bg-[#ffffff] rounded-xl  p-6  mx-auto mt-12 h-auto">
           <h2 className="text-3xl  text-center mb-2">
             Emergency Manhole Blockage Cleared in Record Time
@@ -173,7 +173,7 @@ const EmergencyBlockage = () => {
           </p>
 
           {/* Timeline */}
-          <div className="flex justify-between items-center text-center mb-8 mt-10 px-20">
+          <div className="flex flex-wrap justify-between items-center text-center mb-8 mt-10 px-20">
             <div className="flex flex-row  ">
               <div className="bg-red-50 h-11 w-11 flex items-center rounded-3xl m-auto">
                 <img
