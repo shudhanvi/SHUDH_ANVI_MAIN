@@ -21,6 +21,8 @@ import WardDetailsPopUp from "./WardDetailsPopUp";
 import { DummyWardData } from "../../public/datafiles/DummyWardData";
 import useGeoCode from "./GeoCoding";
 import FilterableWardSelect from "./FilterableWardSelect";
+import { useServerData } from "../context/ServerDataContext";
+
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -36,6 +38,7 @@ const MapComponent = () => {
   const [manholePoints, setManholePoints] = useState([]);
   const [latInput, setLatInput] = useState("");
   const [lonInput, setLonInput] = useState("");
+  const { serverData, loading, message } = useServerData();
   const [mapCenter, setMapCenter] = useState({
     lat: 17.472427,
     lng: 78.482286,
@@ -132,76 +135,55 @@ const MapComponent = () => {
   return isNaN(date.getTime()) ? new Date() : date;
 };
 
-  // Load CSV data + mock ops
+  // 1. Parse CSV once
   useEffect(() => {
     Papa.parse("/datafiles/devices.csv", {
       download: true,
       header: true,
       complete: (result) => {
-        const parsedData = result.data
+        const csvPoints = result.data
           .filter((row) => row.latitude && row.longitude)
           .map((row, index) => ({
-            id: index + 1,
+            id: `csv-${index + 1}`,
             latitude: parseFloat(row.latitude),
             longitude: parseFloat(row.longitude),
             type: row.condition?.toLowerCase() || "safe",
-            manhole_id: row.id,
+            manhole_id: row.id || `csv-${index + 1}`,
             lastCleaned: parseDDMMYYYY(row.last_operation_date),
             raw: row,
+            source: "csv",
           }));
-
-        // console.log("parsedData : ", parsedData)
-        setManholePoints(parsedData);
-        // console.log("Date:", parsedData.lastCleaned);
-
-        // Mock operation data
-        const mockOperationData = [
-          {
-            id: 1,
-            location: "17.472427,78.482286",
-            timestamp: new Date(
-              Date.now() - 3 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            status: "completed",
-          },
-          {
-            id: 2,
-            location: "17.473427,78.483286",
-            timestamp: new Date(
-              Date.now() - 4 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            status: "completed",
-          },
-          {
-            id: 3,
-            location: "17.471427,78.481286",
-            timestamp: new Date(
-              Date.now() - 6 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            status: "completed",
-          },
-          {
-            id: 4,
-            location: "17.474427,78.484286",
-            timestamp: new Date(
-              Date.now() - 7 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            status: "completed",
-          },
-          {
-            id: 5,
-            location: "17.470427,78.480286",
-            timestamp: new Date(
-              Date.now() - 10 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            status: "pending",
-          },
-        ];
-        setOperationData(mockOperationData);
+        setManholePoints((prev) => [...prev, ...csvPoints]);
       },
       error: (err) => console.error("CSV parsing failed:", err),
     });
   }, []);
+
+  // 2. Add serverData whenever it changes
+  useEffect(() => {
+    if (!serverData || serverData.length === 0) return;
+
+    const apiPoints = serverData
+      .filter((row) => row.location)
+      .map((row, index) => {
+        const [lat, lng] = row.location.split(",").map(Number);
+
+        return {
+          id: `api-${index + 1}`,
+          latitude: lat,
+          longitude: lng,
+          type: "safe", 
+          manhole_id: row.device_id || `api-${index + 1}`,
+          lastCleaned: row.operation_end_time
+            ? new Date(row.operation_end_time)
+            : new Date(row.timestamp),
+          raw: row,
+          source: "api",
+        };
+      });
+
+    setManholePoints((prev) => [...prev, ...apiPoints]);
+  }, [serverData]);
 
   // SetWard Mapping Runs on Ward Input Changes
   useEffect(() => {
