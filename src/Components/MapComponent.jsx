@@ -153,7 +153,7 @@ const MapComponent = () => {
             raw: row,
             source: "csv",
           }));
-        setManholePoints((prev) => [...prev, ...csvPoints]);
+        setManholePoints(csvPoints);
       },
       error: (err) => console.error("CSV parsing failed:", err),
     });
@@ -163,16 +163,25 @@ const MapComponent = () => {
   const combinedPoints = [
     ...manholePoints.map((point) => ({
       ...point,
-      source: "csv",  // mark CSV points
+      id: `${point.source || "csv"}-${point.manhole_id || point.id}-${point.latitude}-${point.longitude}`,
+      source: "csv",
     })),
-    ...(serverData || []).map((row, index) => {
-      const [lat, lon] = row.location?.split(",") || [];
+    ...(serverData || [])
+    .filter((row) => row.location && row.location.includes(","))
+    .map((row, index) => {
+      const [lat, lon] = row.location.split(",");
+      const latitude = parseFloat(lat);
+      const longitude = parseFloat(lon);
+
+      const safeLat = isNaN(latitude) ? `nan${index}` : latitude;
+      const safeLon = isNaN(longitude) ? `nan${index}` : longitude;
+
       return {
-        id: row.id || `server-${index}`,
-        latitude: parseFloat(lat),
-        longitude: parseFloat(lon),
-        type: "api",  // differentiate
-        manhole_id: row.device_id || `API-${index}`,
+        id: `api-${row.device_id || row.id || "UNKNOWN"}-${safeLat}-${safeLon}-${index}`, // index added
+        latitude: isNaN(latitude) ? 0 : latitude,
+        longitude: isNaN(longitude) ? 0 : longitude,
+        type: "api",
+        manhole_id: row.device_id || row.id || `API-${index}`,
         lastCleaned: row.operation_end_time
           ? new Date(row.operation_end_time)
           : new Date(),
@@ -450,7 +459,7 @@ const MapComponent = () => {
 
                 return (
                   <Marker
-                    key={`${point.source}-${point.id}`}
+                    key={point.id}
                     position={[point.latitude, point.longitude]}
                     icon={customIcon}
                     eventHandlers={{ click: () => handleMarkerClick(point) }}
