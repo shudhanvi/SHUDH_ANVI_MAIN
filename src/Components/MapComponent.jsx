@@ -159,32 +159,6 @@ const MapComponent = () => {
     });
   }, []);
 
-  // 2. Add serverData whenever it changes
-  useEffect(() => {
-    if (!serverData || serverData.length === 0) return;
-
-    const apiPoints = serverData
-      .filter((row) => row.location)
-      .map((row, index) => {
-        const [lat, lng] = row.location.split(",").map(Number);
-
-        return {
-          id: `api-${index + 1}`,
-          latitude: lat,
-          longitude: lng,
-          type: "safe", // ✅ can calculate from gas_data if needed
-          manhole_id: row.device_id || `api-${index + 1}`,
-          lastCleaned: row.operation_end_time
-            ? new Date(row.operation_end_time)
-            : new Date(row.timestamp),
-          raw: row,
-          source: "api",
-        };
-      });
-
-    setManholePoints((prev) => [...prev, ...apiPoints]);
-  }, [serverData]);
-
   // Merge CSV + serverData points
   const combinedPoints = [
     ...manholePoints.map((point) => ({
