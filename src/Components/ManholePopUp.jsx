@@ -10,7 +10,7 @@ const ManholePopUp = ({
 
   
   const getStatusIcon = (lastCleaned) => {
-    console.log(lastCleaned);
+    // console.log(lastCleaned);
     const safeIcon = (
       <div className="bg-[#16A249] rounded-full w-[15px] h-[15px] aspect-square border-2 border-white shadow-md shadow-[0px 3.36px 5.04px -3.36px #0000001A;]"></div>
     );

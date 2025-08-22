@@ -150,9 +150,9 @@ const MapComponent = () => {
             raw: row,
           }));
 
-        console.log("parsedData : ", parsedData)
+        // console.log("parsedData : ", parsedData)
         setManholePoints(parsedData);
-        console.log("Date:", parsedData.lastCleaned);
+        // console.log("Date:", parsedData.lastCleaned);
 
         // Mock operation data
         const mockOperationData = [
