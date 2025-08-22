@@ -125,10 +125,16 @@ const MapComponent = () => {
     };
     loadWardData();
   }, []);
+  const parseDDMMYYYY = (str) => {
+  if (!str || typeof str !== "string") return new Date();
+  const [dd, mm, yyyy] = str.split("-");
+  const date = new Date(`${yyyy}-${mm}-${dd}`);
+  return isNaN(date.getTime()) ? new Date() : date;
+};
 
   // Load CSV data + mock ops
   useEffect(() => {
-    Papa.parse("/datafiles/ManholeData2.csv", {
+    Papa.parse("/datafiles/devices.csv", {
       download: true,
       header: true,
       complete: (result) => {
@@ -140,14 +146,13 @@ const MapComponent = () => {
             longitude: parseFloat(row.longitude),
             type: row.condition?.toLowerCase() || "safe",
             manhole_id: row.id,
-            lastCleaned: row.last_operation_date
-              ? new Date(row.last_operation_date)
-              : new Date(),
+            lastCleaned: parseDDMMYYYY(row.last_operation_date),
             raw: row,
           }));
 
-        // console.log("parsedData : ", parsedData)
+        console.log("parsedData : ", parsedData)
         setManholePoints(parsedData);
+        console.log("Date:", parsedData.lastCleaned);
 
         // Mock operation data
         const mockOperationData = [
@@ -243,7 +248,7 @@ const MapComponent = () => {
     const diffDays = Math.floor((now - lastCleaned) / (1000 * 60 * 60 * 24));
     if (diffDays <= 5)
       return { icon: CheckCircle, color: "green", type: "safe" };
-    if (diffDays <= 7) return { icon: Clock, color: "yellow", type: "warning" };
+    if (diffDays <= 7) return { icon: Clock, color: "orange", type: "warning" };
     return { icon: AlertTriangle, color: "red", type: "danger" };
   };
 
@@ -443,16 +448,16 @@ const MapComponent = () => {
 
                 const titleBox = ReactDOMServer.renderToString(
                   <div className="map-pin-titleBox flex justify-center align-middle gap-1">
-                    <img
+                    {/* <img
                       src={imageIcon}
                       alt={imageIcon}
                       className="object-contain w-full h-auto max-w-[25px] aspect-square"
-                    />
+                    /> */}
                     <div className="text-gray-500 flex flex-col justify-start text-left">
                       <span className="text-sm text-black font-[600]">
                         {point.manhole_id}
                       </span>
-                      <span className="text-[12px]">Industrial Area</span>
+                      <span className="text-[12px]">Last Cleaned: {point.lastCleaned?point.lastCleaned.toLocaleDateString("en-GB"):"N/A"}</span>
                     </div>
                   </div>
                 );
@@ -520,6 +525,7 @@ const MapComponent = () => {
               selectedOps={selectedOps}
               onClose={handleClosePopup}
               onGenerateReport={handleGenerateReport}
+              lastCleaned={selectedManholeLocation.lastCleaned}
             />
           </div>
         )}

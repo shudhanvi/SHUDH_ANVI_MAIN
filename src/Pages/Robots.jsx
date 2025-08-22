@@ -408,7 +408,10 @@ export default function Robots() {
                               className="inline-block w-4 h-4 mr-1"
                             />
                           </span>
-                          Gas level: {item?.gas_level || "N/A"}
+                          Gas level: {item.gas_level
+                              ? item.gas_level.charAt(0).toUpperCase() +
+                              item.gas_level.slice(1).toLowerCase()
+                              : "N/A"}
                         </p>
                         <p className="flex items-center mb-2">
                           <span className="text-lg">
