@@ -172,7 +172,7 @@ const MapComponent = () => {
           id: `api-${index + 1}`,
           latitude: lat,
           longitude: lng,
-          type: "safe", 
+          type: "safe", // ✅ can calculate from gas_data if needed
           manhole_id: row.device_id || `api-${index + 1}`,
           lastCleaned: row.operation_end_time
             ? new Date(row.operation_end_time)
@@ -184,6 +184,29 @@ const MapComponent = () => {
 
     setManholePoints((prev) => [...prev, ...apiPoints]);
   }, [serverData]);
+
+  // Merge CSV + serverData points
+  const combinedPoints = [
+    ...manholePoints.map((point) => ({
+      ...point,
+      source: "csv",  // mark CSV points
+    })),
+    ...(serverData || []).map((row, index) => {
+      const [lat, lon] = row.location?.split(",") || [];
+      return {
+        id: row.id || `server-${index}`,
+        latitude: parseFloat(lat),
+        longitude: parseFloat(lon),
+        type: "api",  // differentiate
+        manhole_id: row.device_id || `API-${index}`,
+        lastCleaned: row.operation_end_time
+          ? new Date(row.operation_end_time)
+          : new Date(),
+        raw: row,
+        source: "api",
+      };
+    }),
+  ];
 
   // SetWard Mapping Runs on Ward Input Changes
   useEffect(() => {
@@ -291,7 +314,7 @@ const MapComponent = () => {
     handleClosePopup();
   };
 
-  const filteredPoints = manholePoints.filter((point) => {
+  const filteredPoints = combinedPoints.filter((point) => {
     if (filter === "all") return true;
     const status = getStatusIcon(point.lastCleaned).type;
     return status === filter;
@@ -453,7 +476,7 @@ const MapComponent = () => {
 
                 return (
                   <Marker
-                    key={point.id}
+                    key={`${point.source}-${point.id}`}
                     position={[point.latitude, point.longitude]}
                     icon={customIcon}
                     eventHandlers={{ click: () => handleMarkerClick(point) }}
