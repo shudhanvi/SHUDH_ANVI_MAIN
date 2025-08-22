@@ -9,7 +9,11 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
+// ⬇️ import the global server data from context (adjust path if needed)
+import { useServerData } from "../context/ServerDataContext";
+
 export default function Robots() {
+  // ====== existing UI state (unchanged names) ======
   const [data, setData] = useState([]);
   const [divisions, setDivisions] = useState([]);
   const [areas, setAreas] = useState([]);
@@ -24,24 +28,32 @@ export default function Robots() {
   const [selectedHistory, setSelectedHistory] = useState(null);
   const [loading, setLoading] = useState(true);
 
-
-  // Modal state
+  // Modal + UI messages (unchanged)
   const [selectedDevice, setSelectedDevice] = useState(null);
-
-  // ✅ new states for controlling messages
   const [message, setMessage] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
+  const [divisionError, setDivisionError] = useState("");
+  const [showResults, setShowResults] = useState(false);
 
+  // ====== NEW: local CSV state, but we still expose `data` as final merged ======
+  const [csvData, setCsvData] = useState([]);
+  const [csvLoading, setCsvLoading] = useState(true);
+
+  // ====== get global server data from context ======
+  const {
+    serverData,
+    loading: serverLoading,
+    message: serverMessage,
+  } = useServerData();
+
+  // ====== helpers / UI actions (unchanged) ======
   const openRoboCardPopUp = (device) => {
     document.body.style.position = "fixed";
     setSelectedDevice(device);
     setSelectedHistory(null);
 
     let filtereds = data.filter((item) => item.device_id === device.device_id);
-
-    filtereds = filtereds.sort(
-      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-    );
+    filtereds = filtereds.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     setDetailedFilteredData(filtereds);
     setShowResults(true);
@@ -56,98 +68,73 @@ export default function Robots() {
     const map = useMap();
     useEffect(() => {
       if (lat && lng) {
-        map.setView([lat, lng], map.getZoom()); // keep current zoom
-        // or use map.flyTo([lat, lng], 23) if you want animation & fixed zoom
+        map.setView([lat, lng], map.getZoom());
       }
     }, [lat, lng, map]);
     return null;
-  }
+  };
+
+  // ====== PAGE-LOCAL: load CSV only for Robots page (unchanged file path) ======
   useEffect(() => {
-    // 1. Load CSV immediately
     setMessage("Loading Robots Data...");
+    setCsvLoading(true);
+
     Papa.parse("/datafiles/records_updated.csv", {
       download: true,
       header: true,
       complete: (result) => {
         console.log("📂 Local CSV loaded:", result.data);
-        setData(result.data);
-
-        const uniqueDivisions = [
-          ...new Set(result.data.map((item) => item.division)),
-        ];
-        setDivisions(uniqueDivisions);
+        setCsvData(result.data || []);
+        setCsvLoading(false);
       },
       error: (err) => {
         console.error("❌ Failed to load CSV:", err);
+        setCsvData([]);
+        setCsvLoading(false);
       },
     });
-
-    // 2. Fetch server data and place it on top
-    const fetchServerData = async () => {
-      try {
-        console.log("🌐 Fetching server data...");
-        setMessage("Loading data.......");
-        setLoading(true);
-
-        const response = await fetch(
-          "https://sewage-bot-backend.onrender.com/api/data",
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-
-        if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-        const serverData = await response.json();
-        console.log("✅ Server data:", serverData);
-
-        if (Array.isArray(serverData) && serverData.length > 0) {
-          setData((prev) => {
-            // 1️⃣ Safe normalize function
-            const normalize = (ts) => {
-              if (!ts) return null; // empty/missing
-              const d = new Date(ts);
-              return isNaN(d.getTime()) ? null : d.toISOString();
-            };
-
-            // 2️⃣ Merge server + CSV
-            const combined = [...serverData, ...prev].map((item) => ({
-              ...item,
-              timestamp: normalize(item.timestamp),
-            }));
-
-            // 3️⃣ Deduplicate by device_id + timestamp
-            const seen = new Set();
-            const unique = combined.filter((item) => {
-              const key = `${item.device_id}-${item.timestamp}`;
-              if (seen.has(key)) return false;
-              seen.add(key);
-              return true;
-            });
-
-            // 4️⃣ Update divisions
-            const uniqueDivisions = [
-              ...new Set(unique.map((item) => item.division)),
-            ];
-            setDivisions(uniqueDivisions);
-
-            return unique;
-          });
-        }
-      } catch (error) {
-        console.warn("⚠ Server fetch failed:", error.message);
-        setMessage("⚠ Failed to load data from server, using local CSV.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchServerData();
   }, []);
 
+  // ====== MERGE: whenever serverData or csvData changes, build final `data` ======
+  useEffect(() => {
+    // Keep the same normalize + merge + dedupe logic
+    const normalize = (ts) => {
+      if (!ts) return null; // empty/missing
+      const d = new Date(ts);
+      return isNaN(d.getTime()) ? null : d.toISOString();
+    };
 
+    const combined = [...(Array.isArray(serverData) ? serverData : []), ...(Array.isArray(csvData) ? csvData : [])]
+      .map((item) => ({ ...item, timestamp: normalize(item.timestamp) }));
 
+    const seen = new Set();
+    const unique = combined.filter((item) => {
+      const key = `${item.device_id}-${item.timestamp}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    console.log("server Data:", serverData);
+
+    setData(unique);
+
+    // update divisions from merged data (same as before)
+    const uniqueDivisions = [...new Set(unique.map((item) => item.division))];
+    setDivisions(uniqueDivisions);
+
+    // Drive page-level loading/message from both sources to keep UI unchanged
+    const nextLoading = serverLoading || csvLoading;
+    setLoading(nextLoading);
+
+    if (nextLoading) {
+      // prefer server message if server is still loading, otherwise CSV message
+      setMessage(serverLoading ? (serverMessage || "Loading data.......") : "Loading Robots Data...");
+    } else {
+      setMessage(""); // done
+    }
+  }, [serverData, serverLoading, serverMessage, csvData, csvLoading]);
+
+  // ====== existing areas derivation (unchanged) ======
   useEffect(() => {
     if (selectedDivision) {
       const divisionAreas = [
@@ -164,72 +151,58 @@ export default function Robots() {
     }
   }, [selectedDivision, data]);
 
-  // ✅ updated handleFilter with proper messages
-  // ✅ new state
-  const [divisionError, setDivisionError] = useState("");
+  // ====== existing handlers (unchanged names/logic) ======
+  const handleFilter = () => {
+    setHasSearched(true);
+    setMessage("");
+    setDivisionError("");
 
-  // ✅ updated handleFilter
- const handleFilter = () => {
-  setHasSearched(true);
-  setMessage("");
-  setDivisionError(""); // reset error
-
-  if (!selectedDivision) {
-    setFilteredData([]);
-    setDivisionError("*Division required");
-    return;
-  }
-
-  let filtered = data.filter((item) => item.division === selectedDivision);
-
-  if (selectedArea) {
-    filtered = filtered.filter((item) => item.area === selectedArea);
-  }
-
-  if (fromDate && toDate) {
-    filtered = filtered.filter((item) => {
-      const ts = new Date(item.timestamp);
-      return ts >= fromDate && ts <= toDate;
-    });
-  }
-
-  // ✅ group by robot and count operations
-  const robotStats = {};
-  for (const row of filtered) {
-    if (!robotStats[row.device_id]) {
-      robotStats[row.device_id] = { ...row, operationsCount: 0 };
+    if (!selectedDivision) {
+      setFilteredData([]);
+      setDivisionError("*Division required");
+      return;
     }
-    robotStats[row.device_id].operationsCount += 1;
 
-    // keep the latest record details
-    const ts = new Date(row.timestamp);
-    if (
-      !robotStats[row.device_id].timestamp ||
-      ts > new Date(robotStats[row.device_id].timestamp)
-    ) {
-      robotStats[row.device_id] = { ...row, operationsCount: robotStats[row.device_id].operationsCount };
+    let filtered = data.filter((item) => item.division === selectedDivision);
+
+    if (selectedArea) {
+      filtered = filtered.filter((item) => item.area === selectedArea);
     }
-  }
 
-  const limited = Object.values(robotStats);
+    if (fromDate && toDate) {
+      filtered = filtered.filter((item) => {
+        const ts = new Date(item.timestamp);
+        return ts >= fromDate && ts <= toDate;
+      });
+    }
 
-  if (limited.length === 0) {
-    setMessage("No data available for selected area.");
-  }
+    // group by robot and count operations
+    const robotStats = {};
+    for (const row of filtered) {
+      if (!robotStats[row.device_id]) {
+        robotStats[row.device_id] = { ...row, operationsCount: 0 };
+      }
+      robotStats[row.device_id].operationsCount += 1;
 
-  setFilteredData(limited);
-};
+      const ts = new Date(row.timestamp);
+      if (!robotStats[row.device_id].timestamp || ts > new Date(robotStats[row.device_id].timestamp)) {
+        robotStats[row.device_id] = { ...row, operationsCount: robotStats[row.device_id].operationsCount };
+      }
+    }
 
-  console.log(filteredData);
+    const limited = Object.values(robotStats);
 
-  const [showResults, setShowResults] = useState(false);
+    if (limited.length === 0) {
+      setMessage("No data available for selected area.");
+    }
+
+    setFilteredData(limited);
+  };
 
   const apply = () => {
     if (!selectedDevice) return;
 
-    let filtereds = data.filter(
-      (item) => item.device_id === selectedDevice.device_id
-    );
+    let filtereds = data.filter((item) => item.device_id === selectedDevice.device_id);
 
     if (detailedfromdate && detailedtodate) {
       filtereds = filtereds.filter((item) => {
@@ -237,10 +210,8 @@ export default function Robots() {
         return ts >= detailedfromdate && ts <= detailedtodate;
       });
     }
-    filtereds = filtereds.sort(
-      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-    );
 
+    filtereds = filtereds.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     setDetailedFilteredData(filtereds);
     setShowResults(true);
   };
