@@ -8,9 +8,9 @@ const ManholePopUp = ({
 }) => {
   if (!selectedLocation) return null;
 
-  // console.log("selectedOps in manholDetails.jsx : ", selectedLocation);
-  const getStatusIcon = (type) => {
-    console.log(type);
+  
+  const getStatusIcon = (lastCleaned) => {
+    // console.log(lastCleaned);
     const safeIcon = (
       <div className="bg-[#16A249] rounded-full w-[15px] h-[15px] aspect-square border-2 border-white shadow-md shadow-[0px 3.36px 5.04px -3.36px #0000001A;]"></div>
     );
@@ -24,22 +24,23 @@ const ManholePopUp = ({
       <div className="bg-black rounded-full w-[15px] h-[15px] aspect-square border-2 border-white shadow-md shadow-[0px 3.36px 5.04px -3.36px #0000001A;]"></div>
     );
     
-    switch (type) {
-      case "safe":
-      case "good":
-      case "fair":
-        return safeIcon;
-      case "poor":
-      case "warning":
-        return warningIcon;
-      case "danger":
-      case "critical":
-        return dangerIcon;
-      default:
-        return nullIcon;
-    }
-  };
+    
+   if (!lastCleaned) return nullIcon; // fallback if no date
 
+  const today = new Date();
+  const diffTime = today - new Date(lastCleaned); // difference in ms
+  const days = Math.floor(diffTime / (1000 * 60 * 60 * 24)); // convert to days
+
+  switch (true) {
+    case days <= 5:
+      return safeIcon;
+    case days <= 7:
+      return warningIcon;
+    default:
+      return dangerIcon;
+  }
+};
+  
   const locationDetails = {
     area: "Hasmathpet",
     primaryLine: "PVC",
@@ -76,7 +77,7 @@ const ManholePopUp = ({
           <h4 className="font-[400] grid grid-cols-2">
             Manhole :{" "}
             <span className="font-[500] text-right text-[#0A0A0A] flex justify-end align-middle items-center gap-1">
-              {getStatusIcon(selectedLocation.type)}
+              {getStatusIcon(selectedLocation.lastCleaned)}
               {selectedLocation.manhole_id}
             </span>{" "}
           </h4>

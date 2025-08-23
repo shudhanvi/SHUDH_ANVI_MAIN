@@ -21,6 +21,8 @@ import WardDetailsPopUp from "./WardDetailsPopUp";
 import { DummyWardData } from "../../public/datafiles/DummyWardData";
 import useGeoCode from "./GeoCoding";
 import FilterableWardSelect from "./FilterableWardSelect";
+import { useServerData } from "../context/ServerDataContext";
+
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -36,6 +38,7 @@ const MapComponent = () => {
   const [manholePoints, setManholePoints] = useState([]);
   const [latInput, setLatInput] = useState("");
   const [lonInput, setLonInput] = useState("");
+  const { serverData, loading, message } = useServerData();
   const [mapCenter, setMapCenter] = useState({
     lat: 17.472427,
     lng: 78.482286,
@@ -125,78 +128,68 @@ const MapComponent = () => {
     };
     loadWardData();
   }, []);
+  const parseDDMMYYYY = (str) => {
+  if (!str || typeof str !== "string") return new Date();
+  const [dd, mm, yyyy] = str.split("-");
+  const date = new Date(`${yyyy}-${mm}-${dd}`);
+  return isNaN(date.getTime()) ? new Date() : date;
+};
 
-  // Load CSV data + mock ops
+  // 1. Parse CSV once
   useEffect(() => {
-    Papa.parse("/datafiles/ManholeData2.csv", {
+    Papa.parse("/datafiles/devices.csv", {
       download: true,
       header: true,
       complete: (result) => {
-        const parsedData = result.data
+        const csvPoints = result.data
           .filter((row) => row.latitude && row.longitude)
           .map((row, index) => ({
-            id: index + 1,
+            id: `csv-${index + 1}`,
             latitude: parseFloat(row.latitude),
             longitude: parseFloat(row.longitude),
             type: row.condition?.toLowerCase() || "safe",
-            manhole_id: row.id,
-            lastCleaned: row.last_operation_date
-              ? new Date(row.last_operation_date)
-              : new Date(),
+            manhole_id: row.id || `csv-${index + 1}`,
+            lastCleaned: parseDDMMYYYY(row.last_operation_date),
             raw: row,
+            source: "csv",
           }));
-
-        // console.log("parsedData : ", parsedData)
-        setManholePoints(parsedData);
-
-        // Mock operation data
-        const mockOperationData = [
-          {
-            id: 1,
-            location: "17.472427,78.482286",
-            timestamp: new Date(
-              Date.now() - 3 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            status: "completed",
-          },
-          {
-            id: 2,
-            location: "17.473427,78.483286",
-            timestamp: new Date(
-              Date.now() - 4 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            status: "completed",
-          },
-          {
-            id: 3,
-            location: "17.471427,78.481286",
-            timestamp: new Date(
-              Date.now() - 6 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            status: "completed",
-          },
-          {
-            id: 4,
-            location: "17.474427,78.484286",
-            timestamp: new Date(
-              Date.now() - 7 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            status: "completed",
-          },
-          {
-            id: 5,
-            location: "17.470427,78.480286",
-            timestamp: new Date(
-              Date.now() - 10 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            status: "pending",
-          },
-        ];
-        setOperationData(mockOperationData);
+        setManholePoints(csvPoints);
       },
       error: (err) => console.error("CSV parsing failed:", err),
     });
   }, []);
+
+  // Merge CSV + serverData points
+  const combinedPoints = [
+    ...manholePoints.map((point) => ({
+      ...point,
+      id: `${point.source || "csv"}-${point.manhole_id || point.id}-${point.latitude}-${point.longitude}`,
+      source: "csv",
+    })),
+    ...(serverData || [])
+    .filter((row) => row.location && row.location.includes(","))
+    .map((row, index) => {
+      const [lat, lon] = row.location.split(",");
+      const latitude = parseFloat(lat);
+      const longitude = parseFloat(lon);
+
+      const safeLat = isNaN(latitude) ? `nan${index}` : latitude;
+      const safeLon = isNaN(longitude) ? `nan${index}` : longitude;
+
+      return {
+        id: `api-${row.device_id || row.id || "UNKNOWN"}-${safeLat}-${safeLon}-${index}`, // index added
+        latitude: isNaN(latitude) ? 0 : latitude,
+        longitude: isNaN(longitude) ? 0 : longitude,
+        type: "api",
+        manhole_id: row.device_id || row.id || `API-${index}`,
+        lastCleaned: row.operation_end_time
+          ? new Date(row.operation_end_time)
+          : new Date(),
+        raw: row,
+        source: "api",
+      };
+    }),
+  ];
 
   // SetWard Mapping Runs on Ward Input Changes
   useEffect(() => {
@@ -243,7 +236,7 @@ const MapComponent = () => {
     const diffDays = Math.floor((now - lastCleaned) / (1000 * 60 * 60 * 24));
     if (diffDays <= 5)
       return { icon: CheckCircle, color: "green", type: "safe" };
-    if (diffDays <= 7) return { icon: Clock, color: "yellow", type: "warning" };
+    if (diffDays <= 7) return { icon: Clock, color: "orange", type: "warning" };
     return { icon: AlertTriangle, color: "red", type: "danger" };
   };
 
@@ -304,7 +297,7 @@ const MapComponent = () => {
     handleClosePopup();
   };
 
-  const filteredPoints = manholePoints.filter((point) => {
+  const filteredPoints = combinedPoints.filter((point) => {
     if (filter === "all") return true;
     const status = getStatusIcon(point.lastCleaned).type;
     return status === filter;
@@ -443,16 +436,16 @@ const MapComponent = () => {
 
                 const titleBox = ReactDOMServer.renderToString(
                   <div className="map-pin-titleBox flex justify-center align-middle gap-1">
-                    <img
+                    {/* <img
                       src={imageIcon}
                       alt={imageIcon}
                       className="object-contain w-full h-auto max-w-[25px] aspect-square"
-                    />
+                    /> */}
                     <div className="text-gray-500 flex flex-col justify-start text-left">
                       <span className="text-sm text-black font-[600]">
                         {point.manhole_id}
                       </span>
-                      <span className="text-[12px]">Industrial Area</span>
+                      <span className="text-[12px]">Last Cleaned: {point.lastCleaned?point.lastCleaned.toLocaleDateString("en-GB"):"N/A"}</span>
                     </div>
                   </div>
                 );
@@ -520,6 +513,7 @@ const MapComponent = () => {
               selectedOps={selectedOps}
               onClose={handleClosePopup}
               onGenerateReport={handleGenerateReport}
+              lastCleaned={selectedManholeLocation.lastCleaned}
             />
           </div>
         )}
