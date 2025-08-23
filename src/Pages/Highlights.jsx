@@ -173,7 +173,7 @@ const EmergencyBlockage = () => {
           </p>
 
           {/* Timeline */}
-          <div className="flex flex-wrap justify-between items-center text-center mb-8 mt-10 px-20">
+          <div className="flex flex-wrap justify-between items-center text-center mb-8 mt-10 px-10">
             <div className="flex flex-row  ">
               <div className="bg-red-50 h-11 w-11 flex items-center rounded-3xl m-auto">
                 <img
@@ -182,7 +182,7 @@ const EmergencyBlockage = () => {
                   className="m-auto"
                 />
               </div>
-              <div className="w-40 p-2 mx-2">
+              <div className="w-35 p-2 mx-2">
                 <p className="text-md font-medium pt-2 text-start">
                   Hotspot Alert Triggered
                 </p>
@@ -202,7 +202,7 @@ const EmergencyBlockage = () => {
                   className="m-auto"
                 />
               </div>
-              <div className="w-40 p-2 mx-2">
+              <div className="w-35 p-2 mx-2">
                 <p className="text-md font-medium pt-2 text-start">
                   Robot Deployed to Site
                 </p>
@@ -222,7 +222,7 @@ const EmergencyBlockage = () => {
                   className="m-auto"
                 />
               </div>
-              <div className="w-40 p-2 mx-2">
+              <div className="w-35 p-2 mx-2">
                 <p className="text-md font-medium pt-2 text-start">
                   Gas Venting Initiated
                 </p>
@@ -242,7 +242,7 @@ const EmergencyBlockage = () => {
                   className="m-auto"
                 />
               </div>
-              <div className="w-40 p-2 mx-2">
+              <div className="w-35 p-2 mx-2">
                 <p className="text-md font-medium pt-2 text-start">
                   Blockage Cleared & Gas Safe
                 </p>

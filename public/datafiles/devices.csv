@@ -1,10 +1,10 @@
 id,area_name,longitude,latitude,diameter_m,depth_manhole_m,type_of_manhole,type_of_pipeline,num_connections,junction_type,cover_type,installation_year,estimated_life_span_years,nearby_landuse,population_density_per_sqkm,last_operation_date,history_of_clogging_incidents,condition,predicted_next_cleaning_date,flow_in_m3_s,flow_out_m3_s,water_level_m,age_of_pipeline_years
-MH-0001,Hasmathnagar,78.491433,17.475066,1.06,2.01,Square,RCC,1,Straight,Concrete,1977,28,Residential,18433.3,11-08-2025,1,Good,10-03-2026,2.23,2.31,0.13,48
+MH-0001,Hasmathnagar,78.491076,17.476109,1.06,2.01,Square,RCC,1,Straight,Concrete,1977,28,Residential,18433.3,11-08-2025,1,Good,10-03-2026,2.23,2.31,0.13,48
 MH-0002,Hasmathnagar,78.496299,17.4734,1.23,3.49,Rectangular,RCC,6,Y-Junction,Steel,2020,29,Mixed Use,15475.49,14-08-2025,5,Poor,14-03-2025,2.76,2.77,0.72,5
-MH-0003,Hasmathnagar,78.492663,17.472804,0.8,1.88,Square,RCC,1,Multi-Inlet,Composite,1991,33,Residential,16631.77,16-08-2025,0,Good,17-04-2026,6.88,6.66,0.4,34
+MH-0003,Hasmathnagar,78.48982,17.477993,0.8,1.88,Square,RCC,1,Multi-Inlet,Composite,1991,33,Residential,16631.77,16-08-2025,0,Good,17-04-2026,6.88,6.66,0.4,34
 MH-0004,Hasmathnagar,78.496241,17.478014,0.92,2.11,Square,Ductile Iron,7,Bend,Composite,1994,77,Industrial,17773.2,20-08-2025,2,Critical,25-07-2024,0.85,0.86,0.91,31
-MH-0005,Hasmathnagar,78.485307,17.470912,1.28,4.56,Square,HDPE,1,Straight,Cast Iron,2019,80,Industrial,19685.11,15-08-2025,3,Fair,13-11-2023,3.39,3.28,2.88,6
-MH-0006,Hasmathnagar,78.494978,17.474052,1.2,4.75,Oval,Ductile Iron,6,Straight,Concrete,1985,53,Industrial,16411.3,18-08-2025,1,Critical,10-04-2024,1.45,1.39,1.61,40
+MH-0005,Hasmathnagar,78.485307,17.477031,1.28,4.56,Square,HDPE,1,Straight,Cast Iron,2019,80,Industrial,19685.11,15-08-2025,3,Fair,13-11-2023,3.39,3.28,2.88,6
+MH-0006,Hasmathnagar,78.489606,17.474052,1.2,4.75,Oval,Ductile Iron,6,Straight,Concrete,1985,53,Industrial,16411.3,18-08-2025,1,Critical,10-04-2024,1.45,1.39,1.61,40
 MH-0007,Hasmathnagar,78.486659,17.472616,1.15,4.09,Circular,Ductile Iron,4,Bend,Steel,2011,22,Industrial,24730,13-08-2025,7,Fair,03-11-2025,6.7,6.82,0.95,14
 MH-0008,Hasmathnagar,78.493463,17.473591,0.9,4.34,Rectangular,Clay,7,Bend,Steel,1987,23,Residential,21887.4,21-08-2025,6,Good,09-10-2025,0.12,0.13,2.45,38
 MH-0009,Hasmathnagar,78.495694,17.478249,1.26,5,Circular,Ductile Iron,1,Multi-Inlet,Steel,2023,63,Industrial,15832,10-08-2025,6,Fair,14-04-2025,6.96,6.9,0.6,2
