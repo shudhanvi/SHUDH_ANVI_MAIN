@@ -71,7 +71,7 @@ console.log("depth:", depth, "waterLevel:", waterLevel);
 // Calculate risk level based on depth and water level
   function riskLevel(depth, waterLevel) {
     if (depth <= 0) return 0; // avoid division by zero
-    const risk = (waterLevel / depth) * 100;
+    let risk = (waterLevel / depth) * 100;
 
   // clamp between 0–100
   if (risk > 100) risk = 100;
