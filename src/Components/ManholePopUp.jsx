@@ -1,5 +1,6 @@
 import DashAccordian from "./DashAccordian";
 
+
 const ManholePopUp = ({
   selectedLocation,
   // selectedOps,
@@ -45,19 +46,44 @@ const ManholePopUp = ({
     area: "Hasmathpet",
     primaryLine: "PVC",
     junctionType: "Cross-Junction",
-    blockageLevel:
-      selectedLocation.type === "danger"
-        ? 85
-        : selectedLocation.type === "warning"
-        ? 15
-        : 5,
-    waterFlow:
-      selectedLocation.type === "danger"
-        ? 15
-        : selectedLocation.type === "warning"
-        ? 85
-        : 95,
+    // blockageLevel:
+    //   selectedLocation.type === "danger"
+    //     ? 85
+    //     : selectedLocation.type === "warning"
+    //     ? 15
+    //     : 5,
+    // waterFlow:
+    //   selectedLocation.type === "danger"
+    //     ? 15
+    //     : selectedLocation.type === "warning"
+    //     ? 85
+    //     : 95,
+
   };
+
+
+
+
+const depth = selectedLocation.raw.depth_manhole_m; // default depth if not provided
+const waterLevel = selectedLocation.raw.water_level_m;
+console.log("depth:", depth, "waterLevel:", waterLevel);
+
+// Calculate risk level based on depth and water level
+  function riskLevel(depth, waterLevel) {
+    if (depth <= 0) return 0; // avoid division by zero
+    const risk = (waterLevel / depth) * 100;
+
+  // clamp between 0–100
+  if (risk > 100) risk = 100;
+  if (risk < 0) risk = 0;
+
+  return parseFloat(risk.toFixed(1)); 
+};
+const risk = riskLevel(depth, waterLevel);
+console.log("risk level:", risk);
+
+
+  console.log("selectedLocation.type:", selectedLocation.raw.condition);
 
   return (
     <div className="manhole-popup-box bg-grey-50 rounded-xl border-1 border-t-0 border-[#333] w-full">
@@ -99,16 +125,16 @@ const ManholePopUp = ({
 
       <div className="p-2 w-full grid grid-cols-3 gap-2 place-items-center">
         <div className="w-full p-2 text-center place-content-center aspect-square max-w-[100px] bg-[#F3F4F6] rounded-xl shadow-s> shadow-gray-300">
-          <p className="text-black text-lg">{locationDetails.blockageLevel}%</p>
-          <p className="text-[10px] text-[#0000008A]">Blockage</p>
+          <p className="text-black text-lg">{depth||"-"}{" m"}</p>
+          <p className="text-[10px] text-[#0000008A]">Depth of Manhole</p>
         </div>
         <div className="w-full p-2 text-center place-content-center aspect-square max-w-[100px] bg-[#F3F4F6] rounded-xl shadow-s shadow-gray-300">
-          <p className="text-black text-lg">{locationDetails.waterFlow}%</p>
-          <p className="text-[10px] text-[#0000008A]">Water Flow Depth</p>
+          <p className="text-black text-lg">{waterLevel || "-"}{" m"}</p>
+          <p className="text-[10px] text-[#0000008A]">Water Level</p>
         </div>
         <div className="w-full p-2 text-center place-content-center aspect-square max-w-[100px] bg-[#F3F4F6] rounded-xl shadow-s> shadow-gray-300">
           <p className="text-black text-lg">
-            {locationDetails?.riskLevel || "50"}%
+            {risk || "50"}%
           </p>
           <p className="text-[10px] text-[#0000008A]">Risk Level</p>
         </div>
