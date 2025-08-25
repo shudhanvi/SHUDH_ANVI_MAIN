@@ -34,7 +34,7 @@ const EmergencyBlockage = () => {
       <section className="max-w-full">
         <div className=" flex justify-evenly px-5  mt-8">
           {/* Robot Section */}
-          <div className=" flex flex-row bg-[#ffffff] w-[70%] h-[330px] p-6 rounded-lg border border-gray-300">
+          <div className=" flex flex-row bg-[#ffffff] w-[70%] min-h-[330px] p-6 rounded-lg border border-gray-300">
             <div className="flex items-center ">
               <img
                 src="/images/Robo.jpg"
@@ -96,7 +96,7 @@ const EmergencyBlockage = () => {
           </div>
 
           {/* Operator Section */}
-          <div className="flex flex-col h-[330px] w-[25%] bg-[#ffffff]  p-6 rounded-lg border border-gray-300">
+          <div className="flex flex-col min-h-[330px] w-[25%] bg-[#ffffff]  p-6 rounded-lg border border-gray-300">
             <div className=" items-center justify-between mt-3">
               <div className="flex ">
                 <img
@@ -120,10 +120,10 @@ const EmergencyBlockage = () => {
                   efficiency.
                 </p>
                 <div className="flex flex-row justify-evenly">
-                  <p className="px-3 py-1 text-green-600 border-1 border-green-700 bg-green-100 rounded-lg text-sm">
+                  <p className="md:px-3 py-1 text-green-600 border-1 border-green-700 bg-green-100 rounded-lg text-sm">
                     Zero incidents
                   </p>
-                  <p className="px-3 py-1 text-blue-600 border-1 border-blue-700 bg-blue-100 rounded-lg text-sm">
+                  <p className="md:px-3 py-1 text-blue-600 border-1 border-blue-700 bg-blue-100 rounded-lg text-sm">
                     Fast redeploys
                   </p>
                 </div>
@@ -173,7 +173,7 @@ const EmergencyBlockage = () => {
           </p>
 
           {/* Timeline */}
-          <div className="flex flex-wrap justify-between items-center text-center mb-8 mt-10 px-10">
+          <div className="flex flex-wrap  items-center justify-center text-center mb-8 mt-10 px-auto">
             <div className="flex flex-row  ">
               <div className="bg-red-50 h-11 w-11 flex items-center rounded-3xl m-auto">
                 <img
@@ -182,7 +182,7 @@ const EmergencyBlockage = () => {
                   className="m-auto"
                 />
               </div>
-              <div className="w-35 p-2 mx-2">
+              <div className="w-35 p-2 ml-2">
                 <p className="text-md font-medium pt-2 text-start">
                   Hotspot Alert Triggered
                 </p>
@@ -202,7 +202,7 @@ const EmergencyBlockage = () => {
                   className="m-auto"
                 />
               </div>
-              <div className="w-35 p-2 mx-2">
+              <div className="w-35 p-2 ml-2">
                 <p className="text-md font-medium pt-2 text-start">
                   Robot Deployed to Site
                 </p>
@@ -222,7 +222,7 @@ const EmergencyBlockage = () => {
                   className="m-auto"
                 />
               </div>
-              <div className="w-35 p-2 mx-2">
+              <div className="w-35 p-2 ml-2">
                 <p className="text-md font-medium pt-2 text-start">
                   Gas Venting Initiated
                 </p>
@@ -242,7 +242,7 @@ const EmergencyBlockage = () => {
                   className="m-auto"
                 />
               </div>
-              <div className="w-35 p-2 mx-2">
+              <div className="w-35 p-2 ml-2">
                 <p className="text-md font-medium pt-2 text-start">
                   Blockage Cleared & Gas Safe
                 </p>
@@ -253,7 +253,7 @@ const EmergencyBlockage = () => {
             </div>
           </div>
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center px-50">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center px-10 md:px-50">
             <div className="bg-blue-50 border border-blue-300 rounded-lg p-2 h-30 w-40 flex flex-col items-center justify-center">
               <p className="text-2xl font-bold text-[#1A8BA8] pt-3">
                 {data?.resolution_time_min || "28 mins"}
