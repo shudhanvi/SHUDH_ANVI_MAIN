@@ -236,7 +236,7 @@ const MapComponent = () => {
     const diffDays = Math.floor((now - lastCleaned) / (1000 * 60 * 60 * 24));
     if (diffDays <= 5)
       return { icon: CheckCircle, color: "green", type: "safe" };
-    if (diffDays <= 7) return { icon: Clock, color: "orange", type: "warning" };
+    if (diffDays <= 7) return { icon: Clock, color: "#ff7f00", type: "warning" };
     return { icon: AlertTriangle, color: "red", type: "danger" };
   };
 
@@ -349,7 +349,7 @@ const MapComponent = () => {
                 <span className="w-3 h-3 rounded-full bg-green-500"></span>Safe
               </span>
               <span className="flex items-center gap-1 space-x-1">
-                <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
+                <span className="w-3 h-3 rounded-full bg-[#ff7f00]"></span>
                 Warning
               </span>
               <span className="flex items-center gap-1 space-x-1">
@@ -475,7 +475,7 @@ const MapComponent = () => {
                 - Regular Maintenance
               </span>
               <span className="flex items-center gap-3 space-x-1">
-                <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
+                <span className="w-3 h-3 rounded-full bg-[#ff7f00]"></span>
                 Warning - Require Attention
               </span>
               <span className="flex items-center gap-3 space-x-1">
