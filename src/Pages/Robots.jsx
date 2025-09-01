@@ -76,63 +76,112 @@ export default function Robots() {
 
   // ====== PAGE-LOCAL: load CSV only for Robots page (unchanged file path) ======
   useEffect(() => {
-    setMessage("Loading Robots Data...");
+    setMessage("Loading Data...");
     setCsvLoading(true);
 
     Papa.parse("/datafiles/records_updated.csv", {
       download: true,
       header: true,
       complete: (result) => {
-        console.log("📂 Local CSV loaded:", result.data);
+        console.log("Local CSV loaded");
         setCsvData(result.data || []);
         setCsvLoading(false);
       },
       error: (err) => {
-        console.error("❌ Failed to load CSV:", err);
+        console.error(" Failed to load CSV:", err);
         setCsvData([]);
         setCsvLoading(false);
       },
     });
   }, []);
+const [deviceImages, setDeviceImages] = useState({});
+
+useEffect(() => {
+  const fetchImages = async () => {
+    try {
+      // Step 1: Get all devices
+      const devicesRes = await fetch("http://localhost:5000/api/devices");
+      const devices = await devicesRes.json();
+
+      const imgMap = {};
+
+      // Step 2: For each device, fetch all its operations & images
+      for (const deviceId of devices) {
+        const opsRes = await fetch(`http://localhost:5000/api/devices/${deviceId}/operations`);
+        const operations = await opsRes.json();
+
+        imgMap[deviceId] = [];
+
+        for (const opName of operations) {
+          const operationId = opName.split("_").pop(); // extract "1" from "deviceId_1"
+
+          const imgRes = await fetch(
+            `http://localhost:5000/api/devices/${deviceId}/${operationId}/images`
+          );
+          const images = await imgRes.json(); // { before: <url>, after: <url> }
+
+          imgMap[deviceId].push({
+            operationId,
+            ...images,
+          });
+        }
+      }
+
+      console.log("📷 Device Images (all ops):", imgMap);
+      setDeviceImages(imgMap);
+    } catch (err) {
+      console.error("Failed to fetch images:", err);
+    }
+  };
+
+  fetchImages();
+}, []);
+
 
   // ====== MERGE: whenever serverData or csvData changes, build final `data` ======
-  useEffect(() => {
-    // Keep the same normalize + merge + dedupe logic
-    const normalize = (ts) => {
-      if (!ts) return null; // empty/missing
-      const d = new Date(ts);
-      return isNaN(d.getTime()) ? null : d.toISOString();
-    };
+useEffect(() => {
+  const normalize = (ts) => {
+    if (!ts) return null;
+    const d = new Date(ts);
+    return isNaN(d.getTime()) ? null : d.toISOString();
+  };
 
-    const combined = [...(Array.isArray(serverData) ? serverData : []), ...(Array.isArray(csvData) ? csvData : [])]
-      .map((item) => ({ ...item, timestamp: normalize(item.timestamp) }));
+  const combined = [
+    ...(Array.isArray(serverData) ? serverData : []),
+    ...(Array.isArray(csvData) ? csvData : []),
+  ].map((item) => {
+    const ts = normalize(item.timestamp);
 
-    const seen = new Set();
-    const unique = combined.filter((item) => {
-      const key = `${item.device_id}-${item.timestamp}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-    console.log("server Data:", serverData);
+    // For now: attach ALL operations' images for that device
+    const images = deviceImages[item.device_id] || [];
 
-    setData(unique);
+    return { ...item, timestamp: ts, images };
+  });
 
-    // update divisions from merged data (same as before)
-    const uniqueDivisions = [...new Set(unique.map((item) => item.division))];
-    setDivisions(uniqueDivisions);
+  const seen = new Set();
+  const unique = combined.filter((item) => {
+    const key = `${item.device_id}-${item.timestamp}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 
-    // Drive page-level loading/message from both sources to keep UI unchanged
-    const nextLoading = serverLoading || csvLoading;
-    setLoading(nextLoading);
+  setData(unique);
 
-    if (nextLoading) {
-      // prefer server message if server is still loading, otherwise CSV message
-      setMessage(serverLoading ? (serverMessage || "Loading data.......") : "Loading Robots Data...");
-    } else {
-      setMessage(""); // done
-    }
-  }, [serverData, serverLoading, serverMessage, csvData, csvLoading]);
+  const uniqueDivisions = [...new Set(unique.map((item) => item.division))];
+  setDivisions(uniqueDivisions);
+
+  const nextLoading = serverLoading || csvLoading;
+  setLoading(nextLoading);
+
+  if (nextLoading) {
+    setMessage(
+      serverLoading ? serverMessage || "Loading data......." : "Loading Robots Data..."
+    );
+  } else {
+    setMessage("");
+  }
+}, [serverData, serverLoading, serverMessage, csvData, csvLoading, deviceImages]);
 
   // ====== existing areas derivation (unchanged) ======
   useEffect(() => {
@@ -632,32 +681,58 @@ export default function Robots() {
                       )}
                     </div>
                   </div>
-                  <h1 className="text-[16px] text-[#21232C]  mt-[24px] text-start ">
-                    Operation Images
-                  </h1>
-                  <div className=" rounded-lg mt-2  w-full grid grid-cols-2 gap-2 mb-10 bg-gray-100">
-                    <h1 className="mt-2">Before</h1>
-                    <h1 className="mt-2">After</h1>
-                    <img
-                      src={
-                        activeRecord.before_path.startsWith('http')
-                          ? activeRecord.before_path
-                          : "/images/before.png"
-                      }
-                      alt="Operation"
-                      className="h-full object-cover rounded-lg border border-gray-100"
-                    />
+ <h1 className="text-[16px] text-[#21232C] mt-[24px] text-start">
+  Operation Images
+</h1>
+<div className="rounded-lg mt-2 w-full grid grid-cols-2 gap-2 mb-10 bg-gray-100 h-[250px] overflow-y-auto">
+  <h1 className="mt-2">Before</h1>
+  <h1 className="mt-2">After</h1>
 
-                    <img
-                      src={
-                        activeRecord.after_path.startsWith('http')
-                          ? activeRecord.after_path
-                          : "/images/after.png"
-                      }
-                      alt="Operation"
-                      className="h-full object-cover rounded-lg border border-gray-100"
-                    />
-                  </div>
+  {/* Before Images Column */}
+  <div className="flex flex-col gap-2">
+    {activeRecord?.images?.some(op => op.before) ? (
+      activeRecord.images.map((op, i) =>
+        op.before ? (
+          <img
+            key={`before-${i}`}
+            src={op.before}
+            alt={`Before ${i}`}
+            className="h-full object-cover rounded-lg border border-gray-100"
+          />
+        ) : null
+      )
+    ) : (
+      <img
+        src="/images/before.png"
+        alt="No Before"
+        className="h-full object-cover rounded-lg border"
+      />
+    )}
+  </div>
+
+  {/* After Images Column */}
+  <div className="flex flex-col gap-2">
+    {activeRecord?.images?.some(op => op.after) ? (
+      activeRecord.images.map((op, i) =>
+        op.after ? (
+          <img
+            key={`after-${i}`}
+            src={op.after}
+            alt={`After ${i}`}
+            className="h-full object-cover rounded-lg border border-gray-100"
+          />
+        ) : null
+      )
+    ) : (
+      <img
+        src="/images/after.png"
+        alt="No After"
+        className="h-full object-cover rounded-lg border"
+      />
+    )}
+  </div>
+</div>
+
                   <div className=" flex justify-center w-full my-[20px] mb-10 ">
                     <button onClick={() => alert("Report Generated Successfully")} className=" flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px]  w-full text-white rounded-[16px] cursor-pointer btn-hover">
                       <Download
