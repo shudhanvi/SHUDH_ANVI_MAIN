@@ -11,7 +11,7 @@ export const ServerDataProvider = ({ children }) => {
   useEffect(() => {
     const fetchServerData = async () => {
       try {
-        setMessage("Fetching server data...");
+        setMessage("Fetching data...");
         setLoading(true);
 
         const response = await fetch(

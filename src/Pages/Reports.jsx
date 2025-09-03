@@ -4,9 +4,9 @@ import { File, ChartLine, FileChartColumnIncreasing, Bot } from "lucide-react";
 export default function Reports() {
   const divisions = [
     "ALL Divisions",
+    "Kukatpally",
     "Old Bowenpally",
     "SR Nagar",
-    "Kukatpally",
     "Durgam Cheruvu",
     "Hafeezpet",
     "Manikonda",
@@ -21,17 +21,16 @@ export default function Reports() {
       "Vengalroanagar",
       "Fathenagar",
     ],
+
     Kukatpally: [
+      "Hasmathpet",
       "Vivekanandha Nagar",
       "Yellammabanda",
       "Moosapet",
-      "Bharathnagar",
-      "Motinagar",
-      "Gayatrinagar",
       "Balnagar",
       "KPHB",
       "Balaginagar",
-      "Hasmathpet",
+
     ],
     "Durgam Cheruvu": ["Nallagandla", "Madhapur", "Kondapur", "Gachibowli"],
     Hafeezpet: ["Chandanagar", "Warangal West", "Hanamkonda"],
@@ -45,7 +44,6 @@ export default function Reports() {
     "Old Bowenpally": [
       "Tadbund",
       "Mallikarjuna Nagar",
-      "Hasmathpet",
       "Bapuji Nagar",
     ],
   };
@@ -54,9 +52,9 @@ export default function Reports() {
     "SR Nagar": "Division 6 (SR Nagar)",
     Kukatpally: "Division 9 (Kukatpally)",
     "Durgam Cheruvu": "Division 4 (Durgam Cheruvu)",
-    Hafeezpet: "Division 3 (Hafeezpet)",
+    Hafeezpet: "Division 109 (Hafeezpet)",
     Manikonda: "Division 5 (Manikonda)",
-    "Old Bowenpally": "Division 4 (Old Bowenpally)",
+    "Old Bowenpally": "Division 119 (Old Bowenpally)",
   };
 
   // Reports Data
@@ -64,7 +62,7 @@ export default function Reports() {
     {
       id: "manhole1",
       title: "Zone A Manhole Analysis",
-      division: "Old Bowenpally",
+      division: "Kukatpally",
       section: "Hasmathpet",
       file: "Manhole_1.html",
       icon: <ChartLine className="text-blue-500 w-10 h-10" />,
@@ -72,7 +70,7 @@ export default function Reports() {
     {
       id: "manhole2",
       title: "Zone B Manhole Analysis",
-      division: "Old Bowenpally",
+      division: "Kukatpally",
       section: "Hasmathpet",
       file: "manhole_report.html",
       icon: <ChartLine className="text-blue-500 w-10 h-10" />,
@@ -80,7 +78,7 @@ export default function Reports() {
     {
       id: "manhole3",
       title: "Zone C Manhole Analysis",
-      division: "Old Bowenpally",
+      division: "Kukatpally",
       section: "Hasmathpet",
       file: "analytics_report.html",
       icon: <ChartLine className="text-blue-500 w-10 h-10" />,
@@ -91,7 +89,7 @@ export default function Reports() {
     {
       id: "ward1",
       title: "Ward A Incident Summary",
-      division: "Old Bowenpally",
+      division: "Kukatpally",
       section: "Hasmathpet",
       file: "Ward.html",
       icon: <FileChartColumnIncreasing className="text-green-500 w-10 h-10" />,
@@ -102,7 +100,7 @@ export default function Reports() {
     {
       id: "robot1",
       title: "Robot Fleet Performance RP001",
-      division: "Old Bowenpally",
+      division: "Kukatpally",
       section: "Hasmathpet",
       file: "Robot.html",
       icon: <Bot className="text-purple-500 w-10 h-10" />,
@@ -110,7 +108,7 @@ export default function Reports() {
     {
       id: "robot2",
       title: "Robot Fleet Performance RP002",
-      division: "Old Bowenpally",
+      division: "Kukatpally",
       section: "Hasmathpet",
       file: "robo_reports_s.html",
       icon: <Bot className="text-purple-500 w-10 h-10" />,
@@ -243,11 +241,10 @@ export default function Reports() {
               setDisplayReports([]);
               setSearchClicked(false);
             }}
-            className={`w-full border border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-[#1A8BA8] focus:border-[#1A8BA8] cursor-pointer ${
-              !selectedDivision || selectedDivision === "ALL Divisions"
+            className={`w-full border border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-[#1A8BA8] focus:border-[#1A8BA8] cursor-pointer ${!selectedDivision || selectedDivision === "ALL Divisions"
                 ? "opacity-40 cursor-not-allowed"
                 : ""
-            }`}
+              }`}
             disabled={!selectedDivision || selectedDivision === "ALL Divisions"}
           >
             <option value="">Select Section</option>
@@ -338,72 +335,71 @@ export default function Reports() {
             )
           ) : !selectedDivision ||
             !selectedSection ? null : displayReportsState.length > 0 ? (
-            <div className="space-y-4">
-              {/* Summary Cards */}
-              <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                {[
-                  {
-                    type: "all",
-                    label: "All Reports",
-                    icon: <File color="#1A8BA8" />,
-                  },
-                  {
-                    type: "manhole",
-                    label: "Manhole Reports",
-                    icon: <ChartLine color="#1A8BA8" />,
-                  },
-                  {
-                    type: "ward",
-                    label: "Ward Reports",
-                    icon: <FileChartColumnIncreasing color="#1A8BA8" />,
-                  },
-                  {
-                    type: "robot",
-                    label: "Robot Reports",
-                    icon: <Bot style={{ color: "#1A8BA8" }} />,
-                  },
-                ].map((card) => {
-                  const count = getFilteredReports(card.type).length;
-                  return (
-                    <div
-                      key={card.type}
-                      onClick={() => handleCardClick(card.type)}
-                      className={`p-4 rounded-xl shadow text-center cursor-pointer ${
-                        activeCard === card.type
-                          ? "bg-blue-100 border border-blue-500"
-                          : "bg-white"
-                      } hover:bg-gray-100`}
-                    >
-                      {React.cloneElement(card.icon, {
-                        className: "mx-auto mb-2 w-10 h-10",
-                      })}
-                      <p className="font-medium">{card.label}</p>
-                      <p className="text-lg font-bold">{count}</p>
-                    </div>
-                  );
-                })}
-              </section>
+              <div className="space-y-4">
+                {/* Summary Cards */}
+                <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  {[
+                    {
+                      type: "all",
+                      label: "All Reports",
+                      icon: <File color="#1A8BA8" />,
+                    },
+                    {
+                      type: "manhole",
+                      label: "Manhole Reports",
+                      icon: <ChartLine color="#1A8BA8" />,
+                    },
+                    {
+                      type: "ward",
+                      label: "Ward Reports",
+                      icon: <FileChartColumnIncreasing color="#1A8BA8" />,
+                    },
+                    {
+                      type: "robot",
+                      label: "Robot Reports",
+                      icon: <Bot style={{ color: "#1A8BA8" }} />,
+                    },
+                  ].map((card) => {
+                    const count = getFilteredReports(card.type).length;
+                    return (
+                      <div
+                        key={card.type}
+                        onClick={() => handleCardClick(card.type)}
+                        className={`p-4 rounded-xl shadow text-center cursor-pointer ${activeCard === card.type
+                            ? "bg-blue-100 border border-blue-500"
+                            : "bg-white"
+                          } hover:bg-gray-100`}
+                      >
+                        {React.cloneElement(card.icon, {
+                          className: "mx-auto mb-2 w-10 h-10",
+                        })}
+                        <p className="font-medium">{card.label}</p>
+                        <p className="text-lg font-bold">{count}</p>
+                      </div>
+                    );
+                  })}
+                </section>
 
-              {/* Report Items */}
-              {displayReportsState.map((r) => (
-                <div
-                  key={r.id}
-                  className="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center"
-                >
-                  <div className="flex items-center gap-2 font-semibold">
-                    {r.icon}
-                    <span>{r.title}</span>
-                  </div>
-                  <button
-                    onClick={() => setPopupReport(r)}
-                    className="bg-gray-100 px-6 py-2 rounded-lg hover:bg-[#1A8BA8] hover:text-white btn-hover transition duration-500 cursor-pointer"
+                {/* Report Items */}
+                {displayReportsState.map((r) => (
+                  <div
+                    key={r.id}
+                    className="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center"
                   >
-                    View
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
+                    <div className="flex items-center gap-2 font-semibold">
+                      {r.icon}
+                      <span>{r.title}</span>
+                    </div>
+                    <button
+                      onClick={() => setPopupReport(r)}
+                      className="bg-gray-100 px-6 py-2 rounded-lg hover:bg-[#1A8BA8] hover:text-white btn-hover transition duration-500 cursor-pointer"
+                    >
+                      View
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
             <p className="text-gray-500 font-semibold">No reports available</p>
           )
         ) : null}
