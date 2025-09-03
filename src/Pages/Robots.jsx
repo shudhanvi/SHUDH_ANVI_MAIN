@@ -100,14 +100,14 @@ useEffect(() => {
   const fetchImages = async () => {
     try {
       // Step 1: Get all devices
-      const devicesRes = await fetch("http://localhost:5000/api/devices");
+      const devicesRes = await fetch("https://shudhanvi-backend-cloud.onrender.com/api/devices");
       const devices = await devicesRes.json();
 
       const imgMap = {};
 
       // Step 2: For each device, fetch all its operations & images
       for (const deviceId of devices) {
-        const opsRes = await fetch(`http://localhost:5000/api/devices/${deviceId}/operations`);
+        const opsRes = await fetch(`https://shudhanvi-backend-cloud.onrender.com/api/devices/${deviceId}/operations`);
         const operations = await opsRes.json();
 
         imgMap[deviceId] = [];
@@ -119,7 +119,7 @@ useEffect(() => {
           const operationId = opName.split(`${deviceId}_`).pop();
           console.log("Fetching images for operation:", operationId);
           const imgRes = await fetch(
-            `http://localhost:5000/api/devices/${deviceId}/${opName}/images`
+            `https://shudhanvi-backend-cloud.onrender.com/api/devices/${deviceId}/${opName}/images`
           );
           const images = await imgRes.json(); // { before: <url>, after: <url> }
 
