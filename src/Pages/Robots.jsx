@@ -83,7 +83,7 @@ export default function Robots() {
       download: true,
       header: true,
       complete: (result) => {
-        console.log("Local CSV loaded");
+        // console.log("Local CSV loaded");
         setCsvData(result.data || []);
         setCsvLoading(false);
       },
@@ -100,14 +100,14 @@ useEffect(() => {
   const fetchImages = async () => {
     try {
       // Step 1: Get all devices
-      const devicesRes = await fetch("https://shudhanvi-backend-cloud-u66x.onrender.com/api/devices");
+      const devicesRes = await fetch("https://shudhanvi-backend-cloud-q5mo.onrender.com/api/devices");
       const devices = await devicesRes.json();
 
       const imgMap = {};
 
       // Step 2: For each device, fetch all its operations & images
       for (const deviceId of devices) {
-        const opsRes = await fetch(`https://shudhanvi-backend-cloud-u66x.onrender.com/api/devices/${deviceId}/operations`);
+        const opsRes = await fetch(`https://shudhanvi-backend-cloud-q5mo.onrender.com/api/devices/${deviceId}/operations`);
         const operations = await opsRes.json();
 
         imgMap[deviceId] = [];
@@ -117,9 +117,9 @@ useEffect(() => {
           // Example: opName = "Kondapur_ofce_Kondapur_ofce_58"
           // DB value = "Kondapur_ofce_58"
           const operationId = opName.split(`${deviceId}_`).pop();
-          console.log("Fetching images for operation:", operationId);
+          //console.log("Fetching images for operation:", operationId);
           const imgRes = await fetch(
-            `https://shudhanvi-backend-cloud-u66x.onrender.com/api/devices/${deviceId}/${opName}/images`
+            `https://shudhanvi-backend-cloud-q5mo.onrender.com/api/devices/${deviceId}/${opName}/images`
           );
           const images = await imgRes.json(); // { before: <url>, after: <url> }
 
@@ -133,9 +133,9 @@ useEffect(() => {
      
 
 
-      console.log("✅ Device Images (all ops):", imgMap);
+      //console.log("✅ Device Images (all ops):", imgMap);
       for (const deviceId of Object.keys(imgMap)) {
-        console.log("Fetched images for device:", deviceId, imgMap[deviceId]);
+        //console.log("Fetched images for device:", deviceId, imgMap[deviceId]);
       }
       setDeviceImages(imgMap);
     } catch (err) {
@@ -667,7 +667,7 @@ useEffect(() => {
                   <div className=" w-full text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2 ">
                     <div className="flex flex-row justify-between">
                       <h1 className=" pb-1 text-start">
-                        {console.log("Latitude:====", activeRecord.location)}
+                        {/* {console.log("Latitude:====", activeRecord.location)} */}
                         {activeRecord?.location ? JSON.parse(activeRecord.location).latitude :activeRecord.location.latitude}, {activeRecord?.location ? JSON.parse(activeRecord.location).longitude : activeRecord.location.longitude}
                       </h1>
                       <h1>Manhole ID : {activeRecord?.manhole_id || "Unknown"}</h1>
@@ -773,7 +773,7 @@ useEffect(() => {
 </div>
                 
                   </div>
-                  {console.log(activeRecord?.before_path, activeRecord?.after_path)}
+                   {/* {console.log(activeRecord?.before_path, activeRecord?.after_path)} */}
                   <div className=" flex justify-center w-full my-[20px] mb-10 ">
                     <button onClick={() => alert("Report Generated Successfully")} className=" flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px]  w-full text-white rounded-[16px] cursor-pointer btn-hover">
                       <Download
