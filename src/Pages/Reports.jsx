@@ -33,7 +33,7 @@ export default function Reports() {
 
     ],
     "Durgam Cheruvu": ["Nallagandla", "Madhapur", "Kondapur", "Gachibowli"],
-    Hafeezpet: ["Chandanagar", "Warangal West", "Hanamkonda"],
+    Hafeezpet: ["Chandanagar", "Miyapur","Patancheru"],
     Manikonda: [
       "Jalpally",
       "Thukkuguda",

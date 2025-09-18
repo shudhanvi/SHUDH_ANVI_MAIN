@@ -449,9 +449,9 @@ useEffect(() => {
                               className="inline-block w-4 h-4 mr-1"
                             />
                           </span>
-                          Gas level: {item.gas_level
-                            ? item.gas_level.charAt(0).toUpperCase() +
-                            item.gas_level.slice(1).toLowerCase()
+                          Gas level: {item.gas_status
+                            ? item.gas_status.charAt(0).toUpperCase() +
+                            item.gas_status.slice(1).toLowerCase()
                             : "N/A"}
                         </p>
                         <p className="flex items-center mb-2">
@@ -594,7 +594,7 @@ useEffect(() => {
                       <span className="flex flex-col ml-2">
                         Task Duration{" "}
                         <span className="text-[#21232C] text-[16px]">
-                          {activeRecord.operation_time_minutes} mins
+                          {activeRecord?.operation_time_minutes || "- "} mins
                         </span>
                       </span>
                     </span>
@@ -606,7 +606,7 @@ useEffect(() => {
                       <span className="flex flex-col ml-2">
                         Waste Collected{" "}
                         <span className="text-[#21232C] text-[16px]">
-                          {activeRecord.waste_collected_kg}kgs
+                          {activeRecord?.waste_collected_kg || "- "}kgs
                         </span>
                       </span>
                     </span>
@@ -616,15 +616,16 @@ useEffect(() => {
                         className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md"
                         color="#0380FC"
                       />
-                      {activeRecord.area}
+                      <span className="text-stone-950">
+                      {activeRecord.area}</span>
                     </span>
                   </div>
                   <div className="flex flex-row mt-[24px] border border-gray-500 p-2 py-5 rounded-2xl " >
                     <div className="flex flex-col text-start text-[14px] text-[#676D7E] gap-y-2  w-max-content  flex-shrink-0">
                       <h1 className="text-[18px] text-black font-bold">Gas Level</h1>
-                      <p>Methane(CH4) : {"  "}<span className="text-[16px] text-[#21232C]">  {activeRecord?.gas_data_raw ? JSON.parse(activeRecord.gas_data_raw).CH4 : "N/A"} ppm</span></p>
-                      <p>Carbon Monoxide(CO) :{"  "}<span className="text-[16px] text-[#21232C]">  {activeRecord?.gas_data_raw ? JSON.parse(activeRecord.gas_data_raw).CO : "N/A"} ppm</span></p>
-                      <p>Hydrogen Sulphate(H2S) : {"  "}<span className="text-[16px] text-[#21232C]">  {activeRecord?.gas_data_raw ? JSON.parse(activeRecord.gas_data_raw).H2S : "N/A"} ppm</span></p>
+                      <p>Methane(CH4) : {"  "}<span className="text-[16px] text-[#21232C]">  {activeRecord?.gas_data_raw ? JSON.parse(activeRecord.gas_data_raw).CH4 : 0} ppm</span></p>
+                      <p>Carbon Monoxide(CO) :{"  "}<span className="text-[16px] text-[#21232C]">  {activeRecord?.gas_data_raw ? JSON.parse(activeRecord.gas_data_raw).CO : 0} ppm</span></p>
+                      <p>Hydrogen Sulphate(H2S) : {"  "}<span className="text-[16px] text-[#21232C]">  {activeRecord?.gas_data_raw ? JSON.parse(activeRecord.gas_data_raw).H2S : 0} ppm</span></p>
                     </div>
 
                     <div className="flex items-center justify-center max-w-[120px] m-auto  flex-shrink-1">
@@ -802,6 +803,7 @@ useEffect(() => {
                       </label>
                       <input
                         type="date"
+                        placeholder="Select date"
                         className="border border-gray-300 rounded-md p-2 w-full"
                         value={
                           detailedfromdate && !isNaN(detailedfromdate)
@@ -823,6 +825,7 @@ useEffect(() => {
                       </label>
                       <input
                         type="date"
+                        placeholder="Select date"
                         className="border border-gray-300 rounded-md p-2 w-full "
                         value={
                           detailedtodate && !isNaN(detailedtodate)
