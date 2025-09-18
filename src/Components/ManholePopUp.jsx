@@ -126,7 +126,7 @@ console.log("risk level:", risk);
       <div className="p-2 w-full grid grid-cols-3 gap-2 place-items-center">
         <div className="w-full p-2 text-center place-content-center aspect-square max-w-[100px] bg-[#F3F4F6] rounded-xl shadow-s> shadow-gray-300">
           <p className="text-black text-lg">{depth||"-"}{" m"}</p>
-          <p className="text-[10px] text-[#0000008A]">Depth of Manhole</p>
+          <p className="text-[10px] text-[#0000008A]">Depth</p>
         </div>
         <div className="w-full p-2 text-center place-content-center aspect-square max-w-[100px] bg-[#F3F4F6] rounded-xl shadow-s shadow-gray-300">
           <p className="text-black text-lg">{waterLevel || "-"}{" m"}</p>
