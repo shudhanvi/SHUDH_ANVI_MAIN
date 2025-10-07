@@ -29,7 +29,7 @@ export default function Reports() {
       "Moosapet",
       "Balnagar",
       "KPHB",
-      "Balaginagar",
+      "Balajinagar",
 
     ],
     "Durgam Cheruvu": ["Nallagandla", "Madhapur", "Kondapur", "Gachibowli"],
