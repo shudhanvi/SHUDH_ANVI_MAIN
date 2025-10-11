@@ -261,7 +261,7 @@
                 labels: ["Y-Junction", "Bend", "Multi-Inlet", "Straight", "Cross-Junction"],
                 datasets: [{
                     data: [12, 11, 10, 9, 8],
-                    backgroundColor: colors.slice(0, 5)
+                    backgroundColor:  [colors[3], colors[4], colors[2], colors[8] ,colors[9]]
                 }]
             }
         });
@@ -273,7 +273,7 @@
                 labels: ["Fair", "Good", "Poor", "Critical"],
                 datasets: [{
                     data: [22, 10, 10, 8],
-                    backgroundColor: colors.slice(0, 4)
+                    backgroundColor: [colors[3], colors[6], colors[5], colors[2]]
                 }]
             }
         });
@@ -365,7 +365,7 @@ new Chart(document.getElementById('roboOpTimeChart'), {
                 labels: ["Slum Area", "Waterbody Area", "Other Area"],
                 datasets: [{
                     data: [82350.66, 178908.154, 465657.441],
-                    backgroundColor: [colors[0], colors[1], colors[2]]
+                    backgroundColor: [colors[0], colors[3], colors[2]]
                 }]
             },
             options: {
