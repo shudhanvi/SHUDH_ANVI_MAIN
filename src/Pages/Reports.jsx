@@ -366,7 +366,7 @@ export default function Reports() {
                         key={card.type}
                         onClick={() => handleCardClick(card.type)}
                         className={`p-4 rounded-xl shadow text-center cursor-pointer ${activeCard === card.type
-                            ? "bg-blue-100 border border-blue-500"
+                            ? "  border-2 border-blue-500"
                             : "bg-white"
                           } hover:bg-gray-100`}
                       >
