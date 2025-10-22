@@ -17,7 +17,6 @@ const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
     perimeter,
     ward_id,
     ward_name,
-    Division,
     waste_colleccted,
   } = selectedWardInfo;
 
@@ -34,11 +33,7 @@ const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
       >
         <div className="flex flex-col justify-center relative align-middle gap-2 text-white text-left">
           <h1 className="text-xl font-bold ">{`Ward: ${ward_name}`}</h1>
- 
-          <p className="text-[12px]">{`Division :${Division}`} </p>
- 
           <p className="text-[13px] ">Division : Kukatpally</p>
- 
           <button
             type="button"
             className="btn-hover cursor-pointer"

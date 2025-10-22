@@ -54,7 +54,7 @@ const MapComponent = () => {
 
   //recenter map with lat/long values
   const RecenterMap = ({ lat, lng, zoom }) => {
-  //   console.log('RecenterMap', lat, lng, zoom, selectedWard)
+    // console.log('RecenterMap', lat, lng, zoom, selectedWard)
     const map = useMap();
     useEffect(() => {
       // console.log('mapping');
@@ -99,15 +99,28 @@ const MapComponent = () => {
       .catch((err) => console.error("Error loading ward coordinates:", err));
   }, []);
 
- 
+  // Load WardData from Excel file and Adding Other in public folder
   useEffect(() => {
     const loadWardData = async () => {
       try {
-        
+        // const response = await fetch("/datafiles/ward_data.xlsx");
+        // const arrayBuffer = await response.arrayBuffer();
+        // const workbook = XLSX.read(arrayBuffer, { type: "array" });
+        // const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        // const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+        // Ward Options for User
+        // Hasmathpet, Tadbund, Mallikarjuna Nagar, Balaji Nagar
+        // filtering dummyWardsData
         const allWardsL = DummyWardData;
-     
+        // ? DummyWardData.length > 0
+        // : DummyWardData?.filter(
+        //     (each) => each.ward_name.toLowerCase() !== "hasmathpet"
+        //   );
+        // allWardsL.push(...jsonData);
         allWardsL.sort();
-        
+        // console.log("wardjsonData : ", allWardsL);
+
         setWardData(allWardsL);
       } catch (error) {
         console.error("Error loading ward data:", error);
@@ -190,7 +203,28 @@ const MapComponent = () => {
           // console.log("mapping warded", { lat: newLat, lon: newLon });
           setMapCenter({ lat: newLat, lng: newLon, zoom: 15 });
         }
-       
+        // ✅ Normalize polygon
+        //   let polygons = [];
+        //   if (wardGeoData.geojson?.type === "Polygon") {
+        //     polygons = [
+        //       wardGeoData.geojson.coordinates[0].map(([lng, lat]) => [
+        //         lat,
+        //         lng,
+        //       ]),
+        //     ];
+        //   } else if (wardGeoData.geojson?.type === "MultiPolygon") {
+        //     polygons = wardGeoData.geojson.coordinates.map((poly) =>
+        //       poly[0].map(([lng, lat]) => [lat, lng])
+        //     );
+        //   }
+
+        //   // ✅ Save polygon(s) to state for rendering
+        //   const updatedWardPolygons = {...wardPolygons, [selectedWard] : polygons};
+        //   console.log('polygons :', updatedWardPolygons);
+        //   setWardPolygons(updatedWardPolygons)
+        // }
+
+        // console.log("mapping warded", wardGeoData);
       };
 
       SetWardMapping();
@@ -449,7 +483,6 @@ const MapComponent = () => {
                 - Immediate Action Needed
               </span>
             </div>
-           {/* <button>  <LocateFixed /></button> */}
           </div>
         </div>
       </div>
