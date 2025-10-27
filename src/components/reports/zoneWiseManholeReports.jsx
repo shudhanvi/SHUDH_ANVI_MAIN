@@ -25,7 +25,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
 
-   const formatDate = (date) => {
+  const formatDate = (date) => {
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, "0");
     const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -75,33 +75,33 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
 
     // Combine original user inputs with the new date range for the payload
     const updatedUserInputs = {
-        ...userInputs,
-        dateRange: {
-            from: fromDate,
-            to: toDate,
-        },
+      ...userInputs,
+      dateRange: {
+        from: fromDate,
+        to: toDate,
+      },
     };
 
     const payload = {
-        selectedManholes,
-        userInputs: updatedUserInputs, // Send the updated object
-        zone,
-        command: "generate_manhole_report"
+      selectedManholes,
+      userInputs: updatedUserInputs, // Send the updated object
+      zone,
+      command: "generate_manhole_report"
     };
- console.log("sending Paylod:",payload)
+    console.log("sending Paylod:", payload)
     try {
       const response = await fetch(backendApi.manholesReportUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-       
+
       });
-      
+
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
       const data = await response.json();
       setReportData(data);
-      
-      console.log("Backend response:",data)
+
+      console.log("Backend response:", data)
       setShowPopup(true);
     } catch (error) {
       console.error("Error sending data:", error);
@@ -117,7 +117,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
         <ManholeReportPopup reportData={reportData} onClose={() => setShowPopup(false)} />
       )}
 
-             {/* 🔹 Date Pickers */}
+      {/* 🔹 Date Pickers */}
       <div className="flex items-end gap-x-4 px-[30px] py-[10px] mb-[10px]  rounded-lg border-[1.5px] border-[#E1E7EF] bg-white ">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -169,10 +169,10 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
               </label>
             </div>
           </div>
-          
-          
-         
-          
+
+
+
+
           <div className='flex items-center gap-x-[20px]'>
             <p className="text-sm text-gray-700 font-medium">
               {selectedManholes.length} of {filteredData.length} selected
@@ -201,7 +201,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
             </label>
           ))}
         </div>
-        
+
         {/* --- Render the Pagination Component at the bottom --- */}
         <Pagination
           currentPage={currentPage}

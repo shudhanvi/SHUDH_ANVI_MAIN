@@ -5,7 +5,7 @@ import { Bot, Calendar, MapPin, Search, FireExtinguisher } from "lucide-react";
 import Papa from "papaparse";
 import { useServerData } from "../context/ServerDataContext";
 import { RobotPopupComponent } from "../components/robots/robotPopupComponent";
- 
+
 const userInputsObj = {
   division: "",
   section: "",
@@ -201,8 +201,8 @@ export const Robots = () => {
   return (
     <div className="w-full ">
       <section className="section1 border-b-[1.5px] border-[#E1E7EF] py-[10px] px-[30px] bg-white ">
-      <h1 className="text-[24px] font-bold">Robots</h1>
-      <p className="text-[14px] text-[#65758B]">Monitor and manage robot fleet</p>
+        <h1 className="text-[24px] font-bold">Robots</h1>
+        <p className="text-[14px] text-[#65758B]">Monitor and manage robot fleet</p>
       </section>
 
       {/* Filters */}
@@ -344,8 +344,8 @@ export const Robots = () => {
                             Last operation:{" "}
                             {item?.latestTimestamp
                               ? new Date(
-                                  item.latestTimestamp
-                                ).toLocaleDateString()
+                                item.latestTimestamp
+                              ).toLocaleDateString()
                               : "-"}
                           </p>
                           <p className="flex items-center mb-2">
@@ -353,9 +353,9 @@ export const Robots = () => {
                             Gas status:{" "}
                             {item.gas_status
                               ? item.gas_status
-                                  .charAt(0)
-                                  .toUpperCase() +
-                                item.gas_status.slice(1).toLowerCase()
+                                .charAt(0)
+                                .toUpperCase() +
+                              item.gas_status.slice(1).toLowerCase()
                               : "N/A"}
                           </p>
                           <p className="flex items-center mb-2">
@@ -395,10 +395,10 @@ export const Robots = () => {
           )
         ) : (
           <div className="flex flex-col justify-center items-center mt-[50px]">
-            <img className="h-[130px] w-[130px]" src="/images/Robot-filter.png"/>
-          <p className="text-gray-400 text-center ">
-            “No robots to display yet. Please select a Division and Section to get started.”
-          </p>
+            <img className="h-[130px] w-[130px]" src="/images/Robot-filter.png" />
+            <p className="text-gray-400 text-center ">
+              “No robots to display yet. Please select a Division and Section to get started.”
+            </p>
           </div>
         )}
 

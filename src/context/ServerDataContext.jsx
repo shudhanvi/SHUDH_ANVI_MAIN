@@ -33,7 +33,7 @@ export const ServerDataProvider = ({ children }) => {
 
     fetchServerData();
   }, []);
-//   console.log("ServerDataContext:", serverData);
+  //   console.log("ServerDataContext:", serverData);
 
   return (
     <ServerDataContext.Provider value={{ serverData, loading, message }}>
