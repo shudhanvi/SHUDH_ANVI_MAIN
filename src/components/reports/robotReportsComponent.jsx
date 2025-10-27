@@ -27,25 +27,25 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [reportData, setReportData] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
-     // --- State for the new date pickers ---
-      const [fromDate, setFromDate] = useState('');
-      const [toDate, setToDate] = useState('');
-    
-       const formatDate = (date) => {
+    // --- State for the new date pickers ---
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
+
+    const formatDate = (date) => {
         const d = new Date(date);
         const day = String(d.getDate()).padStart(2, "0");
         const month = String(d.getMonth() + 1).padStart(2, "0");
         const year = d.getFullYear();
         return `${day}-${month}-${year}`;
-      };
-    
-//     const formatDate = (date) => {
-//   const d = new Date(date);
-//   const day = String(d.getDate()).padStart(2, "0");
-//   const month = String(d.getMonth() + 1).padStart(2, "0");
-//   const year = d.getFullYear();
-//   return `${year}-${month}-${day}`; // 👈 yyyy-mm-dd format
-// };
+    };
+
+    //     const formatDate = (date) => {
+    //   const d = new Date(date);
+    //   const day = String(d.getDate()).padStart(2, "0");
+    //   const month = String(d.getMonth() + 1).padStart(2, "0");
+    //   const year = d.getFullYear();
+    //   return `${year}-${month}-${day}`; // 👈 yyyy-mm-dd format
+    // };
 
 
     // FIX 1: Pass the component's state 'filteredRobots' to the pagination hook, not the prop.
@@ -147,15 +147,15 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
                 section,
                 city,
                 dateRange: {
-            from: fromDate,
-            to: toDate,
-        },
+                    from: fromDate,
+                    to: toDate,
+                },
             },
             command: "generate_robot_report",
         };
-        console.log("sending:",payload)
+        console.log("sending:", payload)
         try {
-            const response = await fetch( backendApi.robotsReportUrl, {
+            const response = await fetch(backendApi.robotsReportUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -188,35 +188,35 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
                     onClose={() => setShowPopup(false)}
                 />
             )}
-                  {/* 🔹 Date Pickers */}
-                  <div className="flex items-end gap-x-4 px-[30px] py-[10px] mb-[10px] bg-white  rounded-lg border-[1.5px] border-[#E1E7EF] ">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+            {/* 🔹 Date Pickers */}
+            <div className="flex items-end gap-x-4 px-[30px] py-[10px] mb-[10px] bg-white  rounded-lg border-[1.5px] border-[#E1E7EF] ">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                         From
-                      </label>
-                      <DatePicker
+                    </label>
+                    <DatePicker
                         selected={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
                         onChange={(date) => setFromDate(formatDate(date))}
                         dateFormat="dd/MM/yyyy"
                         placeholderText="Select from date"
                         className="w-full px-3 py-1.5 border border-gray-300 rounded-md  focus:outline-none focus:ring-[#1E9AB0] focus:border-[#1E9AB0] sm:text-sm"
-                      />
-                    </div>
-            
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                         To
-                      </label>
-                      <DatePicker
+                    </label>
+                    <DatePicker
                         selected={toDate ? new Date(toDate.split("-").reverse().join("-")) : null}
                         onChange={(date) => setToDate(formatDate(date))}
                         dateFormat="dd/MM/yyyy"
                         placeholderText="Select to date"
                         minDate={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
                         className="w-full px-3 py-1.5 border border-gray-300 rounded-md  focus:outline-none focus:ring-[#1E9AB0] focus:border-[#1E9AB0] sm:text-sm"
-                      />
-                    </div>
-                  </div>
+                    />
+                </div>
+            </div>
             <div className="bg-white rounded-lg p-[24px] border-[1.5px] border-[#E1E7EF] sm:p-6 max-h-[550px] h-[550px] overflow-y-auto relative">
                 <div className="flex items-center justify-between mb-4 pb-4">
                     <div className="flex gap-[20px] items-center">
@@ -249,7 +249,7 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
                         </label>
                     ))}
                 </div>
-                
+
                 <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
@@ -258,7 +258,7 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
                     firstItemIndex={indexOfFirstItem}
                     lastItemIndex={indexOfLastItem}
                     totalItems={filteredRobots.length}
-                    
+
                 />
             </div>
         </>

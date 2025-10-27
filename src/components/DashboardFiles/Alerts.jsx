@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TriangleAlert,ChevronDown,ChevronUp } from 'lucide-react';
+import { TriangleAlert, ChevronDown, ChevronUp } from 'lucide-react';
 // --- Static Data (as requested) ---
 // In the future, you'll fetch this array from your server
 const staticAlertData = [
@@ -60,7 +60,7 @@ const ZoneAlertItem = ({ zoneName, alerts }) => {
           {zoneName}
         </div>
         {/* Arrow icon changes based on state, matching your image */}
-        <span style={{ color: '#888' }}>{isExpanded ?   <ChevronUp /> :  <ChevronDown />}</span>
+        <span style={{ color: '#888' }}>{isExpanded ? <ChevronUp /> : <ChevronDown />}</span>
       </div>
 
       {/* Expanded Content (Conditionally rendered) */}
@@ -98,7 +98,7 @@ export default function Alerts() {
     <>
       <section style={styles.container}>
         <h3 style={styles.heading}>Zone alerts</h3>
-        
+
         {/* Map over the static data to create the list of collapsible items */}
         {staticAlertData.map((zoneData) => (
           <ZoneAlertItem
@@ -120,7 +120,7 @@ const styles = {
     fontFamily: '"Inter", Arial, sans-serif', // Using a common system font
     color: '#333',
     maxWidth: '500px',
-     // Light gray background for the section
+    // Light gray background for the section
   },
   heading: {
     fontSize: '14px',
@@ -130,7 +130,7 @@ const styles = {
     paddingLeft: '8px',
   },
   zoneWrapper: {
-   backgroundColor: '#F7F7F7',
+    backgroundColor: '#F7F7F7',
     borderRadius: '8px',
     marginBottom: '12px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
@@ -151,7 +151,7 @@ const styles = {
   },
   zoneContent: {
     padding: '0 16px 16px 16px',
-   backgroundColor: '#F7F7F7', // White background for the expanded content
+    backgroundColor: '#F7F7F7', // White background for the expanded content
     borderTop: '1px solid #F0F0F0',
   },
   table: {

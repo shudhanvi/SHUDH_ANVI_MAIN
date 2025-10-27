@@ -81,11 +81,11 @@ export default function MapWardSearchComp() {
           displayName: first.display_name,
           boundingBox: first.boundingbox
             ? [
-                parseFloat(first.boundingbox[0]),
-                parseFloat(first.boundingbox[1]),
-                parseFloat(first.boundingbox[2]),
-                parseFloat(first.boundingbox[3])
-              ]
+              parseFloat(first.boundingbox[0]),
+              parseFloat(first.boundingbox[1]),
+              parseFloat(first.boundingbox[2]),
+              parseFloat(first.boundingbox[3])
+            ]
             : null
         };
       }
@@ -232,9 +232,8 @@ export default function MapWardSearchComp() {
             {loading && <div className="loading-spinner"></div>}
           </div>
           <div
-            className={`status-message ${
-              status.includes("Please") ? "error-message" : ""
-            }`}
+            className={`status-message ${status.includes("Please") ? "error-message" : ""
+              }`}
           >
             {status}
           </div>

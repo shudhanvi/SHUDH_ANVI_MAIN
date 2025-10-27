@@ -66,12 +66,12 @@ const MapboxCore = ({
         mapInstance.setFilter("manhole-dots", filterExpr);
       }
       // Re-apply selection state
-       if (selectedManholeIdRef.current !== null) {
-          mapInstance.setFeatureState(
-            { source: 'manholes', id: selectedManholeIdRef.current },
-            { selected: true }
-          );
-       }
+      if (selectedManholeIdRef.current !== null) {
+        mapInstance.setFeatureState(
+          { source: 'manholes', id: selectedManholeIdRef.current },
+          { selected: true }
+        );
+      }
 
 
     } catch (e) { console.error("Error drawing manhole layer:", e.message); }
@@ -86,8 +86,8 @@ const MapboxCore = ({
       if (mapInstance.getLayer("ward-polygon-layer")) mapInstance.removeLayer("ward-polygon-layer");
       if (mapInstance.getLayer("ward-outline-layer")) mapInstance.removeLayer("ward-outline-layer");
       if (wardSource && !hasData) { // Remove source only if no new data
-         mapInstance.removeSource("ward-polygon-source");
-         wardSource = null; // Update local variable
+        mapInstance.removeSource("ward-polygon-source");
+        wardSource = null; // Update local variable
       }
 
 
@@ -108,7 +108,7 @@ const MapboxCore = ({
         });
         console.log("Ward border layer added/updated.");
       } else {
-          console.log("No ward data, ensuring border layer is removed.");
+        console.log("No ward data, ensuring border layer is removed.");
       }
     } catch (e) { console.error("Error drawing ward layer:", e.message); }
   };
@@ -138,8 +138,8 @@ const MapboxCore = ({
       onManholeClick(clickedFeature);
     });
     map.current.on('click', (e) => {
-        const features = map.current.queryRenderedFeatures(e.point, { layers: ['manhole-dots'] });
-        if (!features.length && selectedManholeIdRef.current) { onManholeDeselect(); }
+      const features = map.current.queryRenderedFeatures(e.point, { layers: ['manhole-dots'] });
+      if (!features.length && selectedManholeIdRef.current) { onManholeDeselect(); }
     });
     // ./MapboxCore.js -> inside the first useEffect, after the 'click' listeners
 
@@ -159,8 +159,8 @@ const MapboxCore = ({
         // Check if properties exist before trying to format
         const popupId = feature.properties.id ?? 'N/A'; // Use nullish coalescing
         const popupDate = feature.properties.last_operation_date
-                          ? formatExcelDate(feature.properties.last_operation_date)
-                          : 'N/A';
+          ? formatExcelDate(feature.properties.last_operation_date)
+          : 'N/A';
 
         popup.current
           .setLngLat(feature.geometry.coordinates)
@@ -171,34 +171,34 @@ const MapboxCore = ({
             </div>` // Slightly improved styling
           )
           .addTo(map.current);
-          // --- ADD LOGS for debugging ---
-          console.log("Popup Added to Map.");
-          // --- END LOGS ---
+        // --- ADD LOGS for debugging ---
+        console.log("Popup Added to Map.");
+        // --- END LOGS ---
       } else {
-         console.log("Mouse Enter but no features found?");
+        console.log("Mouse Enter but no features found?");
       }
     });
 
     map.current.on("mouseleave", "manhole-dots", () => {
-       // --- ADD LOGS for debugging ---
+      // --- ADD LOGS for debugging ---
       console.log("Mouse Leave Event Fired!");
-       // --- END LOGS ---
-       if (!map.current) return; // Safety check
+      // --- END LOGS ---
+      if (!map.current) return; // Safety check
       map.current.getCanvas().style.cursor = "";
       popup.current.remove();
     });
 
-// ... rest of the useEffect ...
+    // ... rest of the useEffect ...
     map.current.on("mouseenter", "manhole-dots", (e) => { /* ...popup logic... */ });
     map.current.on("mouseleave", "manhole-dots", () => { /* ...popup logic... */ });
 
     return () => { // Cleanup
-        if (map.current) {
-            map.current.off("load", drawLayers);
-            map.current.off("style.load", drawLayers);
-            map.current.remove();
-            map.current = null;
-        }
+      if (map.current) {
+        map.current.off("load", drawLayers);
+        map.current.off("style.load", drawLayers);
+        map.current.remove();
+        map.current = null;
+      }
     };
   }, [styleUrl, onManholeClick, onManholeDeselect, formatExcelDate]); // Style URL triggers re-init
 
@@ -210,7 +210,7 @@ const MapboxCore = ({
     if (!currentStyle || currentStyle.url === styleUrl) return;
     map.current.setStyle(styleUrl);
   }, [styleUrl]);
-  
+
 
   // --- 3 & 4. Effects to REDRAW layers when data props change ---
   // We call drawLayers directly here as well.
@@ -221,19 +221,17 @@ const MapboxCore = ({
 
   // --- 5. Effect to apply Status Filter ---
   // This needs to be separate because it applies filter, doesn't redraw layers
-   useEffect(() => {
+  useEffect(() => {
     if (!map.current || !map.current.isStyleLoaded() || !map.current.getLayer("manhole-dots")) return;
-     try {
-       const filterExpr = statusFilter === "all" ? null : ["==", ["get", "status"], statusFilter];
-       map.current.setFilter("manhole-dots", filterExpr);
-     } catch (e) {
-         console.warn("Could not set filter (safe during style change):", e.message);
-     }
+    try {
+      const filterExpr = statusFilter === "all" ? null : ["==", ["get", "status"], statusFilter];
+      map.current.setFilter("manhole-dots", filterExpr);
+    } catch (e) {
+      console.warn("Could not set filter (safe during style change):", e.message);
+    }
   }, [statusFilter]);
 
-// ./MapboxCore.js
-
-// ... inside the MapboxCore component ...
+ 
 
   // --- 6. Effect to manage Manhole Selection State ---
   useEffect(() => {
@@ -255,31 +253,31 @@ const MapboxCore = ({
         filter: ['==', 'id', previousSelectedId]
       });
       if (features.length > 0) {
-         try {
-            mapInstance.setFeatureState(
-              { source: 'manholes', id: previousSelectedId },
-              { selected: false }
-            );
-         } catch(e) { console.warn("Could not deselect previous feature:", e.message); }
+        try {
+          mapInstance.setFeatureState(
+            { source: 'manholes', id: previousSelectedId },
+            { selected: false }
+          );
+        } catch (e) { console.warn("Could not deselect previous feature:", e.message); }
       }
     }
 
     // B. Select the NEW manhole (if a new one is selected)
     if (selectedManholeId !== null) {
-       // Check if the feature actually exists before trying to set state
-       const features = mapInstance.querySourceFeatures('manholes', {
-          filter: ['==', 'id', selectedManholeId]
-       });
-       if (features.length > 0) {
-          try {
-              mapInstance.setFeatureState(
-                { source: 'manholes', id: selectedManholeId },
-                { selected: true }
-              );
-          } catch (e) { console.warn("Could not select new feature:", e.message); }
-       } else {
-           console.warn(`Manhole ID ${selectedManholeId} not found in source.`);
-       }
+      // Check if the feature actually exists before trying to set state
+      const features = mapInstance.querySourceFeatures('manholes', {
+        filter: ['==', 'id', selectedManholeId]
+      });
+      if (features.length > 0) {
+        try {
+          mapInstance.setFeatureState(
+            { source: 'manholes', id: selectedManholeId },
+            { selected: true }
+          );
+        } catch (e) { console.warn("Could not select new feature:", e.message); }
+      } else {
+        console.warn(`Manhole ID ${selectedManholeId} not found in source.`);
+      }
     }
 
     // C. Update the ref to store the CURRENTLY selected ID for the next time
@@ -293,13 +291,13 @@ const MapboxCore = ({
   useEffect(() => {
     if (!map.current || !flyToLocation) return;
     try {
-        if (flyToLocation.bounds) {
-            map.current.fitBounds(flyToLocation.bounds, { padding: flyToLocation.padding || 40, duration: 1000 });
-        } else if (flyToLocation.center) {
-            map.current.flyTo({ center: flyToLocation.center, zoom: flyToLocation.zoom || 18, duration: 1000 });
-        }
+      if (flyToLocation.bounds) {
+        map.current.fitBounds(flyToLocation.bounds, { padding: flyToLocation.padding || 40, duration: 1000 });
+      } else if (flyToLocation.center) {
+        map.current.flyTo({ center: flyToLocation.center, zoom: flyToLocation.zoom || 18, duration: 1000 });
+      }
     } catch (e) {
-        console.error("Error flying to location:", e.message);
+      console.error("Error flying to location:", e.message);
     }
   }, [flyToLocation]);
 

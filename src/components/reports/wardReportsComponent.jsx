@@ -15,7 +15,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
         }
 
         setIsLoading(true);
-        
+
         // ✅ **FIX: Mapped the prop names to the keys required by the backend.**
         const payload = {
             district: city,     // 'city' prop is now sent as 'district'
@@ -52,17 +52,17 @@ export const WardReportsComponent = ({ city, division, section }) => {
             setIsLoading(false);
         }
     };
-    
+
     const isButtonDisabled = isLoading || !section;
 
     return (
         <>
             {showPopup && reportData && (
-            <WardReportPopup
-                reportData={reportData}
-                onClose={() => setShowPopup(false)}
-            />
-        )}
+                <WardReportPopup
+                    reportData={reportData}
+                    onClose={() => setShowPopup(false)}
+                />
+            )}
 
             <div className="mt-4">
                 <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
@@ -80,11 +80,10 @@ export const WardReportsComponent = ({ city, division, section }) => {
                     <button
                         onClick={handleOpenReport}
                         disabled={isButtonDisabled}
-                        className={`px-5 py-2.5 text-sm font-semibold rounded-lg shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                            isButtonDisabled 
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300' 
-                            : 'bg-white text-[#1E9AB0] border border-[#1E9AB0] hover:bg-[#E5F7FA]'
-                        }`}
+                        className={`px-5 py-2.5 text-sm font-semibold rounded-lg shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 ${isButtonDisabled
+                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300'
+                                : 'bg-white text-[#1E9AB0] border border-[#1E9AB0] hover:bg-[#E5F7FA]'
+                            }`}
                         title={!section ? "Please select a Section from the dropdown above" : "Generate Ward Report"}
                     >
                         {isLoading ? "Loading..." : "Open Report"}
