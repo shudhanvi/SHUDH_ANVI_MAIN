@@ -1,0 +1,294 @@
+import { useEffect, useState } from "react";
+import Papa from "papaparse";
+import { Clock, TriangleAlert , User, CircleCheckBig } from 'lucide-react';
+
+export const Highlights = () => {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    Papa.parse(`/datafiles/CSVs/Highlights_data.csv?nocache=${Date.now()}`, {
+      download: true,
+      header: true,
+      complete: (result) => {
+        if (result.data && result.data.length > 0) {
+          // console.log(result.data);
+          setData(result.data[0]); // first row for this section
+        }
+      },
+    });
+  }, []);
+
+  if (!data) {
+    return <div className="text-center py-10">Loading...</div>;
+  }
+
+  return (
+    <>
+    <div className="w-full">     <section className="section1 border-b-[1.5px] border-[#E1E7EF] py-[10px] px-[30px] bg-white ">
+      <h1 className="text-[24px] font-bold">Highlights</h1>
+      <p className="text-[14px] text-[#65758B]">Achievements and notable operations
+</p>
+      </section>
+
+      <section className="max-w-full">
+        <div className="flex justify-evenly px-5 mt-8">
+          {/* Robot Section */}
+          <div className="flex flex-row bg-[#ffffff] w-[70%] min-h-[330px] gap-[20px] p-6 rounded-lg border border-gray-300">
+            <div className="flex items-center">
+              <img
+                src="/images/Robo.jpg"
+                alt="Robot"
+                className="h-[225px] w-[328px] rounded-2xl object-cover object-[65%]"
+              />
+            </div>
+
+            <div className="">
+              <h3 className="text-3xl text-start pt-5 pb-3">
+                {data?.robot_id || "Robo_ yysb_001_5"}
+              </h3>
+              <p className=" text-lg pb-3 text-start text-gray-600">
+                Exceptional performance in high-severity operations with zero
+                downtime
+              </p>
+              <p className="text-gray-600 text-start pb-3 mt-3">
+                <span>
+                  <User
+                    className="inline-block w-5 h-auto mr-2 mb-1"
+                  />
+                </span>
+                Operator Name:
+                <span className=" text-black"> {data.operator_name}</span>
+              </p>
+              <div className="flex flex-row justify-evenly items-center mt-5">
+                <div className="flex flex-col justify-center items-center">
+                  <p className="text-2xl font-bold text-[#1A8BA8]">
+                    {data?.ops_this_week || "24"}
+                  </p>
+                  <p className="text-sm text-gray-500">Ops this week</p>
+                </div>
+
+                <div className="flex flex-col justify-center items-center">
+                  <p className="text-2xl font-bold text-[#3D84FF]">
+                    {data?.avg_duration_hr || "2.4h"}
+                  </p>
+                  <p className="text-sm text-gray-500">Avg duration</p>
+                </div>
+
+                <div className="flex flex-col justify-center items-center">
+                  <p className="text-2xl font-bold text-[#21C45D]">
+                    {data?.avg_waste_kg || "12.5kg"}
+                  </p>
+                  <p className="text-sm text-gray-500">Avg waste/op</p>
+                </div>
+
+                <div className="flex flex-col justify-center items-center">
+                  <p className="text-2xl font-bold text-[#E7B008]">
+                    {data?.high_severity_ops || "3"}
+                  </p>
+                  <p className="text-sm text-gray-500">High-severity</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Operator Section */}
+          <div className="flex flex-col min-h-[330px] w-[25%] bg-[#ffffff]  p-6 rounded-lg border border-gray-300">
+            <div className=" items-center justify-between mt-3">
+              <div className="flex ">
+                <img
+                  src="/images/operator.png"
+                  alt="Operator"
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+                <div className="text-start px-5">
+                  <h4 className="text-2xl   ">
+                    {data?.operator_name || "Sarah Chen"}
+                  </h4>
+                  <p className="text-lg text-gray-500">
+                    {data?.operator_role || "Operator"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 mt-4">
+                <p className="text-[#6C727F] text-md text-start px-3">
+                  Outstanding leadership in complex drainage operations this
+                  week. Achieved perfect safety record while maximizing
+                  efficiency.
+                </p>
+                <div className="flex flex-row gap-[10px] justify-evenly">
+                  <p className="md:px-3 py-1 text-green-600 border-1 border-green-700 bg-green-100 rounded-lg text-sm">
+                    Zero incidents
+                  </p>
+                  <p className="md:px-3 py-1 text-blue-600 border-1 border-blue-700 bg-blue-100 rounded-lg text-sm">
+                    Fast redeploys
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mt-8 w-full px-10">
+        <div className="bg-[#ffffff] rounded-lg p-4 pt-5 border border-gray-300">
+          <p className="text-3xl font-bold text-[#1A8BA8]">
+            {data.total_waste_kg || "1,245kgs"}
+          </p>
+          <p className="text-gray-500 text-md pt-2">Total waste collected</p>
+        </div>
+        <div className="bg-[#ffffff] rounded-lg p-4 pt-5 border border-gray-300">
+          <p className="text-3xl font-bold text-[#3D84FF]">
+            {data?.time_saved_hr || "156h"}
+          </p>
+          <p className="text-gray-500 text-md pt-2">Time saved</p>
+        </div>
+        <div className="bg-[#ffffff] rounded-lg p-4 pt-5 border border-gray-300 ">
+          <p className="text-3xl font-bold text-[#21C45D]">
+            {data?.success_rate_percent || "97.20%"}
+          </p>
+          <p className="text-gray-500 text-md pt-2">Success rate</p>
+        </div>
+        <div className="bg-[#ffffff] rounded-lg p-4 pt-5 border border-gray-300">
+          <p className="text-3xl font-bold text-[#E7B008]">
+            {data?.avg_operation_time_hr || "2.8 hr"}
+          </p>
+          <p className="text-gray-500 text-md pt-2">Avg operation time</p>
+        </div>
+      </div>
+
+      <section className="mt-8 px-10 max-w-full">
+        <div className="bg-[#ffffff] rounded-xl  p-6  mx-auto mt-12 h-auto">
+          <h2 className="text-3xl  text-center mb-2">
+            Emergency Manhole Blockage Cleared in Record Time
+          </h2>
+          <p className="text-gray-600 text-center mb-6 mt-4">
+            On 05th Aug, during a routine scan, the system detected a
+            high-severity blockage in. Gas sensors showed dangerous methane
+            levels, posing an immediate safety risk to nearby workers and
+            residents. The robot was deployed within minutes.
+          </p>
+
+          {/* Timeline */}
+          <div className="w-full flex flex-nowrap shrink-1 items-center justify-center gap-0 text-center mb-8 mt-10 px-auto">
+            <div className="flex flex-row">
+              <div className="bg-red-50 h-11 w-11 flex items-center rounded-3xl m-auto shadow-xl shadow-gray-200">
+                < TriangleAlert
+                  className="w-[25px] h-auto m-auto text-red-600"
+                />
+              </div>
+              <div className="w-35 p-2 ml-2 pr-0">
+                <p className="text-md font-medium pt-2 text-start">
+                  Hotspot Alert Triggered
+                </p>
+                <p className="text-gray-500 text-start">
+                  {data?.hotspot_time || "15:02"}
+                </p>
+              </div>
+            </div>
+            <div className="px-2 mr-2">
+              <hr className="border-1 w-6 border-gray-300" />
+            </div>
+            <div className="flex flex-row  ">
+              <div className="bg-blue-50 h-11 w-11 flex items-center rounded-3xl m-auto shadow-xl shadow-gray-200">
+                <Clock
+                  className="w-[25px] h-auto m-auto text-blue-500"
+                />
+              </div>
+              <div className="w-35 p-2 ml-2">
+                <p className="text-md font-medium pt-2 text-start">
+                  Robot Deployed to Site
+                </p>
+                <p className="text-gray-500 text-start">
+                  {data?.deployed_time || "15:02"}
+                </p>
+              </div>
+            </div>
+            <div className="px-2 mr-2">
+              <hr className="border-1 w-6 border-gray-300" />
+            </div>
+            <div className="flex flex-row">
+              <div className="bg-yellow-50 h-11 w-11 flex items-center rounded-3xl m-auto shadow-xl shadow-gray-200">
+                <TriangleAlert
+                  className="w-[25px] h-auto m-auto text-yellow-400"
+                />
+              </div>
+              <div className="w-35 p-2 ml-2">
+                <p className="text-md font-medium pt-2 text-start">
+                  Gas Venting Initiated
+                </p>
+                <p className="text-gray-500 text-start">
+                  {data?.venting_time || "15:02"}
+                </p>
+              </div>
+            </div>
+            <div className="px-2 mr-2">
+              <hr className="border-1 w-6 border-gray-300" />
+            </div>
+            <div className="flex flex-row">
+              <div className="bg-green-50 h-11 w-11 flex items-center rounded-3xl m-auto shadow-xl shadow-gray-200">
+                <CircleCheckBig
+                  className="w-[25px] h-auto m-auto text-green-500"
+                />
+              </div>
+              <div className="w-35 p-2 ml-2">
+                <p className="text-md font-medium pt-2 text-start">
+                  Blockage Cleared & Gas Safe
+                </p>
+                <p className="text-gray-500 text-start">
+                  {data?.clearance_time || "15:02"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="flex justify-center gap-[25px] text-center">
+            <div className="bg-blue-50 border border-blue-300 rounded-lg p-2 h-30 w-40 flex flex-col items-center justify-center">
+              <p className="text-2xl font-bold text-[#1A8BA8] pt-3">
+                {data?.resolution_time_min || "28 mins"}
+              </p>
+              <p className="text-gray-500 text-sm ">Resolution time</p>
+            </div>
+            <div className="bg-blue-50 border border-blue-300 rounded-lg p-2 h-30 w-40 flex flex-col items-center justify-center">
+              <p className="text-2xl font-bold text-[#1A8BA8] pt-3">
+                {data?.waste_removed_kg || "11 Kgs"}
+              </p>
+              <p className="text-gray-500 text-sm">Waste removed</p>
+            </div>
+            <div className="bg-blue-50 border border-blue-300 rounded-lg p-2 h-30 w-40 flex flex-col items-center justify-center">
+              <p className="text-2xl font-bold text-[#1A8BA8] pt-3">
+                {data?.gas_drop_percent || "78%-18%"}
+              </p>
+              <p className="text-gray-500 text-sm">Gas level drop</p>
+            </div>
+            <div className="bg-blue-50 border border-blue-300 rounded-lg p-2 h-30 w-40 flex flex-col items-center justify-center">
+              <p className="text-2xl font-bold text-[#1A8BA8] pt-3">
+                {data?.risk_level || "High - safe"}
+              </p>
+              <p className="text-gray-500 text-sm">Risk level</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-4 text-center py-15 justify-center align-middle">
+            <div className="h-auto w-auto rounded-2xl bg-cover bg-center bg-gray-200 flex items-center justify-center">
+              <img
+                src="/images/before.png"
+                alt="Before"
+                className="w-full max-w-[350px] h-full object-cover rounded-2xl"
+              />
+            </div>
+            <div className="h-auto w-auto rounded-2xl bg-cover bg-center bg-gray-200 flex items-center justify-center">
+              <img
+                src="/images/after.png"
+                alt="After"
+                className="w-full max-w-[350px] h-full object-cover rounded-2xl"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+      </div>
+    </>
+  );
+};
+
