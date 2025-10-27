@@ -184,10 +184,10 @@
 // };
 
 import React, { useState, useEffect } from "react";
-import { RobotReportsComponent } from "../components/reports/RobotReportsComponent";
-import { WardReportsComponent } from "../components/reports/WardReportsComponent";
-import { ManholeReportsComponent } from "../components/reports/manholeReportsComponent";
 import IconsData from "../data/iconsdata";
+import { RobotReportsComponent } from "../components/reports/robotReportsComponent";
+import { ManholeReportsComponent } from "../components/reports/manholeReportsComponent";
+import { WardReportsComponent } from "../components/reports/wardReportsComponent";
 
 export const Reports = () => {
   const [locationsData, setLocationsData] = useState([]);
