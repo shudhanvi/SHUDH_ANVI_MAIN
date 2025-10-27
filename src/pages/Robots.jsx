@@ -4,7 +4,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Bot, Calendar, MapPin, Search, FireExtinguisher } from "lucide-react";
 import Papa from "papaparse";
 import { useServerData } from "../context/ServerDataContext";
-import { RobotPopupComponent } from "../components/robots/RobotPopupComponent";
+import { RobotPopupComponent } from "../components/robots/robotPopupComponent";
+ 
 const userInputsObj = {
   division: "",
   section: "",

@@ -136,7 +136,8 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import IconsData from "../../data/iconsdata";
-import { ZoneWiseManholeReports } from "./ZoneWiseManholeReports";
+import { ZoneWiseManholeReports } from "./zoneWiseManholeReports";
+ 
 
 export const ManholeReportsComponent = ({ city, division, section }) => {
   const [reportData, setReportData] = useState([]);
