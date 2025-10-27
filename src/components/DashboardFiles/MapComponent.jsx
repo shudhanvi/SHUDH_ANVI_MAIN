@@ -1,6 +1,6 @@
 // ./MapComponent.js
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback,useMemo } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import * as XLSX from "xlsx";
@@ -52,7 +52,7 @@ const MapComponent = () => {
     const date_info = new Date(utc_value * 1000);
     return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate());
   };
-  console.log("Rendering MapComponent, selectedManholeLocation:", selectedManholeLocation);
+ 
   const getManholeStatus = (operationdates) => {
     if (!operationdates) return "safe";
     let lastCleaned;
@@ -179,7 +179,7 @@ const MapComponent = () => {
           }
           groupedCoords[area] = coords;
         });
-        console.log("LOADED POLYGON KEYS:", Object.keys(groupedCoords));
+ 
         setWardPolygons(groupedCoords);
         setWardDetailsMap(detailsMap);
       })
@@ -215,7 +215,7 @@ const MapComponent = () => {
   };
 
   const handleAreaNameChange = (areaValue) => {
-    console.log("SELECTED AREA NAME:", `"${areaValue}"`);
+ 
     clearManholeSelection();
     setSelectedAreaName(areaValue);
     setSelectedZone("All");
@@ -251,6 +251,50 @@ const MapComponent = () => {
     }
   };
 
+const alertData = useMemo(() => {
+    // Only calculate if a specific ward is selected and data is loaded
+    if (!selectedAreaName || selectedAreaName === "All" || allManholeData.length === 0) {
+      return []; // Return empty array if no ward selected or no data
+    }
+
+    // 1. Filter manholes for the selected ward
+    const wardManholes = allManholeData.filter(
+      (mh) => mh.Area_name === selectedAreaName && mh.Division === selectedDivision // Ensure division matches too
+    );
+
+    // 2. Filter for 'danger' status
+    const dangerManholes = wardManholes.filter(
+      (mh) => getManholeStatus(mh.last_operation_date) === 'danger'
+    );
+
+    // 3. Group by Zone
+    const groupedByZone = dangerManholes.reduce((acc, mh) => {
+      const zone = mh.Zone || 'Unknown Zone'; // Handle cases where Zone might be missing
+      if (!acc[zone]) {
+        acc[zone] = [];
+      }
+      acc[zone].push({
+        id: mh.id || 'N/A',
+        // Format location as "latitude, longitude"
+        location: `${mh.latitude || 'N/A'}, ${mh.longitude || 'N/A'}`, 
+        status: 'Danger', // We already filtered for danger
+      });
+      return acc;
+    }, {}); // Start with an empty object
+
+    // 4. Transform into the desired array format [{ zoneName: '...', alerts: [...] }, ...]
+    const formattedAlertData = Object.entries(groupedByZone)
+      .map(([zoneName, alerts]) => ({
+        zoneName,
+        alerts,
+      }))
+      .sort((a, b) => a.zoneName.localeCompare(b.zoneName)); // Optional: Sort zones alphabetically
+
+    return formattedAlertData;
+
+  }, [selectedAreaName, selectedDivision, allManholeData]);
+ 
+
   const handleReset = () => {
 
     // Check if a specific ward is currently selected
@@ -266,21 +310,19 @@ const MapComponent = () => {
           const bounds = new mapboxgl.LngLatBounds();
           coords.forEach(c => bounds.extend(c));
           setFlyToLocation({ bounds: bounds, padding: 40 });
-          console.log("Resetting view to selected ward:", selectedAreaName);
+        
           return; // Stop here, don't reset to default view
         }
       }
     }
-
-    // If no specific ward is selected, reset to the default view
-    console.log("Resetting view to default Hyderabad");
+ 
     setFlyToLocation({ center: [78.4794, 17.3940], zoom: 9.40 });
 
 
   };
   const handleClosePopup = () => clearManholeSelection();
-  const handleGenerateReport = () => { console.log("Report generated!"); clearManholeSelection(); };
-  const handleAssignBot = () => { console.log("Bot booked."); clearManholeSelection(); };
+  const handleGenerateReport = () => {   clearManholeSelection(); };
+  const handleAssignBot = () => {   clearManholeSelection(); };
 
   // --- MAP CALLBACK HANDLERS ---
   const handleManholeClick = useCallback((feature) => {
@@ -296,9 +338,39 @@ const MapComponent = () => {
   const handleManholeDeselect = useCallback(() => {
     clearManholeSelection();
   }, [clearManholeSelection]);
+// ./MapComponent.js
 
-  // onMapLoadCallback and onStyleLoadCallback REMOVED
+  const handleAlertManholeClick = useCallback((manholeId) => {
+    const manholeData = allManholeData.find(mh => mh.id === manholeId);
 
+    if (manholeData) {
+       console.log("Clicked alert for manhole:", manholeData);
+
+      // Define lat and lon HERE using parseFloat
+      const lat = parseFloat(manholeData.latitude);
+      const lon = parseFloat(manholeData.longitude);
+
+      // Use the converted numbers when setting the location state
+      setSelectedManholeLocation({
+        ...manholeData,
+        latitude: isNaN(lat) ? null : lat,     // Use converted number
+        longitude: isNaN(lon) ? null : lon,    // Use converted number
+        lastCleaned: manholeData.last_operation_date,
+ 
+      });
+
+      // Check if BOTH lon and lat are valid numbers BEFORE using them
+      if (!isNaN(lon) && !isNaN(lat)) {
+         // Use the defined lon and lat variables here
+         setFlyToLocation({ center: [lon, lat], zoom: 18 });
+      } else {
+         console.warn("Invalid coordinates for flying:", manholeData.longitude, manholeData.latitude);
+      }
+
+    } else {
+      console.warn("Manhole data not found for ID:", manholeId);
+    }
+  }, [allManholeData]);
   // --- EFFECT TO FILTER MANHOLES ---
   useEffect(() => {
     // Guard: Wait for data
@@ -353,7 +425,7 @@ const MapComponent = () => {
     }
 
     const coords = wardPolygons[matchKey];
-    console.log("FOUND COORDINATES FOR BORDER:", coords);
+ 
 
     if (!Array.isArray(coords) || coords.length < 4) {
       console.warn("Insufficient coords for polygon:", matchKey, coords);
@@ -536,6 +608,8 @@ const MapComponent = () => {
           <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
             <WardDetailsPopUp
               wardData={selectedWardForPopup}
+              alertData={alertData}
+              onManholeSelect={handleAlertManholeClick}
               onClose={() => setSelectedAreaName("All")}
               selectedWard={selectedWardForPopup}
               setSelectedWard={setSelectedAreaName}
