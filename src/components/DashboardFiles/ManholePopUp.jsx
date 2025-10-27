@@ -8,6 +8,7 @@ const ManholePopUp = ({
   onGenerateReport,
   onAssignBot,
 }) => {
+  console.log("ManholePopUp received selectedLocation:", selectedLocation);
   if (!selectedLocation) return null;
 
   // Helper function to get color based on status string
@@ -74,7 +75,7 @@ const ManholePopUp = ({
           <h4 className="font-[400] grid grid-cols-2">
             Ward :{" "}
             <span className="font-[400] text-right text-[#0A0A0A]">
-              {selectedLocation.area_name || "N/A"}
+              {selectedLocation.Area_name || "N/A"}
             </span>{" "}
           </h4>
           <h4 className="font-[400] grid grid-cols-2">

@@ -3,10 +3,10 @@
 import Alerts from "./Alerts";
 
  
-const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
- 
+const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selectedWard, setSelectedWard }) => {
+   
   const [activeTab, setActiveTab] = useState("details"); // 'details' or 'alerts'
-
+const [isLoading, setIsLoading] = useState(false);
   if (!selectedWard) return null;
 
   const wardDetails = selectedWard;
@@ -32,6 +32,48 @@ const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
   const activeClasses = 
     "bg-[#1E9AB033] text-gray-900 text-gray-900  bold  hover:text-gray-800"
   const inactiveClasses = "text-gray-600 hover:text-gray-800";
+   const handleOpenReport = async () => {
+       
+
+        setIsLoading(true);
+
+        // ✅ **FIX: Mapped the prop names to the keys required by the backend.**
+        const payload = {
+                // 'city' prop is now sent as 'district'
+            division: zone, // This name was correct
+            area: Area_name,      // 'section' prop is now sent as 'area'
+            command: "generate_ward_report",
+        };
+
+        console.log("Sending corrected payload to backend:", payload);
+
+        try {
+            const response = await fetch(backendApi.wardsReportUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                if (response.status === 400) {
+                    const errorData = await response.json().catch(() => ({ message: "Server returned a 400 Bad Request." }));
+                    throw new Error(`Server validation error: ${JSON.stringify(errorData)}`);
+                }
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Backend response:", data);
+            setReportData(data);
+            setShowPopup(true);
+        } catch (error) {
+            console.error("Error fetching ward report:", error);
+            alert(`Failed to generate the report. ${error.message}`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+ 
 
   return (
     <div className="flex w-full h-max  relative flex-col p-2 rounded-xl   border-gray-400   shadow-gray-300">
@@ -44,7 +86,7 @@ const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
       >
         <div className="flex flex-col justify-center relative align-middle gap-2 text-white text-left">
           <h1 className="text-xl font-bold ">{`Ward: ${Area_name}`}</h1>
-          <p className="text-[12px]">{`Ward :${zone}`}</p>
+          <p className="text-[12px]">{`Division :${zone}`}</p>
           <button
             type="button"
             className="btn-hover cursor-pointer"
@@ -56,7 +98,7 @@ const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
               fontWeight: "bold",
               fontSize: "16px",
             }}
-            onClick={() => confirm("Generated Report")}
+            onClick={() => handleOpenReport()}
           >
             Generate Report
           </button>
@@ -87,15 +129,14 @@ const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
             }`}
           >
             Alerts
-            {/* You can add a real count here later if you want */}
-            {/* <span className="bg-red-100 text-red-700 text-xs font-bold rounded-full px-2 py-0.5">5</span> */}
+ 
           </button>
         </div>
 
-        {/* 4. Conditional Rendering for the content */}
+      
         <div>
           {activeTab === "details" && (
-            // This is your original Details table
+        
             <>
             <table className="details-table mt-2 w-full bg-white shadow-md text-[12px] font-[400] border-1 border-gray-400 shadow-gray-400 rounded-b-md overflow-hidden text-left">
               <thead>
@@ -188,7 +229,7 @@ const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
           )}
            {activeTab === "alerts" && (
             // This is where your Alerts component goes
-           <Alerts/>
+<Alerts alertData={alertData} onManholeSelect={onManholeSelect} />
           )}
            
 
