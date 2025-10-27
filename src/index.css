@@ -63,3 +63,6 @@ button:not(.popup-btn):not(.manhole-popup-btn):not(.btn-view-more) {
 .db-popup-container::-webkit-scrollbar{
   width: 0px;
 }
+.react-datepicker-wrapper {
+  width: 100%;
+}

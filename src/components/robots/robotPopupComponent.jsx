@@ -23,6 +23,8 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
   const [detailedToDate, setDetailedToDate] = useState(null);
   const [detailedFilteredData, setDetailedFilteredData] = useState([]);
   const [selectedHistory, setSelectedHistory] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
 
 
   useEffect(() => {
@@ -83,44 +85,61 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
       console.error("Invalid geo_location format:", currentRecord.location, err);
     }
   }
-  const handleGenerateReport = async () => {
-    try {
+ const handleGenerateReport = async () => {
+  // ✅ Validate that required data exists
+  if (!currentRecord || !currentRecord.device_id || !currentRecord.district || !currentRecord.division || !currentRecord.area) {
+    alert("Missing required record details... Please ensure all fields are available before generating the report.");
+    return;
+  }
 
-      const response = await fetch(backendApi.analyze, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          command: "generate_Robot_report",
-          params: {
-            'device_id': currentRecord.device_id,
-            'district': currentRecord.district,
-            'division': currentRecord.division,
-            'id': currentRecord.id,
-            'area': currentRecord.area
+  setIsLoading(true); // optional if you have loading state
 
-          }
-
-
-
-          // 'device_id':currentRecord.device_id,
-
-          // 'division':'DC',
-
-        }),
-      });
-      console.log("Sending payload:", { command: "generate_report" });
-
-
-      // console.log(body)
-      const data = await response.json();
-      console.log("Backend response:", data);
-      alert(data.Allert);
-    } catch (error) {
-      console.error("Error calling backend:", error);
-    }
+  // ✅ Prepare payload similar to backend requirements
+  const payload = {
+    command: "generate_operation_report",
+    params: {
+      device_id: currentRecord.device_id,
+      district: currentRecord.district,
+      division: currentRecord.division,
+      operation_id: currentRecord.operation_id,
+      area: currentRecord.area,
+    },
   };
+
+  console.log("📤 Sending payload to backend:", payload);
+
+  try {
+    const response = await fetch(backendApi.analyze, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    // ✅ Handle HTTP errors gracefully
+    if (!response.ok) {
+      if (response.status === 400) {
+        const errorData = await response.json().catch(() => ({ message: "Server returned a 400 Bad Request." }));
+        throw new Error(`Server validation error: ${JSON.stringify(errorData)}`);
+      }
+      throw new Error(`Server error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("✅ Backend response received:", data);
+
+    if (data.Allert) {
+      alert(data.Allert);
+    } else {
+      alert("Report generated successfully.");
+    }
+
+  } catch (error) {
+    console.error("❌ Error generating report:", error);
+    alert(`Failed to generate the report. ${error.message}`);
+  } finally {
+    setIsLoading(false); // optional if you have loading state
+  }
+};
 
 
   return (
@@ -320,12 +339,15 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                 </button> */}
                 {console.log("currentRecord:", currentRecord)}
                 <button
-                  onClick={handleGenerateReport}
-                  className="flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px] w-full text-white rounded-[16px] cursor-pointer btn-hover"
-                >
-                  <Download className="inline-block w-5 h-5 mr-1" color="white" />
-                  Generate Operation Report
-                </button>
+  onClick={handleGenerateReport}
+  disabled={isLoading}
+  className={`flex items-center justify-center h-[48px] w-full text-[16px] rounded-[16px] cursor-pointer btn-hover 
+              ${isLoading ? "bg-gray-400 text-white" : "bg-[#1A8BA8] text-white"}`}
+>
+  <Download className="inline-block w-5 h-5 mr-1" color="white" />
+  {isLoading ? "Generating..." : "Generate Operation Report"}
+</button>
+
 
 
 

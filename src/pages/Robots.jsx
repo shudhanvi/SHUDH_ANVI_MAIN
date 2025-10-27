@@ -5,7 +5,6 @@ import { Bot, Calendar, MapPin, Search, FireExtinguisher } from "lucide-react";
 import Papa from "papaparse";
 import { useServerData } from "../context/ServerDataContext";
 import { RobotPopupComponent } from "../components/robots/robotPopupComponent";
-
 const userInputsObj = {
   division: "",
   section: "",
@@ -201,21 +200,22 @@ export const Robots = () => {
   return (
     <div className="w-full ">
       <section className="section1 border-b-[1.5px] border-[#E1E7EF] py-[10px] px-[30px] bg-white ">
-        <h1 className="text-[24px] font-bold">Robots</h1>
-        <p className="text-[14px] text-[#65758B]">Monitor and manage robot fleet</p>
+      <h1 className="text-[24px] font-bold">Robots</h1>
+      <p className="text-[14px] text-[#65758B]">Monitor and manage robot fleet</p>
       </section>
 
       {/* Filters */}
       <section className="flex justify-center h-auto w-full mt-6 ">
-        <div className="flex flex-wrap justify-evenly gap-[1%] p-[22px] pb-[26px] mx-[30px] rounded-xl border-[1.5px] border-[#E1E7EF]  items-center max-w-[2400px] w-[100%] bg-white ">
+        <div className="flex  gap-[10px] justify-evenly p-[22px] pb-[26px] mx-[30px] rounded-xl border-[1.5px] border-[#E1E7EF]  items-center max-w-[2400px] w-[100%] bg-white ">
+         <div className="flex justify-evenly w-[85%] gap-[15px]">
           {/* Division */}
-          <div className=" text-start relative">
+          <div className=" text-start relative w-[-webkit-fill-available] " >
             <label className="block font-semibold mb-1">Division</label>
             <div className="flex flex-col">
               <select
                 value={userInputs.division}
                 onChange={(e) => handleInput("division", e.target.value)}
-                className="border border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm relative "
+                className="border  border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm relative "
               >
                 <option value="">Select Division</option>
                 {divisions.map((div) => (
@@ -233,7 +233,7 @@ export const Robots = () => {
           </div>
 
           {/* Section */}
-          <div className=" text-start">
+          <div className=" text-start w-[-webkit-fill-available]" >
             <label className="block font-semibold mb-1">Section</label>
             <select
               value={userInputs.section}
@@ -250,7 +250,7 @@ export const Robots = () => {
           </div>
 
           {/* From Date */}
-          <div className=" text-start relative">
+          <div className=" text-start relative w-[-webkit-fill-available]">
             <label className="block font-semibold mb-1">From Date</label>
             <DatePicker
               selected={userInputs.fromDate}
@@ -263,7 +263,7 @@ export const Robots = () => {
           </div>
 
           {/* To Date */}
-          <div className=" text-start relative">
+          <div className=" text-start relative w-[-webkit-fill-available]">
             <label className="block font-semibold mb-1">To Date</label>
             <DatePicker
               selected={userInputs.toDate}
@@ -274,7 +274,7 @@ export const Robots = () => {
             />
             <Calendar className="absolute top-8 right-2 text-gray-600" />
           </div>
-
+</div>
           {/* Button */}
           <div className="">
             <button
@@ -344,8 +344,8 @@ export const Robots = () => {
                             Last operation:{" "}
                             {item?.latestTimestamp
                               ? new Date(
-                                item.latestTimestamp
-                              ).toLocaleDateString()
+                                  item.latestTimestamp
+                                ).toLocaleDateString()
                               : "-"}
                           </p>
                           <p className="flex items-center mb-2">
@@ -353,9 +353,9 @@ export const Robots = () => {
                             Gas status:{" "}
                             {item.gas_status
                               ? item.gas_status
-                                .charAt(0)
-                                .toUpperCase() +
-                              item.gas_status.slice(1).toLowerCase()
+                                  .charAt(0)
+                                  .toUpperCase() +
+                                item.gas_status.slice(1).toLowerCase()
                               : "N/A"}
                           </p>
                           <p className="flex items-center mb-2">
@@ -370,7 +370,7 @@ export const Robots = () => {
                       <div className="flex justify-between items-center">
                         <div className="text-center">
                           <p className="text-2xl ">
-                            {item?.waste_collected_kg ?? "-"} Kgs
+                            {item?.waste_collected_kg || "-"} Kgs
                           </p>
                           <p className="text-xs text-gray-500">
                             Waste Collected
@@ -395,10 +395,10 @@ export const Robots = () => {
           )
         ) : (
           <div className="flex flex-col justify-center items-center mt-[50px]">
-            <img className="h-[130px] w-[130px]" src="/images/Robot-filter.png" />
-            <p className="text-gray-400 text-center ">
-              “No robots to display yet. Please select a Division and Section to get started.”
-            </p>
+            <img className="h-[130px] w-[130px]" src="/images/Robot-filter.png"/>
+          <p className="text-gray-400 text-center ">
+            “No robots to display yet. Please select a Division and Section to get started.”
+          </p>
           </div>
         )}
 
