@@ -1,33 +1,33 @@
-
 import React, { useState, useEffect } from "react";
 import IconsData from "../data/iconsdata";
 import { RobotReportsComponent } from "../components/reports/robotReportsComponent";
 import { ManholeReportsComponent } from "../components/reports/manholeReportsComponent";
 import { WardReportsComponent } from "../components/reports/wardReportsComponent";
+import { useServerData } from "../context/ServerDataContext";
 
 export const Reports = () => {
-  const [locationsData, setLocationsData] = useState([]);
+  const { serverData, loading: serverLoading, message } = useServerData(); // server data
+  const [csvData, setCsvData] = useState([]); // local CSV data
+  const [mergedData, setMergedData] = useState([]); // combined data
+
   const [cities, setCities] = useState([]);
   const [divisions, setDivisions] = useState([]);
   const [sections, setSections] = useState([]);
 
-  // 🔹 Temporary selections (change immediately in UI)
   const [userInputs, setUserInputs] = useState({ city: "", division: "", section: "" });
-
-  // 🔹 Committed inputs (only update on View Reports click)
   const [confirmedInputs, setConfirmedInputs] = useState({ city: "", division: "", section: "" });
-
-  const [errors, setErrors] = useState({ city: "", division: "", section: "" });
+  const [errors, setErrors] = useState({});
   const [viewClicked, setViewClicked] = useState(false);
   const [activeReportType, setActiveReportType] = useState("Manhole Reports");
 
   // ✅ Fetch CSV data
   useEffect(() => {
-    fetch("/datafiles/CSVs/ManHoles_Data.csv")
-      .then((response) => (response.ok ? response.text() : Promise.reject("Network Error")))
-      .then((text) => {
+    const fetchCsv = async () => {
+      try {
+        const response = await fetch("/datafiles/CSVs/ManHoles_Data.csv");
+        if (!response.ok) throw new Error("Failed to fetch CSV");
+        const text = await response.text();
         const rows = text.trim().split("\n").filter(Boolean);
-        if (rows.length < 2) return;
         const headers = rows[0].split(",").map((h) => h.trim());
         const data = rows.slice(1).map((row) => {
           const values = row.split(",").map((v) => v.trim());
@@ -36,80 +36,90 @@ export const Reports = () => {
             return obj;
           }, {});
         });
-        setLocationsData(data);
-        setCities([...new Set(data.map((r) => r.City).filter(Boolean))]);
-      })
-      .catch((error) => console.error("Error fetching location data:", error));
+        setCsvData(data);
+      } catch (err) {
+        console.error("CSV load failed:", err);
+      }
+    };
+    fetchCsv();
   }, []);
 
-  // ✅ Handle dropdown input change
-  const handleInput = (field, value) => {
-    setUserInputs((prev) => {
-      const next = { ...prev, [field]: value };
-      if (field === "city") {
-        next.division = "";
-        next.section = "";
-      }
-      if (field === "division") {
-        next.section = "";
-      }
-      return next;
-    });
-    if (value) setErrors((prev) => ({ ...prev, [field]: "" }));
-  };
+  // ✅ Merge CSV and Server Data
+  useEffect(() => {
+    if (csvData.length > 0 || serverData.length > 0) {
+      const merged = [...csvData, ...serverData];
+      setMergedData(merged);
 
-  // ✅ Update division list when city changes
+      const cityList = [...new Set(merged.map((i) => i.City).filter(Boolean))];
+      setCities(cityList);
+    }
+  }, [csvData, serverData]);
+
+  // ✅ Update Divisions when City changes
   useEffect(() => {
     if (userInputs.city) {
-      setDivisions([
+      const divs = [
         ...new Set(
-          locationsData
+          mergedData
             .filter((r) => r.City === userInputs.city)
             .map((r) => r.Division)
             .filter(Boolean)
         ),
-      ]);
-    } else setDivisions([]);
-  }, [userInputs.city, locationsData]);
+      ];
+      setDivisions(divs);
+    } else {
+      setDivisions([]);
+      setSections([]);
+    }
+  }, [userInputs.city, mergedData]);
 
-  // ✅ Update section list when division changes
+  // ✅ Update Sections when Division changes
   useEffect(() => {
     if (userInputs.division) {
-      setSections([
+      const secs = [
         ...new Set(
-          locationsData
-            .filter((r) => r.City === userInputs.city && r.Division === userInputs.division)
+          mergedData
+            .filter(
+              (r) =>
+                r.City === userInputs.city && r.Division === userInputs.division
+            )
             .map((r) => r.Section)
             .filter(Boolean)
         ),
-      ]);
-    } else setSections([]);
-  }, [userInputs.division, userInputs.city, locationsData]);
+      ];
+      setSections(secs);
+    } else {
+      setSections([]);
+    }
+  }, [userInputs.division, userInputs.city, mergedData]);
 
-  // ✅ Validate form
-  const validate = () => {
-    const newErrors = { city: "", division: "", section: "" };
-    let isValid = true;
-    if (!userInputs.city) {
-      newErrors.city = "*City is required";
-      isValid = false;
-    }
-    if (!userInputs.division) {
-      newErrors.division = "*Division is required";
-      isValid = false;
-    }
-    if (!userInputs.section) {
-      newErrors.section = "*Section is required";
-      isValid = false;
-    }
-    setErrors(newErrors);
-    return isValid;
+  // ✅ Handle Dropdown Change
+  const handleInput = (field, value) => {
+    setUserInputs((prev) => {
+      const updated = { ...prev, [field]: value };
+      if (field === "city") {
+        updated.division = "";
+        updated.section = "";
+      } else if (field === "division") {
+        updated.section = "";
+      }
+      return updated;
+    });
+    if (value) setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  // ✅ On clicking "View Reports"
+  // ✅ Validate before showing reports
+  const validate = () => {
+    const newErrors = {};
+    if (!userInputs.city) newErrors.city = "*City is required";
+    if (!userInputs.division) newErrors.division = "*Division is required";
+    if (!userInputs.section) newErrors.section = "*Section is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleViewReports = () => {
     if (validate()) {
-      // 🔹 Update confirmed (locked-in) inputs for report rendering
       setConfirmedInputs({ ...userInputs });
       setViewClicked(true);
     }
@@ -126,136 +136,147 @@ export const Reports = () => {
       </section>
 
       <section className="w-full p-6">
-        {/* Filters */}
-        <div className="flex flex-wrap items-end gap-6 p-6 border-[1.5px] border-[#E1E7EF] rounded-lg bg-white">
-          {/* City */}
-          <div className="flex-1 min-w-[250px] relative flex flex-col">
-            <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-            <select
-              value={userInputs.city}
-              onChange={(e) => handleInput("city", e.target.value)}
-              className="w-full h-10 px-3 border rounded-md border-gray-300"
-            >
-              <option value="">Select City</option>
-              {cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            </div>
-            <span className="absolute bottom-[-18px]">{errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}</span>
-          </div>
-
-          {/* Division */}
-          <div className="flex-1 min-w-[250px] relative flex flex-col">
-            <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Division</label>
-            <select
-              value={userInputs.division}
-              onChange={(e) => handleInput("division", e.target.value)}
-              disabled={!userInputs.city}
-              className="w-full h-10 px-3 border rounded-md disabled:bg-gray-100 border-gray-300"
-            >
-              <option value="">Select Division</option>
-              {divisions.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-            </div>
-            <span className="absolute bottom-[-18px]">{errors.division && <p className="text-red-500 text-xs mt-1">{errors.division}</p>}</span>
-          </div>
-
-          {/* Section */}
-          <div className="flex-1 min-w-[250px] relative flex flex-col">
-            <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Section</label>
-            <select
-              value={userInputs.section}
-              onChange={(e) => handleInput("section", e.target.value)}
-              disabled={!userInputs.division}
-              className="w-full h-10 px-3 border rounded-md disabled:bg-gray-100 border-gray-300"
-            >
-              <option value="">Select Section</option>
-              {sections.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-            </div>
-          <span className="absolute  bottom-[-18px]">{errors.section && <p className="text-red-500 text-xs mt-1">{errors.section}</p>}</span>
-          </div>
-
-          <button
-            onClick={handleViewReports}
-            className="px-[20px] py-[10px] text-white flex items-center gap-[2px] bg-[#1E9AB0] rounded-[12px] hover:rounded-[0px]"
-          >
-            <span>{IconsData.search}</span>View Reports
-          </button>
-        </div>
-
-        {/* Content */}
-        {!viewClicked ? (
-          <div className="text-center py-10 px-6">
-            <img
-              src="/images/Report.png"
-              alt="Report Placeholder"
-              className="mx-auto h-48 w-48 object-contain"
-            />
-            <p className="mt-4 text-[#65758B]">
-              No reports to display yet. Please select a Division and Section to generate reports.
-            </p>
-          </div>
+        {/* Loading state */}
+        {serverLoading ? (
+          <div className="text-center py-10 text-gray-600">{message}</div>
         ) : (
-          <div className="mt-6">
-            {/* Tabs */}
-            <div className="flex gap-2">
-              {["Manhole Reports", "Robot Reports", "Ward Reports"].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setActiveReportType(type)}
-                  className={`px-[16px] py-[12px] text-sm rounded-[8px] font-medium border transition-colors ${activeReportType === type
-                    ? "bg-[#1A8BA8] text-white"
-                    : "border-[#1A8BA8]"
-                    }`}
-                >
-                  {type}
-                </button>
-              ))}
+          <>
+            {/* Filters */}
+            <div className="flex flex-wrap items-end gap-6 p-6 border-[1.5px] border-[#E1E7EF] rounded-lg bg-white">
+              {/* City */}
+              <div className="flex-1 min-w-[250px] relative flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                  <select
+                    value={userInputs.city}
+                    onChange={(e) => handleInput("city", e.target.value)}
+                    className="w-full h-10 px-3 border rounded-md border-gray-300"
+                  >
+                    <option value="">Select City</option>
+                    {cities.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {errors.city && (
+                  <p className="text-red-500 text-xs absolute bottom-[-18px]">{errors.city}</p>
+                )}
+              </div>
+
+              {/* Division */}
+              <div className="flex-1 min-w-[250px] relative flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Division</label>
+                  <select
+                    value={userInputs.division}
+                    onChange={(e) => handleInput("division", e.target.value)}
+                    disabled={!userInputs.city}
+                    className="w-full h-10 px-3 border rounded-md border-gray-300 disabled:bg-gray-100"
+                  >
+                    <option value="">Select Division</option>
+                    {divisions.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {errors.division && (
+                  <p className="text-red-500 text-xs absolute bottom-[-18px]">{errors.division}</p>
+                )}
+              </div>
+
+              {/* Section */}
+              <div className="flex-1 min-w-[250px] relative flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Section</label>
+                  <select
+                    value={userInputs.section}
+                    onChange={(e) => handleInput("section", e.target.value)}
+                    disabled={!userInputs.division}
+                    className="w-full h-10 px-3 border rounded-md border-gray-300 disabled:bg-gray-100"
+                  >
+                    <option value="">Select Section</option>
+                    {sections.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {errors.section && (
+                  <p className="text-red-500 text-xs absolute bottom-[-18px]">{errors.section}</p>
+                )}
+              </div>
+
+              <button
+                onClick={handleViewReports}
+                className="px-[20px] py-[10px] text-white flex items-center gap-[4px] bg-[#1E9AB0] rounded-[12px] hover:bg-[#157a8c] transition-all"
+              >
+                <span>{IconsData.search}</span>View Reports
+              </button>
             </div>
 
-            {/* Report Components */}
-            <div className="mt-4">
-              {activeReportType === "Manhole Reports" && (
-                <ManholeReportsComponent
-                  key={`${confirmedInputs.city}-${confirmedInputs.division}-${confirmedInputs.section}-manhole`}
-                  city={confirmedInputs.city}
-                  division={confirmedInputs.division}
-                  section={confirmedInputs.section}
+            {/* Reports display */}
+            {!viewClicked ? (
+              <div className="text-center py-10 px-6">
+                <img
+                  src="/images/Report.png"
+                  alt="Report Placeholder"
+                  className="mx-auto h-48 w-48 object-contain"
                 />
-              )}
-              {activeReportType === "Robot Reports" && (
-                <RobotReportsComponent
-                  key={`${confirmedInputs.city}-${confirmedInputs.division}-${confirmedInputs.section}-robot`}
-                  city={confirmedInputs.city}
-                  division={confirmedInputs.division}
-                  section={confirmedInputs.section}
-                />
-              )}
-              {activeReportType === "Ward Reports" && (
-                <WardReportsComponent
-                  key={`${confirmedInputs.city}-${confirmedInputs.division}-${confirmedInputs.section}-ward`}
-                  city={confirmedInputs.city}
-                  division={confirmedInputs.division}
-                  section={confirmedInputs.section}
-                />
-              )}
-            </div>
-          </div>
+                <p className="mt-4 text-[#65758B]">
+                  No reports to display yet. Please select a Division and Section to generate reports.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-6">
+                {/* Tabs */}
+                <div className="flex gap-2">
+                  {["Manhole Reports", "Robot Reports", "Ward Reports"].map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setActiveReportType(type)}
+                      className={`px-[16px] py-[12px] text-sm rounded-[8px] font-medium border transition-colors ${
+                        activeReportType === type
+                          ? "bg-[#1A8BA8] text-white"
+                          : "border-[#1A8BA8]"
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Report Components */}
+                <div className="mt-4">
+                  {activeReportType === "Manhole Reports" && (
+                    <ManholeReportsComponent
+                      city={confirmedInputs.city}
+                      division={confirmedInputs.division}
+                      section={confirmedInputs.section}
+                    />
+                  )}
+                  {activeReportType === "Robot Reports" && (
+                    <RobotReportsComponent
+                      city={confirmedInputs.city}
+                      division={confirmedInputs.division}
+                      section={confirmedInputs.section}
+                    />
+                  )}
+                  {activeReportType === "Ward Reports" && (
+                    <WardReportsComponent
+                      city={confirmedInputs.city}
+                      division={confirmedInputs.division}
+                      section={confirmedInputs.section}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </section>
     </section>
