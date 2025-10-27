@@ -129,7 +129,8 @@ export const Reports = () => {
         {/* Filters */}
         <div className="flex flex-wrap items-end gap-6 p-6 border-[1.5px] border-[#E1E7EF] rounded-lg bg-white">
           {/* City */}
-          <div className="flex-1 min-w-[250px]">
+          <div className="flex-1 min-w-[250px] relative flex flex-col">
+            <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
             <select
               value={userInputs.city}
@@ -143,11 +144,13 @@ export const Reports = () => {
                 </option>
               ))}
             </select>
-            {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+            </div>
+            <span className="absolute bottom-[-18px]">{errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}</span>
           </div>
 
           {/* Division */}
-          <div className="flex-1 min-w-[250px]">
+          <div className="flex-1 min-w-[250px] relative flex flex-col">
+            <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Division</label>
             <select
               value={userInputs.division}
@@ -162,11 +165,13 @@ export const Reports = () => {
                 </option>
               ))}
             </select>
-            {errors.division && <p className="text-red-500 text-xs mt-1">{errors.division}</p>}
+            </div>
+            <span className="absolute bottom-[-18px]">{errors.division && <p className="text-red-500 text-xs mt-1">{errors.division}</p>}</span>
           </div>
 
           {/* Section */}
-          <div className="flex-1 min-w-[250px]">
+          <div className="flex-1 min-w-[250px] relative flex flex-col">
+            <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Section</label>
             <select
               value={userInputs.section}
@@ -181,7 +186,8 @@ export const Reports = () => {
                 </option>
               ))}
             </select>
-            {errors.section && <p className="text-red-500 text-xs mt-1">{errors.section}</p>}
+            </div>
+          <span className="absolute  bottom-[-18px]">{errors.section && <p className="text-red-500 text-xs mt-1">{errors.section}</p>}</span>
           </div>
 
           <button
