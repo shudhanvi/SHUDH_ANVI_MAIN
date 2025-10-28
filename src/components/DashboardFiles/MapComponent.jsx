@@ -347,7 +347,7 @@ const MapComponent = () => {
     const manholeData = allManholeData.find(mh => mh.id === manholeId);
 
     if (manholeData) {
-      console.log("Clicked alert for manhole (raw):", manholeData);
+      // console.log("Clicked alert for manhole (raw):", manholeData);
 
       // Convert coordinates to numbers
       const lat = parseFloat(manholeData.latitude);
