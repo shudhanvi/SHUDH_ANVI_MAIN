@@ -92,7 +92,7 @@ const ManholePopUp = ({
       if (intervalIdRef.current) {
         clearInterval(intervalIdRef.current);
         intervalIdRef.current = null;
-        console.log('Blynk fetch interval cleared');
+        // console.log('Blynk fetch interval cleared');
       }
     };
   }, [selectedLocation]); // Re-run effect ONLY when selectedLocation changes
@@ -113,8 +113,8 @@ const ManholePopUp = ({
   // Calculate Risk using Blynk Data (useMemo remains the same)
   const risk = useMemo(() => {
     const currentWaterLevel = (blynkWaterLevel !== null && !blynkError) // Removed !isBlynkLoading check here
-                                 ? blynkWaterLevel
-                                 : null;
+      ? blynkWaterLevel
+      : null;
     return riskLevel(parseFloat(depth), currentWaterLevel);
   }, [depth, blynkWaterLevel, blynkError]); // Dependency on blynkError added
 
@@ -124,10 +124,10 @@ const ManholePopUp = ({
 
   // Helper to display Blynk Water Level (Now doesn't show "Loading..." after initial load)
   const displayBlynkWaterLevel = () => {
-      if (isBlynkLoading) return <span className="text-gray-500 italic">Loading...</span>; // Only show Loading... initially
-      if (blynkError) return <span className="text-red-500 italic">Error</span>;
-      if (blynkWaterLevel !== null) return `${blynkWaterLevel.toFixed(2)} Inch`;
-      return 'N/A';
+    if (isBlynkLoading) return <span className="text-gray-500 italic">Loading...</span>; // Only show Loading... initially
+    if (blynkError) return <span className="text-red-500 italic">Error</span>;
+    if (blynkWaterLevel !== null) return `${blynkWaterLevel.toFixed(2)} Inch`;
+    return 'N/A';
   };
 
   return (
@@ -144,13 +144,13 @@ const ManholePopUp = ({
         </button>
       </div>
 
-       {/* Scrollable Content Area */}
+      {/* Scrollable Content Area */}
       <div className="flex-grow overflow-y-auto px-2">
 
         {/* Info Box */}
         <div className="w-[95%] m-auto rounded-xl flex justify-center items-center p-3 my-4 gap-2 bg-[#FEF9E6]">
-           {/* ... Manhole, Ward, Division, Location ... */}
-           <div className="manholePopupBox1 w-full flex flex-col justify-center gap-2 text-[12px] text-left text-[#717182]">
+          {/* ... Manhole, Ward, Division, Location ... */}
+          <div className="manholePopupBox1 w-full flex flex-col justify-center gap-2 text-[12px] text-left text-[#717182]">
             <h4 className="font-[400] grid grid-cols-2 items-center">
               Manhole :{" "}
               <span className="font-[500] text-right text-[#0A0A0A] flex justify-end items-center gap-1">
@@ -164,13 +164,13 @@ const ManholePopUp = ({
                 {selectedLocation.Area_name || "N/A"}
               </span>{" "}
             </h4>
-             <h4 className="font-[400] grid grid-cols-2">
+            <h4 className="font-[400] grid grid-cols-2">
               Division :{" "}
               <span className="font-[400] text-right text-[#0A0A0A]">
                 {selectedLocation.Division || "N/A"}
               </span>{" "}
             </h4>
-             <h4 className="font-[400] grid grid-cols-2">
+            <h4 className="font-[400] grid grid-cols-2">
               Location :{" "}
               <span className="text-[12px] text-right text-[#0A0A0A]">
                 {selectedLocation.latitude?.toFixed(6) || "N/A"},{" "}
@@ -185,27 +185,27 @@ const ManholePopUp = ({
                  </span>{" "}
              </h4>
              {/* --- Display Calculated Risk (Uses updated calculation) --- */}
-              {/* <h4 className="font-[400] grid grid-cols-2">
+            {/* <h4 className="font-[400] grid grid-cols-2">
                  Risk Level:{" "}
                  <span className="font-[500] text-right text-[#0A0A0A]">
                     {risk}%
                  </span>{" "}
-             </h4> */}  
+             </h4> */}
           </div>
         </div>
 
         {/* Separated Water Level Display Box */}
-         <div className="px-2 py-2 m-2 rounded-md border flex place-content-center">
-            {/* This box seems redundant now that level is in the main info box */}
-            {/* Consider removing this or repurposing it */}
-             <h4 className="font-[400] text-right grid grid-cols-2 ">
-                 Water Level:{" "}
-                 <span className="font-[500] text-right text-[#0A0A0A]">
-                   {displayBlynkWaterLevel()}
-                 </span>{" "}
-             </h4>
-            
-         </div>
+        <div className="px-2 py-2 m-2 rounded-md border flex place-content-center">
+          {/* This box seems redundant now that level is in the main info box */}
+          {/* Consider removing this or repurposing it */}
+          <h4 className="font-[400] text-right grid grid-cols-2 ">
+            Water Level:{" "}
+            <span className="font-[500] text-right text-[#0A0A0A]">
+              {displayBlynkWaterLevel()}
+            </span>{" "}
+          </h4>
+
+        </div>
 
 
         {/* Accordion */}

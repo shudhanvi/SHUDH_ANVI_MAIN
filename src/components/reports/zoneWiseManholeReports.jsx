@@ -88,7 +88,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
       zone,
       command: "generate_manhole_report"
     };
-    console.log("sending Paylod:", payload)
+    // console.log("sending Paylod:", payload)
     try {
       const response = await fetch(backendApi.manholesReportUrl, {
         method: "POST",
@@ -101,7 +101,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
       const data = await response.json();
       setReportData(data);
 
-      console.log("Backend response:", data)
+      // console.log("Backend response:", data)
       setShowPopup(true);
     } catch (error) {
       console.error("Error sending data:", error);

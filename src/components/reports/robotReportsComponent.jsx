@@ -149,7 +149,7 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
       userInputs: { division, section, city, dateRange: { from: fromDate, to: toDate } },
       command: "generate_robot_report",
     };
-    console.log("sending:", payload);
+    // console.log("sending:", payload);
     try {
       const response = await fetch(backendApi.robotsReportUrl, {
         method: "POST",

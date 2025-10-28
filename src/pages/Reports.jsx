@@ -54,7 +54,7 @@ export const Reports = () => {
       setCities(cityList);
     }
   }, [csvData, serverData]);
-console.log("Merged Data:", mergedData);
+  // console.log("Merged Data:", mergedData);
   // ✅ Update Divisions when City changes
   useEffect(() => {
     if (userInputs?.city) {
@@ -239,11 +239,10 @@ console.log("Merged Data:", mergedData);
                     <button
                       key={type}
                       onClick={() => setActiveReportType(type)}
-                      className={`px-[16px] py-[12px] text-sm rounded-[8px] font-medium border transition-colors ${
-                        activeReportType === type
+                      className={`px-[16px] py-[12px] text-sm rounded-[8px] font-medium border transition-colors ${activeReportType === type
                           ? "bg-[#1A8BA8] text-white"
                           : "border-[#1A8BA8]"
-                      }`}
+                        }`}
                     >
                       {type}
                     </button>

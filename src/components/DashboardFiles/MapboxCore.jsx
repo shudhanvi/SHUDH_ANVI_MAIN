@@ -36,7 +36,7 @@ const MapboxCore = ({
   // --- Combined Layer Drawing Function ---
   const drawLayers = () => {
     if (!map.current || !map.current.isStyleLoaded()) return;
- 
+
 
     const mapInstance = map.current; // Use local variable for safety in callbacks
 
@@ -106,9 +106,9 @@ const MapboxCore = ({
           id: "ward-outline-layer", type: "line", source: "ward-polygon-source",
           paint: { "line-color": "#1d4ed8", "line-width": 2 },
         });
- 
+
       } else {
-          
+
       }
     } catch (e) { console.error("Error drawing ward layer:", e.message); }
   };
@@ -145,7 +145,7 @@ const MapboxCore = ({
 
     map.current.on("mouseenter", "manhole-dots", (e) => {
       // --- ADD LOGS for debugging ---
-    
+
       // --- END LOGS ---
       if (!map.current) return; // Safety check
       map.current.getCanvas().style.cursor = "pointer";
@@ -153,7 +153,7 @@ const MapboxCore = ({
       if (e.features && e.features.length > 0) {
         const feature = e.features[0];
         // --- ADD LOGS for debugging ---
-         
+
         // --- END LOGS ---
 
         // Check if properties exist before trying to format
@@ -172,16 +172,16 @@ const MapboxCore = ({
           )
           .addTo(map.current);
         // --- ADD LOGS for debugging ---
- 
+
         // --- END LOGS ---
       } else {
- 
+
       }
     });
 
     map.current.on("mouseleave", "manhole-dots", () => {
       // --- ADD LOGS for debugging ---
- 
+
       // --- END LOGS ---
       if (!map.current) return; // Safety check
       map.current.getCanvas().style.cursor = "";
@@ -231,7 +231,7 @@ const MapboxCore = ({
     }
   }, [statusFilter]);
 
- 
+
 
   // --- 6. Effect to manage Manhole Selection State ---
   useEffect(() => {

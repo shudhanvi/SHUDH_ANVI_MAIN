@@ -58,13 +58,13 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
 
     setDetailedFilteredData(filtered);
   };
-   // Determine which record to show in right panel
+  // Determine which record to show in right panel
   const currentRecord = selectedHistory || activeRecord;
 
- 
 
-  let lat=currentRecord?.latitude;
-  let lng=currentRecord?.longitude;
+
+  let lat = currentRecord?.latitude;
+  let lng = currentRecord?.longitude;
   const RecenterMap = ({ lat, lng }) => {
     const map = useMap();
     useEffect(() => {
@@ -73,7 +73,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
     return null;
   };
 
- 
+
   const handleGenerateReport = async () => {
     try {
 
@@ -101,12 +101,12 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
 
         }),
       });
-      console.log("Sending payload:", { command: "generate_report" });
+      // console.log("Sending payload:", { command: "generate_report" });
 
 
       // console.log(body)
       const data = await response.json();
-      console.log("Backend response:", data);
+      // console.log("Backend response:", data);
       alert(data.Allert);
     } catch (error) {
       console.error("Error calling backend:", error);
@@ -178,23 +178,23 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                     Task Duration
                     {/* <span className="text-[#21232C] text-[16px]">{currentRecord?.operation_time_minutes || "-"} secs</span> */}
                     <span className="text-[#21232C] text-[16px]">
-  {(() => {
-    const totalSecs = Number(currentRecord?.operation_time_minutes);
-    if (isNaN(totalSecs) || totalSecs < 0) return "-";
+                      {(() => {
+                        const totalSecs = Number(currentRecord?.operation_time_minutes);
+                        if (isNaN(totalSecs) || totalSecs < 0) return "-";
 
-    const hours = Math.floor(totalSecs / 3600);
-    const minutes = Math.floor((totalSecs % 3600) / 60);
-    const seconds = Math.floor(totalSecs % 60);
+                        const hours = Math.floor(totalSecs / 3600);
+                        const minutes = Math.floor((totalSecs % 3600) / 60);
+                        const seconds = Math.floor(totalSecs % 60);
 
-    let result = "";
+                        let result = "";
 
-    if (hours > 0) result += `${hours} hr${hours > 1 ? "s" : ""} `;
-    if (minutes > 0) result += `${minutes} min${minutes > 1 ? "s" : ""} `;
-    if (seconds > 0 || result === "") result += `${seconds} sec${seconds !== 1 ? "s" : ""}`;
+                        if (hours > 0) result += `${hours} hr${hours > 1 ? "s" : ""} `;
+                        if (minutes > 0) result += `${minutes} min${minutes > 1 ? "s" : ""} `;
+                        if (seconds > 0 || result === "") result += `${seconds} sec${seconds !== 1 ? "s" : ""}`;
 
-    return result.trim();
-  })()}
-</span>
+                        return result.trim();
+                      })()}
+                    </span>
 
                   </span>
                 </span>
@@ -265,58 +265,58 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
               </div> */}
 
               {/* Map */}
-             {/* Map Section */}
-<div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
-  <div className="flex flex-row justify-between">
-    <h1 className="pb-1 text-start">
-      {currentRecord?.latitude && currentRecord?.longitude
-        ? `${currentRecord.latitude}, ${currentRecord.longitude}`
-        : "-"}
-    </h1>
-    <h1>Manhole ID : {currentRecord?.manhole_id || "-"}</h1>
-  </div>
+              {/* Map Section */}
+              <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
+                <div className="flex flex-row justify-between">
+                  <h1 className="pb-1 text-start">
+                    {currentRecord?.latitude && currentRecord?.longitude
+                      ? `${currentRecord.latitude}, ${currentRecord.longitude}`
+                      : "-"}
+                  </h1>
+                  <h1>Manhole ID : {currentRecord?.manhole_id || "-"}</h1>
+                </div>
 
-  <div className="bd-gray">
-    {currentRecord &&
-    !isNaN(Number(currentRecord.latitude)) &&
-    !isNaN(Number(currentRecord.longitude)) ? (
-      <MapContainer
-        center={[
-          Number(currentRecord.latitude),
-          Number(currentRecord.longitude),
-        ]}
-        zoom={15}
-        className="h-40 rounded-lg"
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <Marker
-          position={[
-            Number(currentRecord.latitude),
-            Number(currentRecord.longitude),
-          ]}
-        >
-          <LeafletPopup>
-            {currentRecord.area
-              ? `${currentRecord.area}, ${currentRecord.division || ""}`
-              : "Unknown Location"}
-          </LeafletPopup>
-        </Marker>
-        <RecenterMap
-          lat={Number(currentRecord.latitude)}
-          lng={Number(currentRecord.longitude)}
-        />
-      </MapContainer>
-    ) : (
-      <p className="text-gray-500 flex items-center justify-center h-40">
-        No location available
-      </p>
-    )}
-  </div>
-</div>
-{console.log("LatLng:", lat, lng )}
+                <div className="bd-gray">
+                  {currentRecord &&
+                    !isNaN(Number(currentRecord.latitude)) &&
+                    !isNaN(Number(currentRecord.longitude)) ? (
+                    <MapContainer
+                      center={[
+                        Number(currentRecord.latitude),
+                        Number(currentRecord.longitude),
+                      ]}
+                      zoom={15}
+                      className="h-40 rounded-lg"
+                    >
+                      <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      />
+                      <Marker
+                        position={[
+                          Number(currentRecord.latitude),
+                          Number(currentRecord.longitude),
+                        ]}
+                      >
+                        <LeafletPopup>
+                          {currentRecord.area
+                            ? `${currentRecord.area}, ${currentRecord.division || ""}`
+                            : "Unknown Location"}
+                        </LeafletPopup>
+                      </Marker>
+                      <RecenterMap
+                        lat={Number(currentRecord.latitude)}
+                        lng={Number(currentRecord.longitude)}
+                      />
+                    </MapContainer>
+                  ) : (
+                    <p className="text-gray-500 flex items-center justify-center h-40">
+                      No location available
+                    </p>
+                  )}
+                </div>
+              </div>
+              {/* {console.log("LatLng:", lat, lng )} */}
 
               {/* Images and Report */}
               <h1 className="text-[16px] text-[#21232C] mt-[24px] text-start">Operation Images</h1>
@@ -348,7 +348,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                   <Download className="inline-block w-5 h-5 mr-1" color="white" />
                   Generate Operation Report
                 </button> */}
-                
+
                 <button
                   onClick={handleGenerateReport}
                   className="flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px] w-full text-white rounded-[16px] cursor-pointer btn-hover"
