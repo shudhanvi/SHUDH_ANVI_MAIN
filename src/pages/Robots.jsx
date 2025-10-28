@@ -5,7 +5,6 @@ import { Bot, Calendar, MapPin, Search, FireExtinguisher } from "lucide-react";
 import Papa from "papaparse";
 import { useServerData } from "../context/ServerDataContext";
 import { RobotPopupComponent } from "../components/robots/robotPopupComponent";
- 
 const userInputsObj = {
   division: "",
   section: "",
@@ -67,16 +66,18 @@ export const Robots = () => {
         id: item?.id || "-",
         operation_id: item?.operation_id || "-",
         device_id: item?.device_id || item?.deviceId || item?.robot_id || "-",
-        before_path: item?.before_path || "-",
-        after_path: item?.after_path || "-",
+        before_path: item?.before_path ||item.before_image_url|| "-",
+        after_path: item?.after_path ||item.after_image_url|| "-",
         gas_data_raw: item?.gas_data_raw || "-",
         gas_status: item?.gas_status || "-",
         location: item?.location || "-",
-        timestamp: item?.timestamp || item?.time || "-",
+        latitude: item?.latitude || item?.lat || "0",
+        longitude: item?.longitude || item?.lon || item?.lng || "0",
+        timestamp: item?.timestamp || item?.start_time || "-",
         district: item?.district || item?.city || "-",
         division: item?.division || "-",
         area: item?.area || item?.section || "-",
-        operation_time_minutes: item?.operation_time_minutes || "-",
+        operation_time_minutes: item?.operation_time_minutes ||item.duration_seconds|| "-",
         manhole_id: item?.manhole_id || "Unknown",
         waste_collected_kg:
           item?.waste_collected_kg || item?.wasteCollectedKg || "-",
@@ -207,15 +208,16 @@ export const Robots = () => {
 
       {/* Filters */}
       <section className="flex justify-center h-auto w-full mt-6 ">
-        <div className="flex flex-wrap justify-evenly gap-[1%] p-[22px] pb-[26px] mx-[30px] rounded-xl border-[1.5px] border-[#E1E7EF]  items-center max-w-[2400px] w-[100%] bg-white ">
+        <div className="flex  gap-[10px] justify-evenly p-[22px] pb-[26px] mx-[30px] rounded-xl border-[1.5px] border-[#E1E7EF]  items-center max-w-[2400px] w-[100%] bg-white ">
+         <div className="flex justify-evenly w-[85%] gap-[15px]">
           {/* Division */}
-          <div className=" text-start relative">
+          <div className=" text-start relative w-[-webkit-fill-available] " >
             <label className="block font-semibold mb-1">Division</label>
             <div className="flex flex-col">
               <select
                 value={userInputs.division}
                 onChange={(e) => handleInput("division", e.target.value)}
-                className="border border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm relative "
+                className="border  border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm relative "
               >
                 <option value="">Select Division</option>
                 {divisions.map((div) => (
@@ -233,7 +235,7 @@ export const Robots = () => {
           </div>
 
           {/* Section */}
-          <div className=" text-start">
+          <div className=" text-start w-[-webkit-fill-available]" >
             <label className="block font-semibold mb-1">Section</label>
             <select
               value={userInputs.section}
@@ -250,7 +252,7 @@ export const Robots = () => {
           </div>
 
           {/* From Date */}
-          <div className=" text-start relative">
+          <div className=" text-start relative w-[-webkit-fill-available]">
             <label className="block font-semibold mb-1">From Date</label>
             <DatePicker
               selected={userInputs.fromDate}
@@ -263,7 +265,7 @@ export const Robots = () => {
           </div>
 
           {/* To Date */}
-          <div className=" text-start relative">
+          <div className=" text-start relative w-[-webkit-fill-available]">
             <label className="block font-semibold mb-1">To Date</label>
             <DatePicker
               selected={userInputs.toDate}
@@ -274,7 +276,7 @@ export const Robots = () => {
             />
             <Calendar className="absolute top-8 right-2 text-gray-600" />
           </div>
-
+</div>
           {/* Button */}
           <div className="">
             <button
@@ -370,7 +372,7 @@ export const Robots = () => {
                       <div className="flex justify-between items-center">
                         <div className="text-center">
                           <p className="text-2xl ">
-                            {item?.waste_collected_kg ?? "-"} Kgs
+                            {item?.waste_collected_kg || "-"} Kgs
                           </p>
                           <p className="text-xs text-gray-500">
                             Waste Collected

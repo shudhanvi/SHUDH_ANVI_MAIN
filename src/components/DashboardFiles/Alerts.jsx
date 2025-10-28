@@ -1,86 +1,68 @@
+
 import React, { useState } from 'react';
-import { TriangleAlert,ChevronDown,ChevronUp } from 'lucide-react';
-// --- Static Data (as requested) ---
-// In the future, you'll fetch this array from your server
-const staticAlertData = [
-  {
-    zoneName: 'Zone-1',
-    alerts: [
-      { id: 'MH-101', location: '17.4938,78.3858', status: 'Danger' },
-      { id: 'MH-102', location: '17.4938,78.3858', status: 'Danger' },
-      { id: 'MH-103', location: '17.4938,78.3858', status: 'Danger' },
-      { id: 'MH-104', location: '17.4938,78.3858', status: 'Danger' },
-      { id: 'MH-105', location: '17.4938,78.3858', status: 'Danger' },
-    ],
-  },
-  {
-    zoneName: 'Zone-2',
-    alerts: [
-      { id: 'MH-001', location: '17.4939,78.3859', status: 'Danger' },
-      { id: 'MH-002', location: '17.4940,78.3860', status: 'Danger' },
-    ],
-  },
-  {
-    zoneName: 'Zone-3',
-    alerts: [
-      { id: 'MH-123', location: '17.4941,78.3861', status: 'Danger' },
-    ],
-  },
-  {
-    zoneName: 'Zone-4',
-    alerts: [
-      { id: 'MH-456', location: '17.4942,78.3862', status: 'Danger' },
-    ],
-  },
-  {
-    zoneName: 'Zone-5',
-    alerts: [
-      { id: 'MH-789', location: '17.4943,78.3863', status: 'Danger' },
-    ],
-  },
-];
+import { TriangleAlert, ChevronDown, ChevronUp } from 'lucide-react';
 
 // --- Reusable Alert Item Component ---
-// This component manages its own state (expanded/collapsed)
-const ZoneAlertItem = ({ zoneName, alerts }) => {
-  // 'useState' hook to manage if the item is expanded or not
+// Receives zoneName, alerts array, and the onManholeSelect function
+const ZoneAlertItem = ({ zoneName, alerts, onManholeSelect }) => {
+  // State to track if this specific zone's details are expanded
   const [isExpanded, setIsExpanded] = useState(false);
-
-  // Toggle function
-  const handleToggle = () => {
-    setIsExpanded(!isExpanded);
-  };
+  // Function to toggle the expanded state
+  const handleToggle = () => setIsExpanded(!isExpanded);
 
   return (
-    <div style={styles.zoneWrapper}>
-      {/* Header (Clickable) */}
-      <div style={styles.zoneHeader} onClick={handleToggle}>
-        <div style={styles.zoneTitle}>
-          <span style={{ marginRight: '10px', color: '#E53E3E' }}> <TriangleAlert /></span> {/* Emoji for icon */}
-          {zoneName}
+    // Container for each zone alert group
+    <div className="bg-gray-50 rounded-lg mb-3 shadow-sm border border-gray-200">
+      {/* Clickable Header to toggle expansion */}
+      <div
+        className="flex justify-between items-center p-3 cursor-pointer font-semibold"
+        onClick={handleToggle}
+      >
+        {/* Zone Name and Alert Count */}
+        <div className="flex items-center text-base">
+          <span className="mr-2 text-red-600">
+            <TriangleAlert size={18} /> {/* Header Icon */}
+          </span>
+          {zoneName} ({alerts.length}) {/* Display count for this zone */}
         </div>
-        {/* Arrow icon changes based on state, matching your image */}
-        <span style={{ color: '#888' }}>{isExpanded ?   <ChevronUp /> :  <ChevronDown />}</span>
+        {/* Up/Down Chevron based on expanded state */}
+        <span className="text-gray-500">
+          {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        </span>
       </div>
 
-      {/* Expanded Content (Conditionally rendered) */}
+      {/* Conditionally rendered table with alert details */}
       {isExpanded && (
-        <div style={styles.zoneContent}>
-          <table style={styles.table}>
+        <div className="px-4 pb-4 bg-white border-t border-gray-200 rounded-b-lg">
+          <table className="w-full border-collapse mt-2">
             <thead>
               <tr>
-                <th style={styles.th}>ID</th>
-                <th style={styles.th}>Location</th>
-                <th style={styles.th}>Status</th>
+                {/* Table Headers */}
+                <th className="text-left py-2 pr-2 w-10 text-gray-500 text-xs font-medium uppercase border-b border-gray-200">S.No</th>
+                <th className="text-left py-2 px-2 text-gray-500 text-xs font-medium uppercase border-b border-gray-200">ID</th>
+                <th className="text-left py-2 px-2 text-gray-500 text-xs font-medium uppercase border-b border-gray-200">Location (Lat, Lon)</th>
+                <th className="text-left py-2 pl-2 text-gray-500 text-xs font-medium uppercase border-b border-gray-200">Status</th>
               </tr>
             </thead>
             <tbody>
-              {alerts.map((alert) => (
+              {/* Map through the alerts for this zone */}
+              {alerts.map((alert, index) => (
                 <tr key={alert.id}>
-                  <td style={styles.td}>{alert.id}</td>
-                  <td style={styles.tdLocation}>{alert.location}</td>
-                  <td style={{ ...styles.td, ...styles.dangerText }}>
-                    {alert.status}
+                  {/* Serial Number */}
+                  <td className={`py-2.5 pr-2 w-10 text-sm text-center text-gray-700 ${index < alerts.length - 1 ? 'border-b border-gray-100' : ''}`}>{index + 1}</td>
+                  {/* Manhole ID */}
+                  <td className={`py-2.5 px-2 text-sm text-gray-700 ${index < alerts.length - 1 ? 'border-b border-gray-100' : ''}`}>{alert.id}</td>
+                  {/* Clickable Location */}
+                  <td
+                    className={`py-2.5 px-2 text-sm text-blue-600 cursor-pointer hover:underline ${index < alerts.length - 1 ? 'border-b border-gray-100' : ''}`}
+                    onClick={() => onManholeSelect(alert.id)} // Call the passed function on click
+                  >
+                    {alert.location}
+                  </td>
+                  {/* Status with Icon */}
+                  <td className={`py-2.5 pl-2 text-sm text-red-600 font-semibold flex items-center ${index < alerts.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                    <TriangleAlert size={14} className="mr-1 inline-block flex-shrink-0" /> {/* Status Icon */}
+                    <span>{alert.status}</span> {/* Status Text */}
                   </td>
                 </tr>
               ))}
@@ -93,93 +75,37 @@ const ZoneAlertItem = ({ zoneName, alerts }) => {
 };
 
 // --- Main Alerts Component ---
-export default function Alerts() {
+// Receives the filtered/grouped alertData and the onManholeSelect function
+export default function Alerts({ alertData = [], onManholeSelect }) {
+
+  // Display a message if there are no danger alerts for the selected ward
+  if (!alertData || alertData.length === 0) {
+    return (
+      <section className="p-4 font-sans text-gray-700 max-w-md mx-auto">
+        <h3 className="text-sm text-gray-500 font-medium mb-4 pl-2">Zone alerts</h3>
+        <p className="text-center text-gray-500 mt-5">
+          No danger alerts found for this ward.
+        </p>
+      </section>
+    );
+  }
+
+  // Render the list of collapsible zone alerts
   return (
     <>
-      <section style={styles.container}>
-        <h3 style={styles.heading}>Zone alerts</h3>
-        
-        {/* Map over the static data to create the list of collapsible items */}
-        {staticAlertData.map((zoneData) => (
+      <section className="p-4 font-sans text-gray-700 max-w-md mx-auto">
+        <h3 className="text-sm text-gray-500 font-medium mb-4 pl-2">Zone alerts</h3>
+        {/* Map over the data grouped by zone */}
+        {alertData.map((zoneData) => (
+          // Render a ZoneAlertItem for each zone
           <ZoneAlertItem
             key={zoneData.zoneName}
             zoneName={zoneData.zoneName}
             alerts={zoneData.alerts}
+            onManholeSelect={onManholeSelect} // Pass the click handler down
           />
         ))}
       </section>
     </>
   );
 }
-
-// --- Basic CSS-in-JS for styling ---
-// This object holds all the styles to make it look like the image.
-const styles = {
-  container: {
-    padding: '16px',
-    fontFamily: '"Inter", Arial, sans-serif', // Using a common system font
-    color: '#333',
-    maxWidth: '500px',
-     // Light gray background for the section
-  },
-  heading: {
-    fontSize: '14px',
-    color: '#666',
-    fontWeight: '500',
-    marginBottom: '16px',
-    paddingLeft: '8px',
-  },
-  zoneWrapper: {
-   backgroundColor: '#F7F7F7',
-    borderRadius: '8px',
-    marginBottom: '12px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-    border: '1px solid #EAEAEA',
-  },
-  zoneHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px',
-    cursor: 'pointer',
-    fontWeight: '600',
-  },
-  zoneTitle: {
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '16px',
-  },
-  zoneContent: {
-    padding: '0 16px 16px 16px',
-   backgroundColor: '#F7F7F7', // White background for the expanded content
-    borderTop: '1px solid #F0F0F0',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    marginTop: '8px',
-  },
-  th: {
-    textAlign: 'left',
-    padding: '12px 0 8px 0',
-    color: '#888',
-    fontSize: '12px',
-    fontWeight: '500',
-    textTransform: 'uppercase',
-  },
-  td: {
-    padding: '10px 0',
-    fontSize: '14px',
-    color: '#333',
-  },
-  tdLocation: {
-    padding: '10px 0',
-    fontSize: '14px',
-    color: '#007BFF', // Blue color for location
-    textDecoration: 'underline',
-  },
-  dangerText: {
-    color: '#E53E3E', // Red color for 'Danger'
-    fontWeight: '600',
-  },
-};

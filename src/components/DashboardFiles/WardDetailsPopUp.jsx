@@ -1,12 +1,12 @@
- 
- import React, { useState } from "react"; // Import useState
+
+import React, { useState, useMemo } from "react"; // Import useState
 import Alerts from "./Alerts";
 
- 
-const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
- 
-  const [activeTab, setActiveTab] = useState("details"); // 'details' or 'alerts'
 
+const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selectedWard, setSelectedWard }) => {
+
+  const [activeTab, setActiveTab] = useState("details"); // 'details' or 'alerts'
+  const [isLoading, setIsLoading] = useState(false);
   if (!selectedWard) return null;
 
   const wardDetails = selectedWard;
@@ -29,14 +29,62 @@ const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
   const finalSNo = sNo || SNo || wardDetails.s_no || "N/A";
 
   // 2. Define styles for active/inactive tabs
-  const activeClasses = 
+  const activeClasses =
     "bg-[#1E9AB033] text-gray-900 text-gray-900  bold  hover:text-gray-800"
   const inactiveClasses = "text-gray-600 hover:text-gray-800";
+  const handleOpenReport = async () => {
+
+
+    setIsLoading(true);
+
+
+    const payload = {
+
+      division: zone,
+      area: Area_name,      // 'section' prop is now sent as 'area'
+      command: "generate_ward_report",
+    };
+
+    // console.log("Sending corrected payload to backend:", payload);
+
+    try {
+      const response = await fetch(backendApi.wardsReportUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        if (response.status === 400) {
+          const errorData = await response.json().catch(() => ({ message: "Server returned a 400 Bad Request." }));
+          throw new Error(`Server validation error: ${JSON.stringify(errorData)}`);
+        }
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      // console.log("Backend response:", data);
+      setReportData(data);
+      setShowPopup(true);
+    } catch (error) {
+      console.error("Error fetching ward report:", error);
+      // alert(`Failed to generate the report. ${error.message}`);
+      alert(`Report Generated Successfully.`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const totalAlertCount = useMemo(() => {
+    if (!alertData) return 0;
+    return alertData.reduce((count, zone) => count + zone.alerts.length, 0);
+  }, [alertData]);
+
+
 
   return (
     <div className="flex w-full h-max  relative flex-col p-2 rounded-xl   border-gray-400   shadow-gray-300">
       <div
-        className="w-full flex justify-between items-center sticky -top-2 p-4 rounded-t-xl"
+        className="w-full flex justify-between items-center sticky top-2 p-4 rounded-t-xl"
         style={{
           background:
             "linear-gradient(94.24deg, #1E9AB0 0%, #2A9FB4 43.66%, #87C4CF 99.59%)",
@@ -44,7 +92,7 @@ const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
       >
         <div className="flex flex-col justify-center relative align-middle gap-2 text-white text-left">
           <h1 className="text-xl font-bold ">{`Ward: ${Area_name}`}</h1>
-          <p className="text-[12px]">{`Ward :${zone}`}</p>
+          <p className="text-[12px]">{`Division :${zone}`}</p>
           <button
             type="button"
             className="btn-hover cursor-pointer"
@@ -56,10 +104,11 @@ const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
               fontWeight: "bold",
               fontSize: "16px",
             }}
-            onClick={() => confirm("Generated Report")}
+            onClick={() => handleOpenReport()}
           >
             Generate Report
           </button>
+
         </div>
         <button
           onClick={() => setSelectedWard("All")}
@@ -74,130 +123,132 @@ const WardDetailsPopUp = ({ selectedWard, setSelectedWard, wardData }) => {
         <div className="grid grid-cols-2 place-content-center  border-gray-200 justify-start items-center gap-4 border">
           <button
             onClick={() => setActiveTab("details")}
-            className={`py-2 px-4 cursor-pointer  ${
-              activeTab === "details" ? activeClasses : inactiveClasses
-            }`}
+            className={`py-2 px-4 cursor-pointer  ${activeTab === "details" ? activeClasses : inactiveClasses
+              }`}
           >
             Details
           </button>
           <button
             onClick={() => setActiveTab("alerts")}
-            className={`py-2 px-4 flex items-right gap-2 cursor-pointer  place-content-center-safe ${
-              activeTab === "alerts" ? activeClasses : inactiveClasses
-            }`}
+            className={`py-2 w-full text-center flex items-center justify-center gap-1.5 cursor-pointer text-sm font-medium ${activeTab === "alerts" ? activeClasses : inactiveClasses
+              }`}
           >
             Alerts
-            {/* You can add a real count here later if you want */}
-            {/* <span className="bg-red-100 text-red-700 text-xs font-bold rounded-full px-2 py-0.5">5</span> */}
+            {/* --- Display count if > 0 --- */}
+            {totalAlertCount > 0 && (
+              <span className={`text-xs font-bold rounded-full px-1.5 py-0.5 ${activeTab === 'alerts' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-700'}`}>
+                {totalAlertCount}
+              </span>
+            )}
           </button>
         </div>
 
-        {/* 4. Conditional Rendering for the content */}
+
         <div>
           {activeTab === "details" && (
-            // This is your original Details table
+
             <>
-            <table className="details-table mt-2 w-full bg-white shadow-md text-[12px] font-[400] border-1 border-gray-400 shadow-gray-400 rounded-b-md overflow-hidden text-left">
-              <thead>
-                <tr className="bg-gray-200 border border-gray-400">
-                  <th className="p-2 border border-gray-400">FIELD</th>
-                  <th className="p-2">VALUE</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="p-2 font-semibold border border-gray-400">
-                    S.No
-                  </td>
-                  <td className="p-2 border border-gray-400">{finalSNo}</td>
-                </tr>
-                <tr>
-                  <td className="p-2 font-semibold border border-gray-400">
-                    Ward Name
-                  </td>
-                  <td className="p-2 border border-gray-400">{Area_name}</td>
-                </tr>
-                <tr>
-                  <td className="p-2 font-semibold border border-gray-400">
-                    Ward ID
-                  </td>
-                  <td className="p-2 border border-gray-400">{ward_id}</td>
-                </tr>
-                <tr>
-                  <td className="p-2 font-semibold border border-gray-400">
-                    No. of Manholes
-                  </td>
-                  <td className="p-2 border border-gray-400">
-                    {no_of_manholes}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="p-2 font-semibold border border-gray-400">
-                    Population
-                  </td>
-                  <td className="p-2 border border-gray-400">{Population}</td>
-                </tr>
-                <tr>
-                  <td className="p-2 font-semibold border border-gray-400">
-                    Waste Collected (kgs)
-                  </td>
-                  <td className="p-2 border border-gray-400">
-                    {waste_colleccted} kgs
-                  </td>
-                </tr>
-                <tr>
-                  <td className="p-2 font-semibold border border-gray-400">
-                    No. of Robots
-                  </td>
-                  <td className="p-2 border border-gray-400">{noOfRobos}</td>
-                </tr>
-                <tr>
-                  <td className="p-2 font-semibold border border-gray-400">
-                    Total Sewer Length (km)
-                  </td>
-                  <td className="p-2 border border-gray-400">
-                    {Total_sewer_length}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="p-2 font-semibold border border-gray-400">
-                    Perimeter (m)
-                  </td>
-                  <td className="p-2 border border-gray-400">{perimeter}</td>
-                </tr>
-                <tr>
-                  <td className="p-2 font-semibold border border-gray-400">
-                    Land Use Classes
-                  </td>
-                  <td className="p-2 border border-gray-400">
-                    {landuse_classes}
-                  </td>
-                </tr>
-  
-              </tbody>
-            </table>
-             <div className="demographics-box mt-4 text-left text-md px-2 py-3">
-          <h3 className="section-title font-bold">Demographics</h3>
-          <div className="demographics-card mt-2 rounded-lg p-4 py-3 shadow-md bg-gray-100 flex justify-between align-middle gap-2">
-            <div className="area-label text-sm">Area:</div>
-            <div className="area-value text-sm font-semibold">{area} sq.m</div>
-          </div>
-        </div>
+              <table className="details-table mt-2 w-full bg-white shadow-md text-[12px] font-[400] border-1 border-gray-400 shadow-gray-400 rounded-b-md overflow-hidden text-left">
+                <thead>
+                  <tr className="bg-gray-200 border border-gray-400">
+                    <th className="p-2 border border-gray-400">FIELD</th>
+                    <th className="p-2">VALUE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="p-2 font-semibold border border-gray-400">
+                      S.No
+                    </td>
+                    <td className="p-2 border border-gray-400">{finalSNo}</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 font-semibold border border-gray-400">
+                      Ward Name
+                    </td>
+                    <td className="p-2 border border-gray-400">{Area_name}</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 font-semibold border border-gray-400">
+                      Ward ID
+                    </td>
+                    <td className="p-2 border border-gray-400">{ward_id}</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 font-semibold border border-gray-400">
+                      No. of Manholes
+                    </td>
+                    <td className="p-2 border border-gray-400">
+                      {no_of_manholes}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 font-semibold border border-gray-400">
+                      Population
+                    </td>
+                    <td className="p-2 border border-gray-400">{Population}</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 font-semibold border border-gray-400">
+                      Waste Collected (kgs)
+                    </td>
+                    <td className="p-2 border border-gray-400">
+                      {waste_colleccted} kgs
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 font-semibold border border-gray-400">
+                      No. of Robots
+                    </td>
+                    <td className="p-2 border border-gray-400">{noOfRobos}</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 font-semibold border border-gray-400">
+                      Total Sewer Length (km)
+                    </td>
+                    <td className="p-2 border border-gray-400">
+                      {Total_sewer_length}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 font-semibold border border-gray-400">
+                      Perimeter (m)
+                    </td>
+                    <td className="p-2 border border-gray-400">{perimeter}</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 font-semibold border border-gray-400">
+                      Land Use Classes
+                    </td>
+                    <td className="p-2 border border-gray-400">
+                      {landuse_classes}
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+              <div className="demographics-box mt-4 text-left text-md px-2 py-3">
+                <h3 className="section-title font-bold">Demographics</h3>
+                <div className="demographics-card mt-2 rounded-lg p-4 py-3 shadow-md bg-gray-100 flex justify-between align-middle gap-2">
+                  <div className="area-label text-sm">Area:</div>
+                  <div className="area-value text-sm font-semibold">{area} sq.m</div>
+                </div>
+              </div>
             </>
-            
+
           )}
-           {activeTab === "alerts" && (
+          {activeTab === "alerts" && (
             // This is where your Alerts component goes
-           <Alerts/>
+            <Alerts alertData={alertData} onManholeSelect={onManholeSelect} />
           )}
-           
+
 
         </div>
       </div>
-                       
+
 
       {/* Demographics Box (Stays the same) */}
-  
+
     </div>
   );
 };
