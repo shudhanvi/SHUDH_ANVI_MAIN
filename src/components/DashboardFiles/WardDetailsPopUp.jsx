@@ -1,5 +1,5 @@
  
- import React, { useState } from "react"; // Import useState
+ import React, { useState,useMemo } from "react"; // Import useState
 import Alerts from "./Alerts";
 
  
@@ -37,10 +37,10 @@ const [isLoading, setIsLoading] = useState(false);
 
         setIsLoading(true);
 
-        // ✅ **FIX: Mapped the prop names to the keys required by the backend.**
+      
         const payload = {
-                // 'city' prop is now sent as 'district'
-            division: zone, // This name was correct
+                 
+            division: zone, 
             area: Area_name,      // 'section' prop is now sent as 'area'
             command: "generate_ward_report",
         };
@@ -73,12 +73,17 @@ const [isLoading, setIsLoading] = useState(false);
             setIsLoading(false);
         }
     };
+      const totalAlertCount = useMemo(() => {
+    if (!alertData) return 0;
+    return alertData.reduce((count, zone) => count + zone.alerts.length, 0);
+  }, [alertData]);
+
  
 
   return (
     <div className="flex w-full h-max  relative flex-col p-2 rounded-xl   border-gray-400   shadow-gray-300">
       <div
-        className="w-full flex justify-between items-center sticky -top-2 p-4 rounded-t-xl"
+        className="w-full flex justify-between items-center sticky top-2 p-4 rounded-t-xl"
         style={{
           background:
             "linear-gradient(94.24deg, #1E9AB0 0%, #2A9FB4 43.66%, #87C4CF 99.59%)",
@@ -88,7 +93,7 @@ const [isLoading, setIsLoading] = useState(false);
           <h1 className="text-xl font-bold ">{`Ward: ${Area_name}`}</h1>
           <p className="text-[12px]">{`Division :${zone}`}</p>
           <button
-            type="button"
+            type="button" 
             className="btn-hover cursor-pointer"
             style={{
               backgroundColor: "green",
@@ -102,6 +107,7 @@ const [isLoading, setIsLoading] = useState(false);
           >
             Generate Report
           </button>
+          
         </div>
         <button
           onClick={() => setSelectedWard("All")}
@@ -122,14 +128,18 @@ const [isLoading, setIsLoading] = useState(false);
           >
             Details
           </button>
-          <button
+         <button
             onClick={() => setActiveTab("alerts")}
-            className={`py-2 px-4 flex items-right gap-2 cursor-pointer  place-content-center-safe ${
-              activeTab === "alerts" ? activeClasses : inactiveClasses
-            }`}
+            className={`py-2 w-full text-center flex items-center justify-center gap-1.5 cursor-pointer text-sm font-medium ${activeTab === "alerts" ? activeClasses : inactiveClasses
+              }`}
           >
             Alerts
- 
+             {/* --- Display count if > 0 --- */}
+            {totalAlertCount > 0 && (
+              <span className={`text-xs font-bold rounded-full px-1.5 py-0.5 ${activeTab === 'alerts' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-700'}`}>
+                {totalAlertCount}
+              </span>
+            )}
           </button>
         </div>
 

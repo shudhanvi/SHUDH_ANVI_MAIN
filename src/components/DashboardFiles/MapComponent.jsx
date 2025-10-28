@@ -1,6 +1,6 @@
 // ./MapComponent.js
 
-import React, { useState, useEffect, useCallback,useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import * as XLSX from "xlsx";
@@ -52,7 +52,7 @@ const MapComponent = () => {
     const date_info = new Date(utc_value * 1000);
     return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate());
   };
- 
+
   const getManholeStatus = (operationdates) => {
     if (!operationdates) return "safe";
     let lastCleaned;
@@ -179,7 +179,7 @@ const MapComponent = () => {
           }
           groupedCoords[area] = coords;
         });
- 
+
         setWardPolygons(groupedCoords);
         setWardDetailsMap(detailsMap);
       })
@@ -215,7 +215,7 @@ const MapComponent = () => {
   };
 
   const handleAreaNameChange = (areaValue) => {
- 
+
     clearManholeSelection();
     setSelectedAreaName(areaValue);
     setSelectedZone("All");
@@ -251,7 +251,7 @@ const MapComponent = () => {
     }
   };
 
-const alertData = useMemo(() => {
+  const alertData = useMemo(() => {
     // Only calculate if a specific ward is selected and data is loaded
     if (!selectedAreaName || selectedAreaName === "All" || allManholeData.length === 0) {
       return []; // Return empty array if no ward selected or no data
@@ -276,7 +276,7 @@ const alertData = useMemo(() => {
       acc[zone].push({
         id: mh.id || 'N/A',
         // Format location as "latitude, longitude"
-        location: `${mh.latitude || 'N/A'}, ${mh.longitude || 'N/A'}`, 
+        location: `${mh.latitude || 'N/A'}, ${mh.longitude || 'N/A'}`,
         status: 'Danger', // We already filtered for danger
       });
       return acc;
@@ -293,7 +293,7 @@ const alertData = useMemo(() => {
     return formattedAlertData;
 
   }, [selectedAreaName, selectedDivision, allManholeData]);
- 
+
 
   const handleReset = () => {
 
@@ -310,19 +310,19 @@ const alertData = useMemo(() => {
           const bounds = new mapboxgl.LngLatBounds();
           coords.forEach(c => bounds.extend(c));
           setFlyToLocation({ bounds: bounds, padding: 40 });
-        
+
           return; // Stop here, don't reset to default view
         }
       }
     }
- 
+
     setFlyToLocation({ center: [78.4794, 17.3940], zoom: 9.40 });
 
 
   };
   const handleClosePopup = () => clearManholeSelection();
-  const handleGenerateReport = () => {   clearManholeSelection(); };
-  const handleAssignBot = () => {   clearManholeSelection(); };
+  const handleGenerateReport = () => { clearManholeSelection(); };
+  const handleAssignBot = () => { clearManholeSelection(); };
 
   // --- MAP CALLBACK HANDLERS ---
   const handleManholeClick = useCallback((feature) => {
@@ -338,38 +338,47 @@ const alertData = useMemo(() => {
   const handleManholeDeselect = useCallback(() => {
     clearManholeSelection();
   }, [clearManholeSelection]);
-// ./MapComponent.js
+  // ./MapComponent.js
+
+  // ./MapComponent.js
 
   const handleAlertManholeClick = useCallback((manholeId) => {
+    // Find the raw manhole data
     const manholeData = allManholeData.find(mh => mh.id === manholeId);
 
     if (manholeData) {
-       console.log("Clicked alert for manhole:", manholeData);
+      console.log("Clicked alert for manhole (raw):", manholeData);
 
-      // Define lat and lon HERE using parseFloat
+      // Convert coordinates to numbers
       const lat = parseFloat(manholeData.latitude);
       const lon = parseFloat(manholeData.longitude);
 
-      // Use the converted numbers when setting the location state
+      // --- >>> CALCULATE STATUS HERE <<< ---
+      const manholeStatus = getManholeStatus(manholeData.last_operation_date);
+      // --- >>> END CALCULATION <<< ---
+
+      // Set the state for the popup
       setSelectedManholeLocation({
-        ...manholeData,
-        latitude: isNaN(lat) ? null : lat,     // Use converted number
-        longitude: isNaN(lon) ? null : lon,    // Use converted number
+        ...manholeData, // Include all original data
+        latitude: isNaN(lat) ? null : lat,
+        longitude: isNaN(lon) ? null : lon,
         lastCleaned: manholeData.last_operation_date,
- 
+        // --- >>> ADD STATUS TO THE OBJECT <<< ---
+        status: manholeStatus, // Ensure this line exists and uses the calculated status
+        // --- >>> END ADD STATUS <<< ---
       });
 
-      // Check if BOTH lon and lat are valid numbers BEFORE using them
+      // Fly the map
       if (!isNaN(lon) && !isNaN(lat)) {
-         // Use the defined lon and lat variables here
-         setFlyToLocation({ center: [lon, lat], zoom: 18 });
+        setFlyToLocation({ center: [lon, lat], zoom: 18 });
       } else {
-         console.warn("Invalid coordinates for flying:", manholeData.longitude, manholeData.latitude);
+        console.warn("Invalid coordinates for flying:", manholeData.longitude, manholeData.latitude);
       }
 
     } else {
       console.warn("Manhole data not found for ID:", manholeId);
     }
+    // Dependency array is correct assuming getManholeStatus is stable
   }, [allManholeData]);
   // --- EFFECT TO FILTER MANHOLES ---
   useEffect(() => {
@@ -425,7 +434,7 @@ const alertData = useMemo(() => {
     }
 
     const coords = wardPolygons[matchKey];
- 
+
 
     if (!Array.isArray(coords) || coords.length < 4) {
       console.warn("Insufficient coords for polygon:", matchKey, coords);
@@ -457,7 +466,7 @@ const alertData = useMemo(() => {
     <div className=" w-full flex flex-row max-w-[2400px] gap-1">
 
       {/* --- Left section --- */}
-      <div className="shadow-md shadow-gray-500 p-6 mb-4 rounded-xl bg-white w-full max-w-[70%]">
+      <div className="shadow-md shadow-gray-300 p-6 mb-4 rounded-xl bg-white w-full max-w-[70%]">
 
         {/* Top Controls */}
         <div className="flex justify-between align-middle flex-wrap gap-2">
@@ -530,12 +539,12 @@ const alertData = useMemo(() => {
           className="map-box relative rounded-lg overflow-hidden border border-gray-300"
           style={{ height: "445.52px", opacity: 1 }}
         >
-          <button onClick={handleReset} className=" bg-[#eee] absolute right-4.5 top-2 z-[500] rounded px-1.5 py-1 text-xs  border-gray-400 cursor-pointer hover:bg-[#fff]">
+          <button onClick={handleReset} className=" bg-[#eee] absolute right-4.5 top-2 z-[500] rounded px-1.5 py-1 text-xs h-8 border-gray-400 cursor-pointer hover:bg-[#fff]">
             <LocateFixed className="font-light w-8.5" />
           </button>
 
           <div className="absolute right-2 top-10 z-[500] group mt-3">
-            <button className=" bg-[#eee] border cursor-pointer border-gray-300 shadow-md rounded-md w-12  h-10   mr-2 flex items-center justify-center hover:bg-gray-100 transition">
+            <button className=" bg-[#eee] border cursor-pointer border-gray-300 shadow-md rounded-md w-12  h-7   mr-2 flex items-center justify-center hover:bg-gray-100 transition duration-300">
               <Map />
             </button>
             <div className="absolute top-full mt-1 left--4 grid grid-row-2 gap-1 w-13.5  rounded-md overflow-hidden transform scale-y-0 opacity-0 origin-top transition-all duration-200 group-hover:scale-y-100 group-hover:opacity-100 ">
@@ -544,8 +553,8 @@ const alertData = useMemo(() => {
                   key={style.url}
                   onClick={() => handleStyleChange(style.url)}
                   className={` w-12 h-12 border-2 rounded-md overflow-hidden transition-all duration-150 cursor-pointer ${mapStyle === style.url
-                      ? "border-blue-500"
-                      : "border-transparent hover:border-gray-400"
+                    ? "border-blue-500"
+                    : "border-transparent hover:border-gray-400"
                     }`}
                 >
                   <img
@@ -592,7 +601,7 @@ const alertData = useMemo(() => {
 
       {/* --- Right section (Unchanged) --- */}
       <div
-        className="db-popup-container ml-5 border h-[633px]  shadow-gray-400 shadow-md  border-gray-300   w-full max-w-[30%]  overflow-y-auto overflow-x-hidden bg-white rounded-xl "
+        className="db-popup-container ml-4   h-[633px]  shadow-gray-300 shadow-md  border-gray-300   w-full max-w-[30%]  overflow-y-auto overflow-x-hidden bg-white rounded-xl "
 
       >
         {selectedManholeLocation ? (
