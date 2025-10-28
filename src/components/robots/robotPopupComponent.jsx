@@ -176,7 +176,26 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                   <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
                     Task Duration
-                    <span className="text-[#21232C] text-[16px]">{currentRecord?.operation_time_minutes || "-"} secs</span>
+                    {/* <span className="text-[#21232C] text-[16px]">{currentRecord?.operation_time_minutes || "-"} secs</span> */}
+                    <span className="text-[#21232C] text-[16px]">
+  {(() => {
+    const totalSecs = Number(currentRecord?.operation_time_minutes);
+    if (isNaN(totalSecs) || totalSecs < 0) return "-";
+
+    const hours = Math.floor(totalSecs / 3600);
+    const minutes = Math.floor((totalSecs % 3600) / 60);
+    const seconds = Math.floor(totalSecs % 60);
+
+    let result = "";
+
+    if (hours > 0) result += `${hours} hr${hours > 1 ? "s" : ""} `;
+    if (minutes > 0) result += `${minutes} min${minutes > 1 ? "s" : ""} `;
+    if (seconds > 0 || result === "") result += `${seconds} sec${seconds !== 1 ? "s" : ""}`;
+
+    return result.trim();
+  })()}
+</span>
+
                   </span>
                 </span>
                 <span className="flex flex-row">
@@ -250,9 +269,8 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
 <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
   <div className="flex flex-row justify-between">
     <h1 className="pb-1 text-start">
-      {typeof currentRecord?.latitude === "number" &&
-      typeof currentRecord?.longitude === "number"
-        ? `${currentRecord?.latitude||"0"}, ${currentRecord?.longitude||"0"}`
+      {currentRecord?.latitude && currentRecord?.longitude
+        ? `${currentRecord.latitude}, ${currentRecord.longitude}`
         : "-"}
     </h1>
     <h1>Manhole ID : {currentRecord?.manhole_id || "-"}</h1>
@@ -260,14 +278,13 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
 
   <div className="bd-gray">
     {currentRecord &&
-    typeof currentRecord.latitude === "number" &&
-    typeof currentRecord.longitude === "number" &&
-    !isNaN(currentRecord.latitude) &&
-    !isNaN(currentRecord.longitude) &&
-    currentRecord.latitude !== 0 &&
-    currentRecord.longitude !== 0 ? (
+    !isNaN(Number(currentRecord.latitude)) &&
+    !isNaN(Number(currentRecord.longitude)) ? (
       <MapContainer
-        center={[currentRecord.latitude, currentRecord.longitude]}
+        center={[
+          Number(currentRecord.latitude),
+          Number(currentRecord.longitude),
+        ]}
         zoom={15}
         className="h-40 rounded-lg"
       >
@@ -275,7 +292,12 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <Marker position={[currentRecord.latitude, currentRecord.longitude]}>
+        <Marker
+          position={[
+            Number(currentRecord.latitude),
+            Number(currentRecord.longitude),
+          ]}
+        >
           <LeafletPopup>
             {currentRecord.area
               ? `${currentRecord.area}, ${currentRecord.division || ""}`
@@ -283,8 +305,8 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
           </LeafletPopup>
         </Marker>
         <RecenterMap
-          lat={currentRecord.latitude}
-          lng={currentRecord.longitude}
+          lat={Number(currentRecord.latitude)}
+          lng={Number(currentRecord.longitude)}
         />
       </MapContainer>
     ) : (
@@ -294,8 +316,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
     )}
   </div>
 </div>
-
-
+{console.log("LatLng:", lat, lng )}
 
               {/* Images and Report */}
               <h1 className="text-[16px] text-[#21232C] mt-[24px] text-start">Operation Images</h1>
@@ -327,7 +348,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                   <Download className="inline-block w-5 h-5 mr-1" color="white" />
                   Generate Operation Report
                 </button> */}
-                {console.log("currentRecord:", currentRecord)}
+                
                 <button
                   onClick={handleGenerateReport}
                   className="flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px] w-full text-white rounded-[16px] cursor-pointer btn-hover"

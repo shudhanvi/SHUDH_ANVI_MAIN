@@ -54,10 +54,10 @@ export const Reports = () => {
       setCities(cityList);
     }
   }, [csvData, serverData]);
-
+console.log("Merged Data:", mergedData);
   // ✅ Update Divisions when City changes
   useEffect(() => {
-    if (userInputs.city) {
+    if (userInputs?.city) {
       const divs = [
         ...new Set(
           mergedData
