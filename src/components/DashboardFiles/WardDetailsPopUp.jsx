@@ -1,15 +1,21 @@
 
-import React, { useState, useMemo } from "react"; // Import useState
+
+// // export default WardDetailsPopUp;
+import React, { useState, useMemo } from "react"; // <-- Import useMemo
 import Alerts from "./Alerts";
+ 
 
+const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selectedWard, setSelectedWard }) => { // Using onClose passed from MapComponent
 
-const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selectedWard, setSelectedWard }) => {
+  const [activeTab, setActiveTab] = useState("details");
+  const [isLoading, setIsLoading] = useState(false); // For report loading state
+ 
+  if (!wardData) {
+     console.error("WardDetailsPopUp received undefined wardData prop.");
+     return null; // Don't render if data is missing
+  }
 
-  const [activeTab, setActiveTab] = useState("details"); // 'details' or 'alerts'
-  const [isLoading, setIsLoading] = useState(false);
-  if (!selectedWard) return null;
-
-  const wardDetails = selectedWard;
+  // Destructure properties from wardData for easier access
   const {
     "s.no": sNo,
     "S.no": SNo,
@@ -21,68 +27,78 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
     "no_of_robo's": noOfRobos,
     perimeter,
     ward_id,
-    zone,
+    zone, // Corresponds to 'division' for the API
     Area_name,
     waste_colleccted,
-  } = wardDetails;
+  } = wardData;
 
-  const finalSNo = sNo || SNo || wardDetails.s_no || "N/A";
+  const finalSNo = sNo || SNo || wardData.s_no || "N/A";
 
-  // 2. Define styles for active/inactive tabs
+  // --- Calculate total alert count using useMemo ---
+  const totalAlertCount = useMemo(() => {
+    if (!alertData) return 0; // Handle case where alertData might be undefined/null initially
+    return alertData.reduce((count, zoneGroup) => count + (zoneGroup.alerts?.length || 0), 0); // Safely sum lengths
+  }, [alertData]);
+  // --- End calculation ---
+
+  // Define styles for active/inactive tabs based on your last provided code
   const activeClasses =
-    "bg-[#1E9AB033] text-gray-900 text-gray-900  bold  hover:text-gray-800"
+    "bg-[#1E9AB033] text-gray-900 font-bold hover:text-gray-800"; // Added font-bold for active
   const inactiveClasses = "text-gray-600 hover:text-gray-800";
+
+  // Function to handle report generation API call
   const handleOpenReport = async () => {
-
-
     setIsLoading(true);
-
-
+    // setReportData(null); // Reset report data if managing state here
+    // setShowPopup(false); // Hide previous popup if managing state here
     const payload = {
-
       division: zone,
-      area: Area_name,      // 'section' prop is now sent as 'area'
+      area: Area_name,
       command: "generate_ward_report",
     };
 
-    // console.log("Sending corrected payload to backend:", payload);
+    console.log("Sending payload to backend:", payload);
 
     try {
-      const response = await fetch(backendApi.wardsReportUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      // --- Replace with your actual API endpoint ---
+      // MOCK RESPONSE:
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate delay
+      const mockResponseData = {
+              message: "Report generated successfully (mock)",
+              data: { /* ... mock data ... */ }
+      };
+      const response = {
+          ok: true, status: 200,
+          json: async () => (mockResponseData)
+      };
+      // const response = await fetch(backendApi.wardsReportUrl, { method: "POST", /*...*/ });
+      // --- END MOCK / Replace ---
 
       if (!response.ok) {
         if (response.status === 400) {
-          const errorData = await response.json().catch(() => ({ message: "Server returned a 400 Bad Request." }));
-          throw new Error(`Server validation error: ${JSON.stringify(errorData)}`);
-        }
+           const errorData = await response.json().catch(() => ({ message: "Server returned a 400 Bad Request." }));
+           throw new Error(`Server validation error: ${JSON.stringify(errorData)}`);
+         }
         throw new Error(`Server error: ${response.status}`);
       }
 
       const data = await response.json();
-      // console.log("Backend response:", data);
-      setReportData(data);
-      setShowPopup(true);
+      console.log("Backend response:", data);
+      // setReportData(data); // Uncomment if managing state here
+      // setShowPopup(true);  // Uncomment if managing state here
+      alert("Report generated successfully! (Check console for mock data)"); // Simple alert for now
     } catch (error) {
       console.error("Error fetching ward report:", error);
-      // alert(`Failed to generate the report. ${error.message}`);
-      alert(`Report Generated Successfully.`);
+      alert(`Failed to generate the report. ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
-  const totalAlertCount = useMemo(() => {
-    if (!alertData) return 0;
-    return alertData.reduce((count, zone) => count + zone.alerts.length, 0);
-  }, [alertData]);
-
 
 
   return (
-    <div className="flex w-full h-max  relative flex-col p-2 rounded-xl   border-gray-400   shadow-gray-300">
+    // Main container with overflow handling
+        <div className="flex w-full h-max  relative flex-col p-2 rounded-xl   border-gray-400   shadow-gray-300">
       <div
         className="w-full flex justify-between items-center sticky top-2 p-4 rounded-t-xl"
         style={{
@@ -117,24 +133,24 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
           <span className="text-2xl font-bold">&#x2715;</span>
         </button>
       </div>
-
-      <div className="ward-table-box mt-4 px-2 justify-between">
-        {/* 3. Add onClick handlers and conditional styling */}
-        <div className="grid grid-cols-2 place-content-center  border-gray-200 justify-start items-center gap-4 border">
+      {/* Tab Container & Content */}
+      <div className="ward-table-box mt-0 px-4 pt-3 flex flex-col flex-grow overflow-y-auto"> {/* Scrollable content */}
+        {/* Tab Buttons (Grid layout) */}
+        <div className="grid grid-cols-2 place-content-center border border-gray-300 rounded-md justify-start items-center gap-0 flex-shrink-0 mb-4 overflow-hidden">
+          {/* Details Button */}
           <button
             onClick={() => setActiveTab("details")}
-            className={`py-2 px-4 cursor-pointer  ${activeTab === "details" ? activeClasses : inactiveClasses
-              }`}
+            className={`py-2 w-full text-center cursor-pointer text-sm font-medium ${activeTab === "details" ? activeClasses + ' border-r border-gray-300' : inactiveClasses + ' border-r border-gray-300'}`}
           >
             Details
           </button>
+          {/* Alerts Button with Count */}
           <button
             onClick={() => setActiveTab("alerts")}
-            className={`py-2 w-full text-center flex items-center justify-center gap-1.5 cursor-pointer text-sm font-medium ${activeTab === "alerts" ? activeClasses : inactiveClasses
-              }`}
+            className={`py-2 w-full text-center flex items-center justify-center gap-1.5 cursor-pointer text-sm font-medium ${activeTab === "alerts" ? activeClasses : inactiveClasses}`}
           >
             Alerts
-            {/* --- Display count if > 0 --- */}
+            {/* Display count if > 0 */}
             {totalAlertCount > 0 && (
               <span className={`text-xs font-bold rounded-full px-1.5 py-0.5 ${activeTab === 'alerts' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-700'}`}>
                 {totalAlertCount}
@@ -143,10 +159,10 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
           </button>
         </div>
 
-
-        <div>
+        {/* Conditional Content */}
+        <div className="flex-grow pb-4">
           {activeTab === "details" && (
-
+         
             <>
               <table className="details-table mt-2 w-full bg-white shadow-md text-[12px] font-[400] border-1 border-gray-400 shadow-gray-400 rounded-b-md overflow-hidden text-left">
                 <thead>
@@ -234,20 +250,17 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
                   <div className="area-value text-sm font-semibold">{area} sq.m</div>
                 </div>
               </div>
-            </>
+            </> )}
 
-          )}
           {activeTab === "alerts" && (
-            // This is where your Alerts component goes
+            // Pass the alertData prop down
             <Alerts alertData={alertData} onManholeSelect={onManholeSelect} />
           )}
-
-
         </div>
       </div>
 
-
-      {/* Demographics Box (Stays the same) */}
+       {/* Optional: Add a Popup/Modal component here to display reportData */}
+       {/* {showPopup && <ReportPopup data={reportData} onClose={() => setShowPopup(false)} />} */}
 
     </div>
   );

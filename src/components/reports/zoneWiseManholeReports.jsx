@@ -88,7 +88,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
       zone,
       command: "generate_manhole_report"
     };
-    // console.log("sending Paylod:", payload)
+    console.log("sending Paylod:", payload)
     try {
       const response = await fetch(backendApi.manholesReportUrl, {
         method: "POST",

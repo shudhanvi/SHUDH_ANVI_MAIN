@@ -1,12 +1,18 @@
 // ./MapboxCore.js
 
-import React, { useEffect, useRef, memo } from "react";
+import React, { useEffect, useRef, memo, useCallback } from "react"; // Added useCallback
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
+// Your Mapbox access token
 mapboxgl.accessToken = "pk.eyJ1Ijoic2h1YmhhbWd2IiwiYSI6ImNtZGZ1YmRhdzBqMmcya3I1cThjYWloZnkifQ.5ZIhoOuwzrGin8wzM5-0nQ";
 
 const MapboxCore = ({
+  // Passed Refs from parent
+  mapRef,
+  centerToRestore,
+  zoomToRestore,
+  // Other Props
   styleUrl,
   manholeGeoJSON,
   wardGeoJSON,
@@ -17,28 +23,34 @@ const MapboxCore = ({
   onManholeClick,
   onManholeDeselect,
 }) => {
-
+  // Ref for the DOM container element
   const mapContainer = useRef(null);
-  const map = useRef(null);
-  const popup = useRef(new mapboxgl.Popup({ offset: 15, closeButton: false }));
+  // Ref for the hover/click popup instance
+  const popup = useRef(new mapboxgl.Popup({ offset: 15, closeOnClick: false, closeButton: false })); // Keep popup open on map click
+  // Ref for internal tracking of the visually selected manhole ID
   const selectedManholeIdRef = useRef(null);
+  // Ref to track if the small map popup is "pinned" by a click
+  const isPopupPinned = useRef(false);
 
-  // Use refs to store latest data for event listeners
+
+  // Refs to store latest prop data for event listeners
   const manholeDataRef = useRef(manholeGeoJSON);
   const wardDataRef = useRef(wardGeoJSON);
-  const statusFilterRef = useRef(statusFilter); // Also store filter
+  const statusFilterRef = useRef(statusFilter);
 
+  // Update refs when corresponding props change
   useEffect(() => { manholeDataRef.current = manholeGeoJSON; }, [manholeGeoJSON]);
   useEffect(() => { wardDataRef.current = wardGeoJSON; }, [wardGeoJSON]);
   useEffect(() => { statusFilterRef.current = statusFilter; }, [statusFilter]);
 
 
   // --- Combined Layer Drawing Function ---
-  const drawLayers = () => {
-    if (!map.current || !map.current.isStyleLoaded()) return;
-
-
-    const mapInstance = map.current; // Use local variable for safety in callbacks
+  const drawLayers = useCallback(() => {
+    // Guards: Ensure map instance exists and style is loaded
+    if (!mapRef.current || !mapRef.current.isStyleLoaded()) {
+      return;
+    }
+    const mapInstance = mapRef.current; // Use parent's ref
 
     // --- A. Manhole Layer ---
     try {
@@ -60,247 +72,277 @@ const MapboxCore = ({
           },
         });
       }
-      // Re-apply status filter after adding/updating layer
+
+      // Apply filter if layer exists
       if (mapInstance.getLayer("manhole-dots")) {
         const filterExpr = statusFilterRef.current === "all" ? null : ["==", ["get", "status"], statusFilterRef.current];
-        mapInstance.setFilter("manhole-dots", filterExpr);
+        // Use try-catch for setFilter during style transitions
+        try { mapInstance.setFilter("manhole-dots", filterExpr); }
+        catch (e) { console.warn("Could not set filter during transition:", e.message); }
       }
-      // Re-apply selection state
+
+      // Apply selection state: Clear all first, then set current
+      try {
+        mapInstance.removeFeatureState({ source: 'manholes' }); // Clear all states for the source
+      } catch (e) { /* Ignore errors during style transitions */ }
+
       if (selectedManholeIdRef.current !== null) {
-        mapInstance.setFeatureState(
-          { source: 'manholes', id: selectedManholeIdRef.current },
-          { selected: true }
-        );
+        const features = mapInstance.querySourceFeatures('manholes', {
+          filter: ['==', 'id', selectedManholeIdRef.current]
+        });
+        if (features.length > 0) {
+          try {
+             mapInstance.setFeatureState(
+               { source: 'manholes', id: selectedManholeIdRef.current },
+               { selected: true }
+             );
+          } catch(e) { /* Ignore errors during style transitions */ }
+        }
       }
-
-
     } catch (e) { console.error("Error drawing manhole layer:", e.message); }
 
     // --- B. Ward Polygon Layer ---
     try {
       const currentWardData = wardDataRef.current;
-      const hasData = currentWardData && currentWardData.geometry && currentWardData.geometry.coordinates;
+      const hasData = currentWardData && currentWardData.geometry && currentWardData.geometry.coordinates && currentWardData.geometry.coordinates[0]?.length >= 4;
       let wardSource = mapInstance.getSource("ward-polygon-source");
 
-      // Clean up previous layers first if they exist
-      if (mapInstance.getLayer("ward-polygon-layer")) mapInstance.removeLayer("ward-polygon-layer");
-      if (mapInstance.getLayer("ward-outline-layer")) mapInstance.removeLayer("ward-outline-layer");
-      if (wardSource && !hasData) { // Remove source only if no new data
-        mapInstance.removeSource("ward-polygon-source");
-        wardSource = null; // Update local variable
+      // Clean up previous layers first
+      // Use try-catch as getLayer can fail during transitions
+      try {
+        if (mapInstance.getLayer("ward-polygon-layer")) mapInstance.removeLayer("ward-polygon-layer");
+        if (mapInstance.getLayer("ward-outline-layer")) mapInstance.removeLayer("ward-outline-layer");
+      } catch(e) { console.warn("Error removing old ward layers:", e.message); }
+
+      // Remove source only if it exists AND there's no new valid data
+      if (wardSource && !hasData) {
+        try { mapInstance.removeSource("ward-polygon-source"); }
+        catch(e) { console.warn("Error removing old ward source:", e.message); }
+        wardSource = null;
       }
 
-
+      // Add/Update source and layers if valid data exists
       if (hasData) {
         if (wardSource) {
           wardSource.setData(currentWardData);
         } else {
-          mapInstance.addSource("ward-polygon-source", { type: "geojson", data: currentWardData });
+           try { mapInstance.addSource("ward-polygon-source", { type: "geojson", data: currentWardData }); }
+           catch(e) { console.error("Error adding ward source:", e.message); return; } // Stop if source fails
         }
-        // Add layers (they were removed above, so always add)
-        mapInstance.addLayer({
-          id: "ward-polygon-layer", type: "fill", source: "ward-polygon-source",
-          paint: { "fill-color": "#1d4ed8", "fill-opacity": 0.1 },
-        });
-        mapInstance.addLayer({
-          id: "ward-outline-layer", type: "line", source: "ward-polygon-source",
-          paint: { "line-color": "#1d4ed8", "line-width": 2 },
-        });
-
-      } else {
-
+        // Check source exists before adding layers
+        if(mapInstance.getSource("ward-polygon-source")){
+            try {
+                // Add layers only if they don't already exist (in case removal failed)
+                if (!mapInstance.getLayer("ward-polygon-layer")) {
+                    mapInstance.addLayer({
+                      id: "ward-polygon-layer", type: "fill", source: "ward-polygon-source",
+                      paint: { "fill-color": "#1d4ed8", "fill-opacity": 0.1 },
+                    });
+                }
+                if (!mapInstance.getLayer("ward-outline-layer")) {
+                    mapInstance.addLayer({
+                      id: "ward-outline-layer", type: "line", source: "ward-polygon-source",
+                      paint: { "line-color": "#1d4ed8", "line-width": 2 },
+                    });
+                }
+            } catch(e) { console.error("Error adding ward layers:", e.message); }
+        }
       }
     } catch (e) { console.error("Error drawing ward layer:", e.message); }
-  };
-
+  }, [mapRef]); // Dependency: mapRef (function is stable due to useCallback)
 
   // --- 1. Initial Map Initialization ---
   useEffect(() => {
-    if (map.current) return;
+    // Guards
+    if (mapRef.current) return;
     if (!styleUrl) return;
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current, style: styleUrl,
-      center: [78.4794, 17.3940], zoom: 9.40,
+    // Create map instance and assign to parent's ref
+    const mapInstance = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: styleUrl,
+      center: [78.4794, 17.3940],
+      zoom: 9.40,
     });
+    mapRef.current = mapInstance;
 
-    map.current.addControl(new mapboxgl.NavigationControl(), "top-left");
+    mapInstance.addControl(new mapboxgl.NavigationControl(), "top-left");
 
     // --- EVENT LISTENERS ---
-    map.current.on("load", drawLayers);       // Draw on initial load
-    map.current.on("style.load", drawLayers); // Redraw when style loads
 
-    // Click handlers (unchanged)
-    map.current.on("click", "manhole-dots", (e) => {
+    // Named handler for style.load
+    const handleStyleLoad = () => {
+      const centerVal = centerToRestore?.current;
+      const zoomVal = zoomToRestore?.current;
+      console.log(">>> style.load: Refs BEFORE restore:", { center: centerVal, zoom: zoomVal });
+
+      drawLayers(); // Redraw layers first
+
+      if (centerVal && zoomVal !== null) {
+        console.log(">>> style.load: Map view BEFORE jumpTo:", { center: mapInstance?.getCenter(), zoom: mapInstance?.getZoom() });
+        mapInstance?.jumpTo({ center: centerVal, zoom: zoomVal });
+        setTimeout(() => {
+            if (mapRef.current) {
+               console.log(">>> style.load: Map view AFTER jumpTo:", { center: mapRef.current.getCenter(), zoom: mapRef.current.getZoom() });
+            }
+        }, 0);
+        if(centerToRestore) centerToRestore.current = null;
+        if(zoomToRestore) zoomToRestore.current = null;
+      } else {
+         console.log(">>> style.load: No view state found in refs to restore.");
+      }
+    };
+
+    // Attach listeners
+    mapInstance.on("load", drawLayers);
+    mapInstance.on("style.load", handleStyleLoad);
+
+    // --- Click Listeners ---
+    mapInstance.on("click", "manhole-dots", (e) => {
       const clickedFeature = e.features[0];
-      if (!clickedFeature) return;
-      popup.current.remove();
-      onManholeClick(clickedFeature);
-    });
-    map.current.on('click', (e) => {
-      const features = map.current.queryRenderedFeatures(e.point, { layers: ['manhole-dots'] });
-      if (!features.length && selectedManholeIdRef.current) { onManholeDeselect(); }
-    });
-    // ./MapboxCore.js -> inside the first useEffect, after the 'click' listeners
+      if (!clickedFeature || !onManholeClick) return;
+      popup.current.remove(); // Close any popup first
+      onManholeClick(clickedFeature); // Notify parent for side panel
 
-    map.current.on("mouseenter", "manhole-dots", (e) => {
-      // --- ADD LOGS for debugging ---
+      // Create and show persistent map popup
+      const feature = clickedFeature;
+      const popupId = feature.properties.id ?? 'N/A';
+      const popupDate = feature.properties.last_operation_date ? formatExcelDate(feature.properties.last_operation_date) : 'N/A';
+      const popupHtml = `
+        <div id="mhpop" style="font-size: 10px; padding: 4px; text-align: center; background-color: white; border-radius: 3px;  rgba(0,0,0,0.2); color: #333;">
+          <strong>ID:</strong> ${popupId}<br/>
+          <strong>Last Cleaned:</strong> ${popupDate}
+        </div>`;
+      popup.current.setLngLat(feature.geometry.coordinates).setHTML(popupHtml).addTo(mapInstance);
+      isPopupPinned.current = true; // Mark as pinned
+    });
 
-      // --- END LOGS ---
-      if (!map.current) return; // Safety check
-      map.current.getCanvas().style.cursor = "pointer";
+    mapInstance.on('click', (e) => { // Click off dot
+      if (!mapInstance) return;
+      const features = mapInstance.queryRenderedFeatures(e.point, { layers: ['manhole-dots'] });
+      if (!features.length) { // Click was NOT on a dot
+         popup.current.remove(); // Close map popup
+         isPopupPinned.current = false; // Unpin
+         if (selectedManholeIdRef.current && onManholeDeselect) {
+            onManholeDeselect(); // Notify parent
+         }
+      }
+    });
+
+    // --- Hover Popup Listeners ---
+    mapInstance.on("mouseenter", "manhole-dots", (e) => {
+      if (!mapInstance) return;
+      mapInstance.getCanvas().style.cursor = "pointer";
+      if (isPopupPinned.current) return; // Don't show hover if pinned
 
       if (e.features && e.features.length > 0) {
         const feature = e.features[0];
-        // --- ADD LOGS for debugging ---
-
-        // --- END LOGS ---
-
-        // Check if properties exist before trying to format
-        const popupId = feature.properties.id ?? 'N/A'; // Use nullish coalescing
-        const popupDate = feature.properties.last_operation_date
-          ? formatExcelDate(feature.properties.last_operation_date)
-          : 'N/A';
-
-        popup.current
-          .setLngLat(feature.geometry.coordinates)
-          .setHTML(
-            `<div id="mhpop" style="font-size: 10px;  text-align: center; border-r-10  3px;  rgba(0,0,0,0.2); color: #333;">
-              <strong>ID:</strong> ${popupId}<br/>
-              <strong>Last Cleaned:</strong> ${popupDate}
-            </div>` // Slightly improved styling
-          )
-          .addTo(map.current);
-        // --- ADD LOGS for debugging ---
-
-        // --- END LOGS ---
-      } else {
-
+        const popupId = feature.properties.id ?? 'N/A';
+        const popupDate = feature.properties.last_operation_date ? formatExcelDate(feature.properties.last_operation_date) : 'N/A';
+        const popupHtml = `
+          <div id="mhpop" style="font-size: 10px;  text-align: center; background-color: white; border-radius: 3px;   rgba(0,0,0,0.2); color: #333;">
+            <strong>ID:</strong> ${popupId}<br/>
+            <strong>Last Cleaned:</strong> ${popupDate}
+          </div>`;
+        popup.current.setLngLat(feature.geometry.coordinates).setHTML(popupHtml).addTo(mapInstance);
+      }
+    });
+    mapInstance.on("mouseleave", "manhole-dots", () => {
+       if (!mapInstance) return;
+      mapInstance.getCanvas().style.cursor = "";
+      if (!isPopupPinned.current) { // Only remove if not pinned
+          popup.current.remove();
       }
     });
 
-    map.current.on("mouseleave", "manhole-dots", () => {
-      // --- ADD LOGS for debugging ---
-
-      // --- END LOGS ---
-      if (!map.current) return; // Safety check
-      map.current.getCanvas().style.cursor = "";
-      popup.current.remove();
-    });
-
-    // ... rest of the useEffect ...
-    map.current.on("mouseenter", "manhole-dots", (e) => { /* ...popup logic... */ });
-    map.current.on("mouseleave", "manhole-dots", () => { /* ...popup logic... */ });
-
-    return () => { // Cleanup
-      if (map.current) {
-        map.current.off("load", drawLayers);
-        map.current.off("style.load", drawLayers);
-        map.current.remove();
-        map.current = null;
+    // --- Cleanup ---
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.off("load", drawLayers);
+        mapRef.current.off("style.load", handleStyleLoad);
+        mapRef.current.remove();
+        mapRef.current = null;
       }
     };
-  }, [styleUrl, onManholeClick, onManholeDeselect, formatExcelDate]); // Style URL triggers re-init
+  // Dependencies for initialization
+  }, [styleUrl, mapRef, centerToRestore, zoomToRestore, onManholeClick, onManholeDeselect, formatExcelDate, drawLayers]);
 
 
-  // --- 2. Effect to change style ---
+  // --- 2. Effect to Trigger Mapbox Style Change ---
   useEffect(() => {
-    if (!map.current || !map.current.isStyleLoaded()) return;
-    const currentStyle = map.current.getStyle();
+    if (!mapRef.current || !mapRef.current.isStyleLoaded() || !mapRef.current.loaded()) return;
+    const currentStyle = mapRef.current.getStyle();
     if (!currentStyle || currentStyle.url === styleUrl) return;
-    map.current.setStyle(styleUrl);
-  }, [styleUrl]);
+    console.log(">>> Applying new style URL:", styleUrl);
+    mapRef.current.setStyle(styleUrl);
+  }, [styleUrl, mapRef]);
 
 
-  // --- 3 & 4. Effects to REDRAW layers when data props change ---
-  // We call drawLayers directly here as well.
+  // --- 3 & 4. Effect to REDRAW layers when data props change ---
   useEffect(() => {
-    drawLayers();
-  }, [manholeGeoJSON, wardGeoJSON]); // Redraw if either dataset changes
+    if (mapRef.current && mapRef.current.isStyleLoaded()) {
+      drawLayers();
+    }
+  }, [manholeGeoJSON, wardGeoJSON, mapRef, drawLayers]);
 
 
   // --- 5. Effect to apply Status Filter ---
-  // This needs to be separate because it applies filter, doesn't redraw layers
   useEffect(() => {
-    if (!map.current || !map.current.isStyleLoaded() || !map.current.getLayer("manhole-dots")) return;
+    if (!mapRef.current || !mapRef.current.isStyleLoaded() || !mapRef.current.getLayer("manhole-dots")) return;
     try {
       const filterExpr = statusFilter === "all" ? null : ["==", ["get", "status"], statusFilter];
-      map.current.setFilter("manhole-dots", filterExpr);
-    } catch (e) {
-      console.warn("Could not set filter (safe during style change):", e.message);
-    }
-  }, [statusFilter]);
+      mapRef.current.setFilter("manhole-dots", filterExpr);
+    } catch (e) { console.warn("Could not set filter:", e.message); }
+  }, [statusFilter, mapRef]);
 
 
-
-  // --- 6. Effect to manage Manhole Selection State ---
+  // --- 6. Effect to manage Manhole Selection State (Ref Update + Redraw trigger) ---
   useEffect(() => {
-    // Guards: Make sure the map and source are ready
-    if (!map.current || !map.current.isStyleLoaded() || !map.current.getSource('manholes')) {
-      return;
+    selectedManholeIdRef.current = selectedManholeId; // Update internal ref
+    if (mapRef.current && mapRef.current.isStyleLoaded()) {
+      drawLayers(); // Trigger redraw to update visual state
     }
+     // If selectedManholeId becomes null (deselected), ensure popup is unpinned
+     if(selectedManholeId === null) {
+        isPopupPinned.current = false;
+        popup.current.remove(); // Close map popup on deselect
+     }
+  }, [selectedManholeId, mapRef, drawLayers]);
 
-    const mapInstance = map.current; // Use local var for safety
 
-    // Get the ID of the previously selected manhole (stored in the ref)
-    const previousSelectedId = selectedManholeIdRef.current;
-
-    // A. Deselect the PREVIOUSLY selected manhole (if one exists)
-    if (previousSelectedId !== null) {
-      // Check if the feature actually exists before trying to set state
-      // (This prevents errors if data reloads between clicks)
-      const features = mapInstance.querySourceFeatures('manholes', {
-        filter: ['==', 'id', previousSelectedId]
-      });
-      if (features.length > 0) {
-        try {
-          mapInstance.setFeatureState(
-            { source: 'manholes', id: previousSelectedId },
-            { selected: false }
-          );
-        } catch (e) { console.warn("Could not deselect previous feature:", e.message); }
-      }
-    }
-
-    // B. Select the NEW manhole (if a new one is selected)
-    if (selectedManholeId !== null) {
-      // Check if the feature actually exists before trying to set state
-      const features = mapInstance.querySourceFeatures('manholes', {
-        filter: ['==', 'id', selectedManholeId]
-      });
-      if (features.length > 0) {
-        try {
-          mapInstance.setFeatureState(
-            { source: 'manholes', id: selectedManholeId },
-            { selected: true }
-          );
-        } catch (e) { console.warn("Could not select new feature:", e.message); }
-      } else {
-        console.warn(`Manhole ID ${selectedManholeId} not found in source.`);
-      }
-    }
-
-    // C. Update the ref to store the CURRENTLY selected ID for the next time
-    selectedManholeIdRef.current = selectedManholeId;
-
-    // No need to call drawLayers here anymore
-
-  }, [selectedManholeId]); // Re-run only when the selected ID prop changes
-
-  // --- 7. Effect to fly to a location (Unchanged) ---
+  // --- 7. Effect to fly to a location ---
   useEffect(() => {
-    if (!map.current || !flyToLocation) return;
+    if (!mapRef.current || !flyToLocation) return;
+    // Don't fly if a popup is pinned from a click (prevents overriding click zoom)
+    // You might adjust this logic if flying should always take precedence
+    // if (isPopupPinned.current && flyToLocation.center) return;
+
     try {
       if (flyToLocation.bounds) {
-        map.current.fitBounds(flyToLocation.bounds, { padding: flyToLocation.padding || 40, duration: 1000 });
+        // Unpin popup before fitting bounds to prevent weirdness
+        isPopupPinned.current = false;
+        popup.current.remove();
+        mapRef.current.fitBounds(flyToLocation.bounds, { padding: flyToLocation.padding || 40, duration: 1000 });
       } else if (flyToLocation.center) {
-        map.current.flyTo({ center: flyToLocation.center, zoom: flyToLocation.zoom || 18, duration: 1000 });
+         // Check if the target center is different enough from current center before flying
+         // This prevents unnecessary flying when clicking already centered manhole
+         const currentCenter = mapRef.current.getCenter();
+         const targetCenter = flyToLocation.center;
+         const dist = Math.sqrt(Math.pow(currentCenter.lng - targetCenter[0], 2) + Math.pow(currentCenter.lat - targetCenter[1], 2));
+         // Only fly if distance is more than a small threshold
+         if (dist > 0.00001) {
+            mapRef.current.flyTo({ center: targetCenter, zoom: flyToLocation.zoom || 18, duration: 1000 });
+         } else {
+             // If already centered, just ensure correct zoom
+             if(mapRef.current.getZoom() !== (flyToLocation.zoom || 18)){
+                 mapRef.current.zoomTo(flyToLocation.zoom || 18, {duration: 500});
+             }
+         }
       }
-    } catch (e) {
-      console.error("Error flying to location:", e.message);
-    }
-  }, [flyToLocation]);
+    } catch (e) { console.error("Error flying to location:", e.message); }
+  }, [flyToLocation, mapRef]);
 
+  // Render the map container div
   return (
     <div ref={mapContainer} className="h-full w-full " />
   );
