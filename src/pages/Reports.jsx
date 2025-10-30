@@ -45,16 +45,27 @@ export const Reports = () => {
   }, []);
 
   // ✅ Merge CSV and Server Data
-  useEffect(() => {
-    if (csvData.length > 0 || serverData.length > 0) {
-      const merged = [...csvData, ...serverData];
-      setMergedData(merged);
+ // ✅ Merge CSV and Server Data
+useEffect(() => {
+  if (csvData.length > 0 || serverData.length > 0) {
+    // Normalize keys from server data to match CSV
+    const normalizedServerData = serverData.map((item) => ({
+      ...item,
+      City: item.City || item.district || "",
+      Division: item.Division || item.division || "",
+      Section: item.Section || item.area || "",
+    }));
 
-      const cityList = [...new Set(merged.map((i) => i.City).filter(Boolean))];
-      setCities(cityList);
-    }
-  }, [csvData, serverData]);
-  // console.log("Merged Data:", mergedData);
+    const merged = [...csvData, ...normalizedServerData];
+    setMergedData(merged);
+
+    const cityList = [...new Set(merged.map((i) => i.City).filter(Boolean))];
+    setCities(cityList);
+
+    console.log("✅ Normalized + Merged Data:", merged);
+  }
+}, [csvData, serverData]);
+
   // ✅ Update Divisions when City changes
   useEffect(() => {
     if (userInputs?.city) {

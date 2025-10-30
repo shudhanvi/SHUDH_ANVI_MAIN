@@ -26,7 +26,7 @@ export const ManholeReportPopup = ({ reportData, onClose }) => {
         "#60a5fa",
         "#22c55e",
         "#ef4444",
-        "#f59e0b",
+        "#06b6d4",
         "#a855f7",
         "#3b82f6",
       ];

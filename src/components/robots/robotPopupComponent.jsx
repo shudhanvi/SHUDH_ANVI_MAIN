@@ -17,6 +17,16 @@ import {
   Download,
 } from "lucide-react";
 import { backendApi } from "../../utils/backendApi";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+// ✅ Fix Leaflet marker issue for Vite/Render builds
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: new URL("leaflet/dist/images/marker-icon-2x.png", import.meta.url).href,
+  iconUrl: new URL("leaflet/dist/images/marker-icon.png", import.meta.url).href,
+  shadowUrl: new URL("leaflet/dist/images/marker-shadow.png", import.meta.url).href,
+});
+
 
 export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
   const [detailedFromDate, setDetailedFromDate] = useState(null);
@@ -265,58 +275,106 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
               </div> */}
 
               {/* Map */}
-              {/* Map Section */}
-              <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
-                <div className="flex flex-row justify-between">
-                  <h1 className="pb-1 text-start">
-                    {currentRecord?.latitude && currentRecord?.longitude
-                      ? `${currentRecord.latitude}, ${currentRecord.longitude}`
-                      : "-"}
-                  </h1>
-                  <h1>Manhole ID : {currentRecord?.manhole_id || "-"}</h1>
-                </div>
+             {/* Map Section */}
+{/* <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
+  <div className="flex flex-row justify-between">
+    <h1 className="pb-1 text-start">
+      {currentRecord?.latitude && currentRecord?.longitude
+        ? `${currentRecord.latitude}, ${currentRecord.longitude}`
+        : "-"}
+    </h1>
+    <h1>Manhole ID : {currentRecord?.manhole_id || "-"}</h1>
+  </div>
 
-                <div className="bd-gray">
-                  {currentRecord &&
-                    !isNaN(Number(currentRecord.latitude)) &&
-                    !isNaN(Number(currentRecord.longitude)) ? (
-                    <MapContainer
-                      center={[
-                        Number(currentRecord.latitude),
-                        Number(currentRecord.longitude),
-                      ]}
-                      zoom={15}
-                      className="h-40 rounded-lg"
-                    >
-                      <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                      />
-                      <Marker
-                        position={[
-                          Number(currentRecord.latitude),
-                          Number(currentRecord.longitude),
-                        ]}
-                      >
-                        <LeafletPopup>
-                          {currentRecord.area
-                            ? `${currentRecord.area}, ${currentRecord.division || ""}`
-                            : "Unknown Location"}
-                        </LeafletPopup>
-                      </Marker>
-                      <RecenterMap
-                        lat={Number(currentRecord.latitude)}
-                        lng={Number(currentRecord.longitude)}
-                      />
-                    </MapContainer>
-                  ) : (
-                    <p className="text-gray-500 flex items-center justify-center h-40">
-                      No location available
-                    </p>
-                  )}
-                </div>
-              </div>
-              {/* {console.log("LatLng:", lat, lng )} */}
+  <div className="bd-gray">
+    {currentRecord &&
+    !isNaN(Number(currentRecord.latitude)) &&
+    !isNaN(Number(currentRecord.longitude)) ? (
+      <MapContainer
+        center={[
+          Number(currentRecord.latitude),
+          Number(currentRecord.longitude),
+        ]}
+        zoom={15}
+        className="h-40 rounded-lg"
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <Marker
+          position={[
+            Number(currentRecord.latitude),
+            Number(currentRecord.longitude),
+          ]}
+        >
+          <LeafletPopup>
+           
+          </LeafletPopup>
+        </Marker>
+        <RecenterMap
+          lat={Number(currentRecord.latitude)}
+          lng={Number(currentRecord.longitude)}
+        />
+      </MapContainer>
+    ) : (
+      <p className="text-gray-500 flex items-center justify-center h-40">
+        No location available
+      </p>
+    )}
+  </div>
+</div> */}
+ <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
+      <div className="flex flex-row justify-between">
+        <h1 className="pb-1 text-start">
+          {currentRecord?.latitude && currentRecord?.longitude
+            ? `${currentRecord.latitude}, ${currentRecord.longitude}`
+            : "-"}
+        </h1>
+        <h1>Manhole ID : {currentRecord?.manhole_id}</h1>
+      </div>
+
+      <div className="bd-gray">
+        {currentRecord &&
+        !isNaN(Number(currentRecord.latitude)) &&
+        !isNaN(Number(currentRecord.longitude)) ? (
+          <MapContainer
+            center={[
+              Number(currentRecord.latitude),
+              Number(currentRecord.longitude),
+            ]}
+            zoom={15}
+            className="h-40 rounded-lg"
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+
+            <Marker
+              position={[
+                Number(currentRecord.latitude),
+                Number(currentRecord.longitude),
+              ]}
+            >
+              <LeafletPopup>
+                {currentRecord.area || currentRecord.section || "Unknown Location"}
+              </LeafletPopup>
+            </Marker>
+
+            <RecenterMap
+              lat={Number(currentRecord.latitude)}
+              lng={Number(currentRecord.longitude)}
+            />
+          </MapContainer>
+        ) : (
+          <p className="text-gray-500 flex items-center justify-center h-40">
+            No location available
+          </p>
+        )}
+      </div>
+    </div>
+{console.log("LatLng:", lat, lng )}
 
               {/* Images and Report */}
               <h1 className="text-[16px] text-[#21232C] mt-[24px] text-start">Operation Images</h1>

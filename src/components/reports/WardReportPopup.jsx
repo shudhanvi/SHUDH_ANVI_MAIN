@@ -63,57 +63,57 @@ export const WardReportPopup = ({ reportData, onClose }) => {
       dailyOpsChart: document.getElementById("dailyOpsChart"),
     };
 
-    if (data["Manhole Condition Distribution"]) {
-      createChart(
-        "manholeConditionChart",
-        "pie",
-        Object.keys(data["Manhole Condition Distribution"]),
-        Object.values(data["Manhole Condition Distribution"]),
-        ["#22c55e", "#fbbf24", "#ef4444", "#3b82f6"]
-      );
-    }
+   if (data["Manhole Condition Distribution"]) {
+  createChart(
+    "manholeConditionChart",
+    "pie",
+    Object.keys(data["Manhole Condition Distribution"]),
+    Object.values(data["Manhole Condition Distribution"]),
+    ["#22c55e", "#3b82f6", "#eab308", "#ef4444"]
+  );
+}
 
-    if (data["Land Use Distribution"]) {
-      createChart(
-        "landUseChart",
-        "pie",
-        Object.keys(data["Land Use Distribution"]),
-        Object.values(data["Land Use Distribution"]),
-        ["#3b82f6", "#f97316", "#10b981", "#facc15"]
-      );
-    }
+if (data["Land Use Distribution"]) {
+  createChart(
+    "landUseChart",
+    "pie",
+    Object.keys(data["Land Use Distribution"]),
+    Object.values(data["Land Use Distribution"]),
+    ["#14b8a6", "#0ea5e9", "#10b981", "#8b5cf6"]
+  );
+}
 
-    if (data["Sewer Length by Area"]) {
-      createChart(
-        "sewerLengthChart",
-        "bar",
-        Object.keys(data["Sewer Length by Area"]),
-        Object.values(data["Sewer Length by Area"]),
-        ["#3b82f6", "#f97316", "#10b981", "#facc15"],
-        { scales: { y: { beginAtZero: true } } }
-      );
-    }
+if (data["Sewer Length by Area"]) {
+  createChart(
+    "sewerLengthChart",
+    "bar",
+    Object.keys(data["Sewer Length by Area"]),
+    Object.values(data["Sewer Length by Area"]),
+    ["#3b82f6", "#06b6d4", "#22c55e", "#8b5cf6"],
+    { scales: { y: { beginAtZero: true } } }
+  );
+}
 
-    if (data["Junction Type Distribution"]) {
-      createChart(
-        "junctionTypeChart",
-        "pie",
-        Object.keys(data["Junction Type Distribution"]),
-        Object.values(data["Junction Type Distribution"]),
-        ["#3b82f6", "#f97316", "#10b981", "#facc15", "#ef4444"]
-      );
-    }
+if (data["Junction Type Distribution"]) {
+  createChart(
+    "junctionTypeChart",
+    "pie",
+    Object.keys(data["Junction Type Distribution"]),
+    Object.values(data["Junction Type Distribution"]),
+    ["#3b82f6", "#0ea5e9", "#10b981", "#8b5cf6", "#f97316"]
+  );
+}
 
-    if (data["Clogging Incidents by Junction Type"]) {
-      createChart(
-        "cloggingChart",
-        "bar",
-        Object.keys(data["Clogging Incidents by Junction Type"]),
-        Object.values(data["Clogging Incidents by Junction Type"]),
-        ["#3b82f6", "#f97316", "#10b981", "#facc15", "#ef4444"],
-        { scales: { y: { beginAtZero: true } } }
-      );
-    }
+if (data["Clogging Incidents by Junction Type"]) {
+  createChart(
+    "cloggingChart",
+    "bar",
+    Object.keys(data["Clogging Incidents by Junction Type"]),
+    Object.values(data["Clogging Incidents by Junction Type"]),
+    ["#ef4444", "#f43f5e", "#fb7185", "#3b82f6", "#22c55e"],
+    { scales: { y: { beginAtZero: true } } }
+  );
+}
 
     if (data["Daily Operations (Last 30 Days)"]) {
       createChart(
@@ -164,7 +164,7 @@ export const WardReportPopup = ({ reportData, onClose }) => {
         </div>
 
         <div className="flex flex-col gap-[20px] justify-evenly mb-[10px]">
-          <div className="flex  w-[100%] justify-evenly gap-[20px]">
+          <div className="flex justify-evenly ">
             <div className="p-[10px] bg-white rounded-2xl border border-gray-200 shadow-md ">
               <img className="h-[300px] aspect-[16/14]" src="/images/Landuse.jpg" />
               <h3 className="text-center text-lg font-bold">Landuse</h3>
@@ -175,7 +175,7 @@ export const WardReportPopup = ({ reportData, onClose }) => {
             </div>
           </div>
 
-          <div className="flex w-[100%] justify-evenly gap-[20px]">
+          <div className="flex justify-evenly ">
             <div className="p-[10px] bg-white rounded-2xl border border-gray-200 shadow-md ">
               <img className="h-[300px] aspect-[16/14]" src="/images/Hotspot.jpg" alt="" />
               <h3 className="text-center text-lg font-bold">Hotspot</h3>
