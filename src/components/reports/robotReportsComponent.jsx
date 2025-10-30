@@ -4,8 +4,9 @@ import { usePagination } from "../../hooks/usePagination";
 import { Pagination } from "./Pagination";
 import DatePicker from "react-datepicker";
 import { backendApi } from "../../utils/backendApi";
-import { useServerData } from "../../context/ServerDataContext"; // ✅ import context
+import { useServerData } from "../../context/ServerDataContext"; // ✅ context import
 
+// ✅ CSV row parser (handles quotes, commas safely)
 const parseCsvRow = (row) => {
   const values = [];
   const regex = /(?:"([^"]*(?:""[^"]*)*)"|([^,]*))(?:,|$)/g;
@@ -19,11 +20,10 @@ const parseCsvRow = (row) => {
 };
 
 export const RobotReportsComponent = ({ division, section, city, onBack }) => {
-  const { serverData, loading: serverLoading } = useServerData(); // ✅ server data
+  const { serverData, loading: serverLoading } = useServerData();
   const [csvRobots, setCsvRobots] = useState([]);
   const [robots, setRobots] = useState([]);
   const [filteredRobots, setFilteredRobots] = useState([]);
-
   const [selectedRobots, setSelectedRobots] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +32,7 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  // ✅ Format date to dd-mm-yyyy
+  // ✅ Date formatting helper
   const formatDate = (date) => {
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, "0");
@@ -41,6 +41,7 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
     return `${day}-${month}-${year}`;
   };
 
+  // ✅ Pagination hook
   const {
     currentPage,
     totalPages,
@@ -51,11 +52,11 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
     handlePrevPage,
   } = usePagination(filteredRobots, 50);
 
-  // ✅ Fetch CSV robots
+  // ✅ Load CSV Robots
   useEffect(() => {
     const fetchCSV = async () => {
       try {
-        const response = await fetch("/datafiles/CSVs/Robo_Operations_copy.csv");
+        const response = await fetch("/datafiles/CSVs/Robo_Operations.csv");
         const text = await response.text();
         const rows = text.replace(/\r/g, "").trim().split("\n").filter(Boolean);
         if (rows.length < 2) return;
@@ -69,12 +70,14 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
           }, {});
           return {
             device_id: obj.device_id,
-            City: obj.City,
-            Division: obj.Division,
-            Section: obj.Section,
+            city: obj.city,
+            division: obj.division,
+            section: obj.section,
           };
         });
+
         setCsvRobots(data);
+        console.log("CSV Robots Loaded:", data);
       } catch (err) {
         console.error("Error loading CSV:", err);
       }
@@ -84,13 +87,12 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
 
   // ✅ Merge CSV + Server Robots
   useEffect(() => {
-    // serverData might have robots array or robot info per section
     const serverRobots = Array.isArray(serverData)
       ? serverData.map((item) => ({
           device_id: item.device_id || item.robot_id || item.bot_id || "Unknown",
-          City: item.City || item.city ||item.district|| "",
-          Division: item.Division || item.division || "",
-          Section: item.Section || item.section ||item.area|| "",
+          city: item.city || item.district || "",
+          division: item.division || "",
+          section: item.section || item.area || "",
         }))
       : [];
 
@@ -98,23 +100,39 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
     setRobots(combined);
   }, [csvRobots, serverData]);
 
-  // ✅ Filter robots by selected city/division/section
+  // ✅ Relaxed Filter (handles spaces, parentheses, underscores, etc.)
   useEffect(() => {
     if (!robots.length) return;
 
-    const normalize = (v) => (v || "").toLowerCase().trim();
+    const normalize = (v) =>
+      (v || "")
+        .toLowerCase()
+        .replace(/[\s()_-]+/g, "") // remove spaces, parentheses, underscores, hyphens
+        .trim();
+
+    const normCity = normalize(city);
+    const normDivision = normalize(division);
+    const normSection = normalize(section);
+
     const filtered = robots.filter((r) => {
-      const matchCity = city ? normalize(r.City) === normalize(city) : true;
-      const matchDivision = division ? normalize(r.Division) === normalize(division) : true;
-      const matchSection = section ? normalize(r.Section) === normalize(section) : true;
+      const rCity = normalize(r.city);
+      const rDivision = normalize(r.division);
+      const rSection = normalize(r.section);
+
+      const matchCity = !normCity || rCity.includes(normCity);
+      const matchDivision = !normDivision || rDivision.includes(normDivision);
+      const matchSection = !normSection || rSection.includes(normSection);
+
       return matchCity && matchDivision && matchSection;
     });
 
-    // deduplicate by device_id
+    // Deduplicate
     const unique = Array.from(new Map(filtered.map((r) => [r.device_id, r])).values());
     setFilteredRobots(unique);
     setSelectedRobots([]);
     setSelectAll(false);
+
+    console.log("✅ After relaxed filter:", unique);
   }, [robots, city, division, section]);
 
   // ✅ Checkbox handling
@@ -143,13 +161,16 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
       alert("Please select at least one robot.");
       return;
     }
+
     setIsLoading(true);
     const payload = {
       selectedRobots,
       userInputs: { division, section, city, dateRange: { from: fromDate, to: toDate } },
       command: "generate_robot_report",
     };
-    // console.log("sending:", payload);
+
+    console.log("sending:", payload);
+
     try {
       const response = await fetch(backendApi.robotsReportUrl, {
         method: "POST",
@@ -167,7 +188,6 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
       setIsLoading(false);
     }
   };
-
   return (
     <>
       {showPopup && reportData && (
@@ -230,38 +250,48 @@ export const RobotReportsComponent = ({ division, section, city, onBack }) => {
                   : "hover:bg-[#187A8A]"
               }`}
             >
-              {isLoading ? "Generating..." : "View Selected Report"}
+              {isLoading ? "Loading..." : "View Selected Report"}
             </button>
           </div>
         </div>
 
-        {/* ✅ Robots Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 h-[340px] auto-rows-max">
-          {currentManholes.map((robot) => (
-            <label
-              key={robot.device_id}
-              className="flex items-center gap-2 px-4 py-4 h-[58px] rounded-lg cursor-pointer bg-[#F9FAFB]"
-            >
-              <input
-                type="checkbox"
-                checked={selectedRobots.includes(robot.device_id)}
-                onChange={() => handleCheckboxChange(robot.device_id)}
-                className="h-4 w-4 rounded border-[#1E9AB0] accent-[#1E9AB0]"
-              />
-              <span className="text-sm font-medium text-gray-800">{robot.device_id}</span>
-            </label>
-          ))}
-        </div>
+        {/* ✅ Show message if no robots */}
+        {filteredRobots.length === 0 ? (
+          <div className="text-center text-gray-500 py-10">
+            No robots found for the selected location.
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 h-[340px] auto-rows-max">
+              {currentManholes.map((robot) => (
+                <label
+                  key={robot.device_id}
+                  className="flex items-center gap-2 px-4 py-4 h-[58px] rounded-lg cursor-pointer bg-[#F9FAFB]"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedRobots.includes(robot.device_id)}
+                    onChange={() => handleCheckboxChange(robot.device_id)}
+                    className="h-4 w-4 rounded border-[#1E9AB0] accent-[#1E9AB0]"
+                  />
+                  <span className="text-sm font-medium text-gray-800">
+                    {robot.device_id}
+                  </span>
+                </label>
+              ))}
+            </div>
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onNext={handleNextPage}
-          onPrev={handlePrevPage}
-          firstItemIndex={indexOfFirstItem}
-          lastItemIndex={indexOfLastItem}
-          totalItems={filteredRobots.length}
-        />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onNext={handleNextPage}
+              onPrev={handlePrevPage}
+              firstItemIndex={indexOfFirstItem}
+              lastItemIndex={indexOfLastItem}
+              totalItems={filteredRobots.length}
+            />
+          </>
+        )}
       </div>
     </>
   );

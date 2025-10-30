@@ -51,11 +51,13 @@ export const Robots = () => {
           skipEmptyLines: true,
         }).data;
         setStaticData(parsedCSV);
+        console.log("Static CSV data loaded:", parsedCSV);
       } catch (err) {
         console.error("Error fetching CSV:", err);
       }
     };
     fetchCSV();
+    
   }, []);
 
   // Normalize data
@@ -199,6 +201,7 @@ export const Robots = () => {
     setShowFiltered(true);
   };
 
+  console.log("MainData:", MainData);
   return (
     <div className="w-full ">
       <section className="section1 border-b-[1.5px] border-[#E1E7EF] py-[10px] px-[30px] bg-white ">
