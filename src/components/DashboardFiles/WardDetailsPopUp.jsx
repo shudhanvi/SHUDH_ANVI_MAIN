@@ -84,8 +84,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
 
       const data = await response.json();
       console.log("Backend response:", data);
-      // setReportData(data); // Uncomment if managing state here
-      // setShowPopup(true);  // Uncomment if managing state here
+ 
       alert("Report generated successfully! (Check console for mock data)"); // Simple alert for now
     } catch (error) {
       console.error("Error fetching ward report:", error);
