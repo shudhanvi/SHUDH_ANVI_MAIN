@@ -68,13 +68,13 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
 
     setDetailedFilteredData(filtered);
   };
-   // Determine which record to show in right panel
+  // Determine which record to show in right panel
   const currentRecord = selectedHistory || activeRecord;
 
- 
 
-  let lat=currentRecord?.latitude;
-  let lng=currentRecord?.longitude;
+
+  let lat = currentRecord?.latitude;
+  let lng = currentRecord?.longitude;
   const RecenterMap = ({ lat, lng }) => {
     const map = useMap();
     useEffect(() => {
@@ -83,7 +83,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
     return null;
   };
 
- 
+
   const handleGenerateReport = async () => {
     try {
 
@@ -111,12 +111,12 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
 
         }),
       });
-      console.log("Sending payload:", { command: "generate_report" });
+      // console.log("Sending payload:", { command: "generate_report" });
 
 
       // console.log(body)
       const data = await response.json();
-      console.log("Backend response:", data);
+      // console.log("Backend response:", data);
       alert(data.Allert);
     } catch (error) {
       console.error("Error calling backend:", error);
@@ -188,23 +188,23 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                     Task Duration
                     {/* <span className="text-[#21232C] text-[16px]">{currentRecord?.operation_time_minutes || "-"} secs</span> */}
                     <span className="text-[#21232C] text-[16px]">
-  {(() => {
-    const totalSecs = Number(currentRecord?.operation_time_minutes);
-    if (isNaN(totalSecs) || totalSecs < 0) return "-";
+                      {(() => {
+                        const totalSecs = Number(currentRecord?.operation_time_minutes);
+                        if (isNaN(totalSecs) || totalSecs < 0) return "-";
 
-    const hours = Math.floor(totalSecs / 3600);
-    const minutes = Math.floor((totalSecs % 3600) / 60);
-    const seconds = Math.floor(totalSecs % 60);
+                        const hours = Math.floor(totalSecs / 3600);
+                        const minutes = Math.floor((totalSecs % 3600) / 60);
+                        const seconds = Math.floor(totalSecs % 60);
 
-    let result = "";
+                        let result = "";
 
-    if (hours > 0) result += `${hours} hr${hours > 1 ? "s" : ""} `;
-    if (minutes > 0) result += `${minutes} min${minutes > 1 ? "s" : ""} `;
-    if (seconds > 0 || result === "") result += `${seconds} sec${seconds !== 1 ? "s" : ""}`;
+                        if (hours > 0) result += `${hours} hr${hours > 1 ? "s" : ""} `;
+                        if (minutes > 0) result += `${minutes} min${minutes > 1 ? "s" : ""} `;
+                        if (seconds > 0 || result === "") result += `${seconds} sec${seconds !== 1 ? "s" : ""}`;
 
-    return result.trim();
-  })()}
-</span>
+                        return result.trim();
+                      })()}
+                    </span>
 
                   </span>
                 </span>
@@ -406,7 +406,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                   <Download className="inline-block w-5 h-5 mr-1" color="white" />
                   Generate Operation Report
                 </button> */}
-                
+
                 <button
                   onClick={handleGenerateReport}
                   className="flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px] w-full text-white rounded-[16px] cursor-pointer btn-hover"

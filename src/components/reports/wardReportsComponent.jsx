@@ -38,7 +38,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
             command: "generate_ward_report",
         };
 
-        console.log("Sending corrected payload to backend:", payload);
+        // console.log("Sending corrected payload to backend:", payload);
 
         try {
             const response = await fetch(backendApi.wardsReportUrl, {
@@ -56,7 +56,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
             }
 
             const data = await response.json();
-            console.log("Backend response:", data);
+            // console.log("Backend response:", data);
             setReportData(data);
             setShowPopup(true);
         } catch (error) {
