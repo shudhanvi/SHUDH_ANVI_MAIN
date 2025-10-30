@@ -164,7 +164,7 @@ export const WardReportPopup = ({ reportData, onClose }) => {
         </div>
 
         <div className="flex flex-col gap-[20px] justify-evenly mb-[10px]">
-          <div className="flex ">
+          <div className="flex justify-evenly ">
             <div className="p-[10px] bg-white rounded-2xl border border-gray-200 shadow-md ">
               <img className="h-[300px] aspect-[16/14]" src="/images/Landuse.jpg" />
               <h3 className="text-center text-lg font-bold">Landuse</h3>
@@ -175,7 +175,7 @@ export const WardReportPopup = ({ reportData, onClose }) => {
             </div>
           </div>
 
-          <div className="flex">
+          <div className="flex justify-evenly ">
             <div className="p-[10px] bg-white rounded-2xl border border-gray-200 shadow-md ">
               <img className="h-[300px] aspect-[16/14]" src="/images/Hotspot.jpg" alt="" />
               <h3 className="text-center text-lg font-bold">Hotspot</h3>

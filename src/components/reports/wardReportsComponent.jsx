@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
 import { WardReportPopup } from './WardReportPopup';
 import { backendApi } from '../../utils/backendApi';
+import DatePicker from 'react-datepicker';
 // import { WardReportPopup } from "./WardReportPopup"; 
 
 export const WardReportsComponent = ({ city, division, section }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [reportData, setReportData] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
+    const [fromDate, setFromDate] = useState("");
+      const [toDate, setToDate] = useState("");
+    
+      // ✅ Date formatting helper
+      const formatDate = (date) => {
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = d.getFullYear();
+        return `${day}-${month}-${year}`;
+      };
+    
 
     const handleOpenReport = async () => {
         if (!city || !division || !section) {
@@ -20,7 +33,8 @@ export const WardReportsComponent = ({ city, division, section }) => {
         const payload = {
             district: city,     // 'city' prop is now sent as 'district'
             division: division, // This name was correct
-            area: section,      // 'section' prop is now sent as 'area'
+            area: section,  
+            dateRange: { from: fromDate, to: toDate } ,   // 'section' prop is now sent as 'area'
             command: "generate_ward_report",
         };
 
@@ -63,6 +77,30 @@ export const WardReportsComponent = ({ city, division, section }) => {
                     onClose={() => setShowPopup(false)}
                 />
             )}
+            {/* 🔹 Date filters */}
+                  <div className="flex items-end gap-x-4 px-[30px] py-[10px] mb-[10px] bg-white rounded-lg border-[1.5px] border-[#E1E7EF]">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
+                      <DatePicker
+                        selected={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
+                        onChange={(date) => setFromDate(formatDate(date))}
+                        dateFormat="dd/MM/yyyy"
+                        placeholderText="Select from date"
+                        className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-[#1E9AB0]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
+                      <DatePicker
+                        selected={toDate ? new Date(toDate.split("-").reverse().join("-")) : null}
+                        onChange={(date) => setToDate(formatDate(date))}
+                        dateFormat="dd/MM/yyyy"
+                        placeholderText="Select to date"
+                        minDate={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
+                        className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-[#1E9AB0]"
+                      />
+                    </div>
+                  </div>
 
             <div className="mt-4">
                 <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
