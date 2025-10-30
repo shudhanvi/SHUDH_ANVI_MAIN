@@ -82,7 +82,7 @@ export default function Alerts({ alertData = [], onManholeSelect }) {
   if (!alertData || alertData.length === 0) {
     return (
       <section className="p-4 font-sans text-gray-700 max-w-md mx-auto">
-        <h3 className="text-sm text-gray-500 font-medium mb-4 pl-2">Zone alerts</h3>
+        <h3 className="text-sm text-gray-500 font-medium mb-4 pl-2">Zone Alerts</h3>
         <p className="text-center text-gray-500 mt-5">
           No danger alerts found for this ward.
         </p>
