@@ -66,3 +66,9 @@ button:not(.popup-btn):not(.manhole-popup-btn):not(.btn-view-more) {
 .react-datepicker-wrapper {
   width: 100%;
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
