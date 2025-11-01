@@ -16,9 +16,9 @@ import {
   ClockIcon,
   Download,
 } from "lucide-react";
-import { backendApi } from "../../utils/backendApi";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { OperationPopup } from "./OperationPopup";
 // ✅ Fix Leaflet marker issue for Vite/Render builds
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -33,6 +33,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
   const [detailedToDate, setDetailedToDate] = useState(null);
   const [detailedFilteredData, setDetailedFilteredData] = useState([]);
   const [selectedHistory, setSelectedHistory] = useState(null);
+  const [showOperationPopup, setShowOperationPopup] = useState(false);
 
 
   useEffect(() => {
@@ -81,46 +82,6 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
       if (lat && lng) map.setView([lat, lng], map.getZoom());
     }, [lat, lng, map]);
     return null;
-  };
-
-
-  const handleGenerateReport = async () => {
-    try {
-
-      const response = await fetch(backendApi.operations, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          command: "generate_Robot_report",
-          params: {
-            'device_id': currentRecord.device_id,
-            'district': currentRecord.district,
-            'division': currentRecord.division,
-            'id': currentRecord.id,
-            'area': currentRecord.area
-
-          }
-
-
-
-          // 'device_id':currentRecord.device_id,
-
-          // 'division':'DC',
-
-        }),
-      });
-      // console.log("Sending payload:", { command: "generate_report" });
-
-
-      // console.log(body)
-      const data = await response.json();
-      // console.log("Backend response:", data);
-      alert(data.Allert);
-    } catch (error) {
-      console.error("Error calling backend:", error);
-    }
   };
 
 
@@ -185,6 +146,13 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                 <span className="flex flex-row">
                   <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
+                    Ending Time
+                    <span className="text-[#21232C] text-[16px]">{new Date(currentRecord.endtime).toLocaleTimeString()}</span>
+                  </span>
+                </span>
+                <span className="flex flex-row">
+                  <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
+                  <span className="flex flex-col ml-2">
                     Task Duration
                     {/* <span className="text-[#21232C] text-[16px]">{currentRecord?.operation_time_minutes || "-"} secs</span> */}
                     <span className="text-[#21232C] text-[16px]">
@@ -208,13 +176,13 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
 
                   </span>
                 </span>
-                <span className="flex flex-row">
+                {/* <span className="flex flex-row">
                   <Trash className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
                     Waste Collected
                     <span className="text-[#21232C] text-[16px]">{currentRecord?.waste_collected_kg || "-"} kgs</span>
                   </span>
-                </span>
+                </span> */}
                 <span>
                   <MapPin className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   {currentRecord.area}
@@ -275,8 +243,8 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
               </div> */}
 
               {/* Map */}
-             {/* Map Section */}
-{/* <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
+              {/* Map Section */}
+              {/* <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
   <div className="flex flex-row justify-between">
     <h1 className="pb-1 text-start">
       {currentRecord?.latitude && currentRecord?.longitude
@@ -324,57 +292,57 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
     )}
   </div>
 </div> */}
- <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
-      <div className="flex flex-row justify-between">
-        <h1 className="pb-1 text-start">
-          {currentRecord?.latitude && currentRecord?.longitude
-            ? `${currentRecord.latitude}, ${currentRecord.longitude}`
-            : "-"}
-        </h1>
-        <h1>Manhole ID : {currentRecord?.manhole_id}</h1>
-      </div>
+              <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
+                <div className="flex flex-row justify-between">
+                  <h1 className="pb-1 text-start">
+                    {currentRecord?.latitude && currentRecord?.longitude
+                      ? `${currentRecord.latitude}, ${currentRecord.longitude}`
+                      : "-"}
+                  </h1>
+                  <h1>Manhole ID : {currentRecord?.manhole_id}</h1>
+                </div>
 
-      <div className="bd-gray">
-        {currentRecord &&
-        !isNaN(Number(currentRecord.latitude)) &&
-        !isNaN(Number(currentRecord.longitude)) ? (
-          <MapContainer
-            center={[
-              Number(currentRecord.latitude),
-              Number(currentRecord.longitude),
-            ]}
-            zoom={15}
-            className="h-40 rounded-lg"
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
+                <div className="bd-gray">
+                  {currentRecord &&
+                    !isNaN(Number(currentRecord.latitude)) &&
+                    !isNaN(Number(currentRecord.longitude)) ? (
+                    <MapContainer
+                      center={[
+                        Number(currentRecord.latitude),
+                        Number(currentRecord.longitude),
+                      ]}
+                      zoom={15}
+                      className="h-40 rounded-lg"
+                    >
+                      <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      />
 
-            <Marker
-              position={[
-                Number(currentRecord.latitude),
-                Number(currentRecord.longitude),
-              ]}
-            >
-              <LeafletPopup>
-                {currentRecord.area || currentRecord.section || "Unknown Location"}
-              </LeafletPopup>
-            </Marker>
+                      <Marker
+                        position={[
+                          Number(currentRecord.latitude),
+                          Number(currentRecord.longitude),
+                        ]}
+                      >
+                        <LeafletPopup>
+                          {currentRecord.area || currentRecord.section || "Unknown Location"}
+                        </LeafletPopup>
+                      </Marker>
 
-            <RecenterMap
-              lat={Number(currentRecord.latitude)}
-              lng={Number(currentRecord.longitude)}
-            />
-          </MapContainer>
-        ) : (
-          <p className="text-gray-500 flex items-center justify-center h-40">
-            No location available
-          </p>
-        )}
-      </div>
-    </div>
-{console.log("LatLng:", lat, lng )}
+                      <RecenterMap
+                        lat={Number(currentRecord.latitude)}
+                        lng={Number(currentRecord.longitude)}
+                      />
+                    </MapContainer>
+                  ) : (
+                    <p className="text-gray-500 flex items-center justify-center h-40">
+                      No location available
+                    </p>
+                  )}
+                </div>
+              </div>
+              {console.log("LatLng:", lat, lng)}
 
               {/* Images and Report */}
               <h1 className="text-[16px] text-[#21232C] mt-[24px] text-start">Operation Images</h1>
@@ -408,7 +376,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                 </button> */}
 
                 <button
-                  onClick={handleGenerateReport}
+                  onClick={() => setShowOperationPopup(true)}
                   className="flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px] w-full text-white rounded-[16px] cursor-pointer btn-hover"
                 >
                   <Download className="inline-block w-5 h-5 mr-1" color="white" />
@@ -504,12 +472,20 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
             </div>
           </div>
         </div>
+
+
       </div>
 
 
-
+      {showOperationPopup && (
+        <OperationPopup
+          record={currentRecord}
+          closePopup={() => setShowOperationPopup(false)}
+        />
+      )}
 
     </div>
+
   );
 };
 

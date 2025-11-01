@@ -9,17 +9,17 @@ export const WardReportsComponent = ({ city, division, section }) => {
     const [reportData, setReportData] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
     const [fromDate, setFromDate] = useState("");
-      const [toDate, setToDate] = useState("");
-    
-      // ✅ Date formatting helper
-      const formatDate = (date) => {
+    const [toDate, setToDate] = useState("");
+
+    // ✅ Date formatting helper
+    const formatDate = (date) => {
         const d = new Date(date);
         const day = String(d.getDate()).padStart(2, "0");
         const month = String(d.getMonth() + 1).padStart(2, "0");
         const year = d.getFullYear();
         return `${day}-${month}-${year}`;
-      };
-    
+    };
+
 
     const handleOpenReport = async () => {
         if (!city || !division || !section) {
@@ -33,12 +33,12 @@ export const WardReportsComponent = ({ city, division, section }) => {
         const payload = {
             district: city,     // 'city' prop is now sent as 'district'
             division: division, // This name was correct
-            area: section,  
-            dateRange: { from: fromDate, to: toDate } ,   // 'section' prop is now sent as 'area'
+            area: section,
+            dateRange: { from: fromDate, to: toDate },   // 'section' prop is now sent as 'area'
             command: "generate_ward_report",
         };
 
-        // console.log("Sending corrected payload to backend:", payload);
+        console.log("Sending corrected payload to backend:", payload);
 
         try {
             const response = await fetch(backendApi.wardsReportUrl, {
@@ -56,7 +56,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
             }
 
             const data = await response.json();
-            // console.log("Backend response:", data);
+            console.log("Backend response:", data);
             setReportData(data);
             setShowPopup(true);
         } catch (error) {
@@ -78,29 +78,29 @@ export const WardReportsComponent = ({ city, division, section }) => {
                 />
             )}
             {/* 🔹 Date filters */}
-                  <div className="flex items-end gap-x-4 px-[30px] py-[10px] mb-[10px] bg-white rounded-lg border-[1.5px] border-[#E1E7EF]">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
-                      <DatePicker
+            <div className="flex items-end gap-x-4 px-[30px] py-[10px] mb-[10px] bg-white rounded-lg border-[1.5px] border-[#E1E7EF]">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
+                    <DatePicker
                         selected={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
                         onChange={(date) => setFromDate(formatDate(date))}
                         dateFormat="dd/MM/yyyy"
                         placeholderText="Select from date"
                         className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-[#1E9AB0]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
-                      <DatePicker
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
+                    <DatePicker
                         selected={toDate ? new Date(toDate.split("-").reverse().join("-")) : null}
                         onChange={(date) => setToDate(formatDate(date))}
                         dateFormat="dd/MM/yyyy"
                         placeholderText="Select to date"
                         minDate={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
                         className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-[#1E9AB0]"
-                      />
-                    </div>
-                  </div>
+                    />
+                </div>
+            </div>
 
             <div className="mt-4">
                 <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
@@ -119,8 +119,8 @@ export const WardReportsComponent = ({ city, division, section }) => {
                         onClick={handleOpenReport}
                         disabled={isButtonDisabled}
                         className={`px-5 py-2.5 text-sm font-semibold rounded-lg shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 ${isButtonDisabled
-                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300'
-                                : 'bg-white text-[#1E9AB0] border border-[#1E9AB0] hover:bg-[#E5F7FA]'
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300'
+                            : 'bg-white text-[#1E9AB0] border border-[#1E9AB0] hover:bg-[#E5F7FA]'
                             }`}
                         title={!section ? "Please select a Section from the dropdown above" : "Generate Ward Report"}
                     >

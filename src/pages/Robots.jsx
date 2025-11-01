@@ -2,65 +2,31 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Bot, Calendar, MapPin, Search, FireExtinguisher } from "lucide-react";
-import Papa from "papaparse";
 import { useServerData } from "../context/ServerDataContext";
 import { RobotPopupComponent } from "../components/robots/robotPopupComponent";
-const userInputsObj = {
-  division: "",
-  section: "",
-  fromDate: "",
-  toDate: "",
-};
 
-const userInputsErrorObj = {
-  division: false,
-  section: false,
-  fromDate: false,
-  toDate: false,
-};
+const userInputsObj = { division: "", section: "", fromDate: "", toDate: "" };
+const userInputsErrorObj = { division: false, section: false, fromDate: false, toDate: false };
 
 export const Robots = () => {
-  const { serverData, loading, message } = useServerData();
+  const { data, loading, message } = useServerData();  // ✅ use new context data
   const [inputError, setInputError] = useState(userInputsErrorObj);
   const [userInputs, setUserInputs] = useState(userInputsObj);
   const [MainData, setMainData] = useState([]);
-  const [staticData, setStaticData] = useState([]);
   const [showFiltered, setShowFiltered] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [activeRobot, setActiveRobot] = useState(null);
   const [appliedFilters, setAppliedFilters] = useState(userInputsObj);
-  const backendCalls = useRef({ static: false, server: false });
 
-  // Handle input changes
   const handleInput = (key, value) => {
-    setUserInputs((prev) => {
+    setUserInputs(prev => {
       const updated = { ...prev, [key]: value };
-      if (key === "division") updated.section = ""; // reset section when division changes
+      if (key === "division") updated.section = "";
       return updated;
     });
   };
 
-  // Fetch static CSV once
-  useEffect(() => {
-    const fetchCSV = async () => {
-      try {
-        const res = await fetch("/datafiles/CSVs/Robo_Operations.csv");
-        const csvText = await res.text();
-        const parsedCSV = Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-        }).data;
-        setStaticData(parsedCSV);
-        console.log("Static CSV data loaded:", parsedCSV);
-      } catch (err) {
-        console.error("Error fetching CSV:", err);
-      }
-    };
-    fetchCSV();
-    
-  }, []);
-
-  // Normalize data
+  // ✅ Combine & normalize both RobotsData + OperationsData
   const structingData = (dataObj) => {
     return Object.keys(dataObj).map((index) => {
       const item = dataObj[index];
@@ -68,42 +34,33 @@ export const Robots = () => {
         id: item?.id || "-",
         operation_id: item?.operation_id || "-",
         device_id: item?.device_id || item?.deviceId || item?.robot_id || "-",
-        before_path: item?.before_path ||item.before_image_url|| "-",
-        after_path: item?.after_path ||item.after_image_url|| "-",
+        before_path: item?.before_path || item.before_image_url || "-",
+        after_path: item?.after_path || item.after_image_url || "-",
         gas_data_raw: item?.gas_data_raw || "-",
         gas_status: item?.gas_status || "-",
         location: item?.location || "-",
         latitude: item?.latitude || item?.lat || "0",
         longitude: item?.longitude || item?.lon || item?.lng || "0",
         timestamp: item?.timestamp || item?.start_time || "-",
+        endtime: item?.endtime || item?.end_time || "-",
         district: item?.district || item?.city || "-",
         division: item?.division || "-",
         area: item?.area || item?.section || "-",
-        operation_time_minutes: item?.operation_time_minutes ||item.duration_seconds|| "-",
+        operation_time_minutes: item?.operation_time_minutes || item?.duration_seconds || "-",
         manhole_id: item?.manhole_id || "Unknown",
-        waste_collected_kg:
-          item?.waste_collected_kg || item?.wasteCollectedKg || "-",
+        waste_collected_kg: item?.waste_collected_kg || item?.wasteCollectedKg || "-",
       };
     });
   };
 
-  // Merge static data
+  // ✅ Merge context data once available
   useEffect(() => {
-    if (staticData?.length > 0 && !backendCalls.current.static) {
-      backendCalls.current.static = true;
-      const StaticStructData = structingData(staticData);
-      setMainData((prev) => [...prev, ...StaticStructData]);
-    }
-  }, [staticData]);
+    if (!data?.RobotsData?.length && !data?.OperationsData?.length) return;
+    const combined = [...(data.RobotsData || []), ...(data.OperationsData || [])];
+    const normalized = structingData(combined);
+    setMainData(normalized);
+  }, [data]);
 
-  // Merge server data
-  useEffect(() => {
-    if (serverData?.length > 0 && !backendCalls.current.server) {
-      backendCalls.current.server = true;
-      const backendStructData = structingData(serverData);
-      setMainData((prev) => [...prev, ...backendStructData]);
-    }
-  }, [serverData]);
 
   // Build division → section hierarchy
   const hierarchyData = useMemo(() => {
@@ -201,7 +158,7 @@ export const Robots = () => {
     setShowFiltered(true);
   };
 
-  console.log("MainData:", MainData);
+  // console.log("MainData:", MainData);
   return (
     <div className="w-full ">
       <section className="section1 border-b-[1.5px] border-[#E1E7EF] py-[10px] px-[30px] bg-white ">
