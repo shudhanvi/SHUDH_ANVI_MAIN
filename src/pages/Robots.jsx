@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Bot, Calendar, MapPin, Search, FireExtinguisher } from "lucide-react";
 import { useServerData } from "../context/ServerDataContext";
-import { RobotPopupComponent } from "../components/robots/robotPopupComponent";
+import { RobotPopupComponent } from "../components/robots/robotPopupComponent"; 
 
 const userInputsObj = { division: "", section: "", fromDate: "", toDate: "" };
 const userInputsErrorObj = { division: false, section: false, fromDate: false, toDate: false };
