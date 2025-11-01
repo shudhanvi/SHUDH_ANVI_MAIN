@@ -82,8 +82,8 @@ const MapComponent = () => {
     lastCleaned.setHours(0, 0, 0, 0);
     const diffTime = today - lastCleaned;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays >= 20) return "danger";
-    if (diffDays >= 10) return "warning";
+    if (diffDays >= 4) return "danger";
+    if (diffDays >= 7) return "warning";
     return "safe";
   };
 
@@ -440,7 +440,7 @@ useEffect(() => {
             onManholeDeselect={handleManholeDeselect}
           />
  {loading && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">Loading map...</div>}
-          {error && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10 text-red-500">Error: {error}</div>}
+          {error && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10 "> {error}</div>}
           <div className="bg-[#ffffff] absolute left-2 bottom-2 z-[500] rounded-xl p-4 py-5 text-[12px] text-black flex flex-col gap-1">
             <span className="flex items-center gap-3 space-x-1">
               <span className="w-3 h-3 rounded-full bg-green-500"></span>Safe - Regular Maintenance
