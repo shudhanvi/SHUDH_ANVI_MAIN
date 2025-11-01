@@ -33,8 +33,8 @@ export const backendApi = {
 
 const Url = {
     waterlevel: "https://blynk.cloud/external/api/get?token=uIoyHjYevzfdrBa0gYu-VYfuFqFurr6q&dataStreamId=2",
-    manholeData: "/datafiles/CSVs/MH.xlsx",
-    wardCordinates: "/datafiles/CSVs/ward_coordinates.xlsx",
+    manholeData: "/datafiles/CSVs/MH.csv",
+    wardCordinates: "/datafiles/CSVs/ward_coordinates.csv",
     wardsReportUrl: "https://shudh-fastapi-backend-1.onrender.com/api/analyze/ward",
     manholereportscomp: "/datafiles/CSVs/ManHoles_Data.csv",
    // robotrepocomp: "/datafiles/CSVs/Robo_Operations_copy.csv",

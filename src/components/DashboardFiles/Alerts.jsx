@@ -2,30 +2,28 @@
 import React, { useState } from 'react';
 import { TriangleAlert, ChevronDown, ChevronUp } from 'lucide-react';
 
-// --- Reusable Alert Item Component ---
-// Receives zoneName, alerts array, and the onManholeSelect function
+ 
 const ZoneAlertItem = ({ zoneName, alerts, onManholeSelect }) => {
-  // State to track if this specific zone's details are expanded
+ 
   const [isExpanded, setIsExpanded] = useState(false);
-  // Function to toggle the expanded state
+ 
   const handleToggle = () => setIsExpanded(!isExpanded);
 
   return (
-    // Container for each zone alert group
+ 
     <div className="bg-gray-50 rounded-lg mb-3 shadow-sm border border-gray-200">
-      {/* Clickable Header to toggle expansion */}
+ 
       <div
         className="flex justify-between items-center p-3 cursor-pointer font-semibold"
         onClick={handleToggle}
       >
-        {/* Zone Name and Alert Count */}
+ 
         <div className="flex items-center text-base">
           <span className="mr-2 text-red-600">
-            <TriangleAlert size={18} /> {/* Header Icon */}
+            <TriangleAlert size={18} />  
           </span>
-          {zoneName} ({alerts.length}) {/* Display count for this zone */}
-        </div>
-        {/* Up/Down Chevron based on expanded state */}
+          {zoneName} ({alerts.length})  
+        </div> 
         <span className="text-gray-500">
           {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </span>

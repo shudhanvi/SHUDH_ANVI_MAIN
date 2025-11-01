@@ -209,7 +209,7 @@ const MapboxCore = ({
       const popupId = feature.properties.id ?? 'N/A';
       const popupDate = feature.properties.last_operation_date ? formatExcelDate(feature.properties.last_operation_date) : 'N/A';
       const popupHtml = `
-        <div id="mhpop" style="font-size: 10px; padding: 4px; text-align: center; background-color: white; border-radius: 3px;  rgba(0,0,0,0.2); color: #333;">
+        <div id="mhpop" style="font-size: 12px; padding: 4px; text-align: center; background-color: white; border-radius: 3px;  rgba(0,0,0,0.2); color: #333;">
           <strong>ID:</strong> ${popupId}<br/>
           <strong>Last Cleaned:</strong> ${popupDate}
         </div>`;
@@ -240,7 +240,7 @@ const MapboxCore = ({
         const popupId = feature.properties.id ?? 'N/A';
         const popupDate = feature.properties.last_operation_date ? formatExcelDate(feature.properties.last_operation_date) : 'N/A';
         const popupHtml = `
-          <div id="mhpop" style="font-size: 10px;  text-align: center; background-color: white; border-radius: 3px;   rgba(0,0,0,0.2); color: #333;">
+          <div id="mhpop" style="font-size: 12px;  text-align: center; background-color: white; border-radius: 3px;   rgba(0,0,0,0.2); color: #333;">
             <strong>ID:</strong> ${popupId}<br/>
             <strong>Last Cleaned:</strong> ${popupDate}
           </div>`;
