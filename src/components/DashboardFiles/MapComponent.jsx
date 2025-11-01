@@ -623,8 +623,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-// import * as XLSX from "xlsx"; // <-- REMOVED
-import Papa from "papaparse"; // <-- ADDED
 import { LocateFixed, Map, MapPin } from 'lucide-react';
 
 import MapboxCore from "./MapboxCore";
@@ -637,6 +635,7 @@ const mapStyles = [
   { url: "mapbox://styles/shubhamgv/cmh5vh70d001q01qvhqhwh5b9", img: "/images/diameter.png" },
 ];
 
+ 
 const emptyGeoJSON = { type: "FeatureCollection", features: [] };
 
 const MapComponent = () => {
@@ -685,7 +684,7 @@ const MapComponent = () => {
     } else if (typeof operationdates === "string") {
       const parts = operationdates.split(/[\/-]/);
       if (parts.length === 3) {
-        const [day, month, year] = parts.map(Number);
+       const [month, day, year] = parts.map(Number);
         if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
            lastCleaned = new Date(year, month - 1, day);
         }
@@ -705,24 +704,24 @@ const MapComponent = () => {
   };
 
   const formatExcelDate = useCallback((value) => {
-    // ... (This function remains unchanged)
     if (!value) return "N/A";
     if (typeof value === "string") {
         const parts = value.split(/[\/-]/);
         if (parts.length === 3) {
-             const [day, month, year] = parts;
-             if (day?.length === 2 && month?.length === 2 && year?.length === 4) {
-                 return `${day}/${month}/${year}`;
+             // Assuming MM/DD/YYYY, let's reformat to DD/MM/YYYY for consistency
+             const [month, day, year] = parts;
+             if (day?.length <= 2 && month?.length <= 2 && year?.length === 4) {
+                 return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
              }
         }
-        return value;
+        return value; // Return original string if not parsable
     }
-    if (typeof value === "number") {
+ if (typeof value === "number") {
       const utc_days = Math.floor(value - 25569);
       const utc_value = utc_days * 86400;
       const date_info = new Date(utc_value * 1000);
       if (!isNaN(date_info.getTime())) {
-         return date_info.toLocaleDateString("en-GB");
+         return date_info.toLocaleDateString("en-GB"); // Format as DD/MM/YYYY
       }
     }
     return "Invalid Date";
@@ -741,59 +740,43 @@ const MapComponent = () => {
     };
   }, []); // getManholeStatus is stable
 
-  // --- DATA LOADING (MODIFIED FOR CSV WITH PAPAPARSE) ---
+  
+// --- DATA LOADING (MODIFIED FOR JSON) ---
   const initialLoadData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch("/datafiles/CSVs/MH.csv"); // <-- Fetch .csv
-      if (!response.ok) { throw new Error(`Failed to fetch MH.csv: ${response.statusText}`); }
+      const response = await fetch("http://192.168.1.55:5000/api/manholes_data_mh");
+      if (!response.ok) { throw new Error(`Failed to fetch manhole data: ${response.statusText}`); }
       
-      const csvText = await response.text(); // <-- Get text
+      const manholeRows = await response.json(); // Use .json()
       
-      // --- Use Papaparse ---
-      const parseResult = Papa.parse(csvText, {
-        header: true,         // Treat first row as headers
-        skipEmptyLines: true, // Skip empty lines
-        dynamicTyping: true,  // Automatically convert numbers
-      });
-      
-      const manholeRows = parseResult.data; // Get the array of objects
-      // --- End Papaparse ---
-
-      if (parseResult.errors && parseResult.errors.length > 0) {
-          console.warn("Errors parsing MH.csv:", parseResult.errors);
+      if (!Array.isArray(manholeRows)) {
+         throw new Error("Fetched manhole data is not an array");
       }
-
+  console.log(`Fetched ${manholeRows.length} manhole records.`);
       setAllManholeData(manholeRows);
-      const uniqueDivisions = [...new Set(manholeRows.map((row) => row.Division))].filter(Boolean).sort();
+      const uniqueDivisions = [...new Set(manholeRows.map((row) => row.division))].filter(Boolean).sort();
       setDivisionList(["All", ...uniqueDivisions]);
       setIsLoading(false);
     } catch (e) {
       setError(e.message); setIsLoading(false); 
+          
       console.error("Error loading manhole data:", e);
     }
   }, []);
 
   useEffect(() => {
-    fetch("/datafiles/CSVs/ward_coordinates.csv") // <-- Fetch .csv
+    // !!! MAKE SURE THIS IS YOUR CORRECT WARD COORDINATES API ENDPOINT !!!
+    fetch("http://192.168.1.55:5000/api/ward_coordinates") 
       .then(res => {
-         if (!res.ok) { throw new Error(`Failed to fetch ward_coordinates.csv: ${res.statusText}`); }
-         return res.text(); // <-- Get text
+         if (!res.ok) { throw new Error(`Failed to fetch ward coordinates: ${res.statusText}`); }
+         return res.json(); // Use .json()
       })
-      .then(csvText => {
+      .then(allRows => {
         
-        // --- Use Papaparse ---
-        const parseResult = Papa.parse(csvText, {
-            header: true,
-            skipEmptyLines: true,
-            dynamicTyping: true, // Automatically converts lat/lon to numbers
-        });
-        const allRows = parseResult.data;
-        // --- End Papaparse ---
-
-        if (parseResult.errors && parseResult.errors.length > 0) {
-            console.warn("Errors parsing ward_coordinates.csv:", parseResult.errors);
+        if (!Array.isArray(allRows)) {
+           throw new Error("Fetched ward data is not an array");
         }
 
         // --- Parsing logic (same as before) ---
@@ -801,16 +784,13 @@ const MapComponent = () => {
         const detailsMap = {};
         const uniqueAreaNames = new Set();
         allRows.forEach(row => {
-          const areaRaw = row.Area_name ?? row.area ?? row["Area Name"] ?? row["area_name"];
+          const areaRaw = row.area_name ?? row.area ?? row["area Name"] ?? row["area_name"];
           if (!areaRaw) return;
           const area = String(areaRaw).trim();
           const lonVal = row.longitude ?? row.Longitude ?? row.lon ?? row.x ?? row.X;
           const latVal = row.latitude ?? row.Latitude ?? row.lat ?? row.y ?? row.Y;
-          
-          // Papaparse with dynamicTyping should provide numbers, but we double check
           const lonNum = Number(lonVal);
           const latNum = Number(latVal);
-
           if (!isNaN(lonNum) && !isNaN(latNum)) {
             const idx = (row.vertex_index ?? row.vertex ?? row.index ?? null);
             if (!groupedCoords[area]) groupedCoords[area] = [];
@@ -819,7 +799,7 @@ const MapComponent = () => {
              console.warn(`Invalid coordinates for Area "${area}": lon=${lonVal}, lat=${latVal}`);
           }
           if (!uniqueAreaNames.has(area)) {
-            detailsMap[area] = { Area_name: area, ...row };
+            detailsMap[area] = { area_name: area, ...row };
             delete detailsMap[area].longitude; delete detailsMap[area].latitude; delete detailsMap[area].lon; delete detailsMap[area].lat;
             delete detailsMap[area].x; delete detailsMap[area].y; delete detailsMap[area].vertex_index; delete detailsMap[area].vertex; delete detailsMap[area].index;
             uniqueAreaNames.add(area);
@@ -841,22 +821,24 @@ const MapComponent = () => {
       });
   }, []);
 
+
   useEffect(() => { initialLoadData(); }, [initialLoadData]);
   useEffect(() => { const dailyTimer = setInterval(initialLoadData, 1000 * 60 * 60 * 24); return () => clearInterval(dailyTimer); }, [initialLoadData]);
 
   // --- HIERARCHY HANDLERS ---
   const clearManholeSelection = useCallback(() => { setSelectedManholeLocation(null); }, []);
 
-  const handleDivisionChange = useCallback((divisionValue) => {
+
+const handleDivisionChange = useCallback((divisionValue) => {
     clearManholeSelection();
     setSelectedDivision(divisionValue);
     setSelectedAreaName("All");
     setSelectedZone("All");
     let areas = [];
     if (divisionValue !== "All" && allManholeData.length > 0) {
-      const divisionData = allManholeData.filter(row => row.Division === divisionValue);
+      const divisionData = allManholeData.filter(row => row.division === divisionValue);
       if (divisionData.length > 0) {
-        areas = [...new Set(divisionData.map(row => row.Area_name))].filter(Boolean).sort();
+        areas = [...new Set(divisionData.map(row => row.area_name))].filter(Boolean).sort();
       }
     }
     setAreaNameList(["All", ...areas]);
@@ -870,14 +852,15 @@ const MapComponent = () => {
     let zones = [];
     if (selectedDivision !== "All" && areaValue !== "All" && allManholeData.length > 0) {
       const areaData = allManholeData.filter(row =>
-        row.Division === selectedDivision && row.Area_name === areaValue
+        row.division === selectedDivision && row.area_name === areaValue
       );
       if (areaData.length > 0) {
-        zones = [...new Set(areaData.map(row => row.Zone))].filter(Boolean).sort();
+        zones = [...new Set(areaData.map(row => row.zone))].filter(Boolean).sort();
       }
     }
     setZoneList(["All", ...zones]);
   }, [selectedDivision, allManholeData, clearManholeSelection]);
+  
 
   const handleZoneChange = useCallback((zoneValue) => {
     clearManholeSelection();
@@ -885,14 +868,14 @@ const MapComponent = () => {
   }, [clearManholeSelection]);
 
   // --- Modified handleStyleChange ---
-  const handleStyleChange = (newStyleUrl) => {
+const handleStyleChange = (newStyleUrl) => {
     if (newStyleUrl !== mapStyle) {
       if (mapRef.current) {
         const center = mapRef.current.getCenter();
         const zoom = mapRef.current.getZoom();
         centerToRestoreRef.current = center;
         zoomToRestoreRef.current = zoom;
-        console.log(">>> PARENT: Storing view before style change:", { center, zoom });
+        // console.log(">>> PARENT: Storing view before style change:", { center, zoom });
       } else {
         console.warn(">>> PARENT: Map ref not set, cannot store view state.");
         centerToRestoreRef.current = null; zoomToRestoreRef.current = null;
@@ -900,7 +883,6 @@ const MapComponent = () => {
       setMapStyle(newStyleUrl);
     }
   };
-
   // --- Other UI Handlers ---
   const handleJumpToLocation = () => {
     const lat = parseFloat(latInput);
@@ -977,9 +959,9 @@ const MapComponent = () => {
     if (allManholeData.length === 0) { setFilteredManholeGeoJSON(emptyGeoJSON); return; }
     if (selectedDivision === "All" || selectedAreaName === "All") { setFilteredManholeGeoJSON(emptyGeoJSON); return; }
     let filtered = allManholeData.filter((row) => {
-      const matchesHierarchy = (row.Division === selectedDivision && row.Area_name === selectedAreaName);
+      const matchesHierarchy = (row.division === selectedDivision && row.area_name === selectedAreaName);
       if (!matchesHierarchy) return false;
-      if (selectedZone !== "All" && row.Zone !== selectedZone) { return false; }
+      if (selectedZone !== "All" && row.zone !== selectedZone) { return false; }
       return true;
     });
     setFilteredManholeGeoJSON(generateManholeGeoJSON(filtered));
@@ -1024,7 +1006,7 @@ const MapComponent = () => {
   // --- DERIVED STATE FOR POPUPS ---
   const alertData = useMemo(() => {
     if (!selectedAreaName || selectedAreaName === "All" || allManholeData.length === 0) { return []; }
-    const wardManholes = allManholeData.filter((mh) => mh.Area_name === selectedAreaName && mh.Division === selectedDivision);
+    const wardManholes = allManholeData.filter((mh) => mh.area_name === selectedAreaName && mh.division === selectedDivision);
     const dangerManholes = wardManholes.filter((mh) => getManholeStatus(mh.last_operation_date) === 'danger');
     const groupedByZone = dangerManholes.reduce((acc, mh) => {
       const zone = mh.Zone || 'Unknown Zone';

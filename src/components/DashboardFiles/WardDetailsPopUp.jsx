@@ -28,7 +28,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
     perimeter,
     ward_id,
     zone, // Corresponds to 'division' for the API
-    Area_name,
+    area_name,
     waste_colleccted,
   } = wardData;
 
@@ -53,7 +53,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
     // setShowPopup(false); // Hide previous popup if managing state here
     const payload = {
       division: zone,
-      area: Area_name,
+      area: area_name,
       command: "generate_ward_report",
     };
 
@@ -106,7 +106,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
         }}
       >
         <div className="flex flex-col justify-center relative align-middle gap-2 text-white text-left">
-          <h1 className="text-xl font-bold ">{`Ward: ${Area_name}`}</h1>
+          <h1 className="text-xl font-bold ">{`Ward: ${area_name}`}</h1>
           <p className="text-[12px]">{`Division :${zone}`}</p>
           <button
             type="button"
@@ -163,7 +163,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
           {activeTab === "details" && (
          
             <>
-              <table className="details-table mt-2 w-full bg-white shadow-md text-[12px] font-[400] border-1 border-gray-400 shadow-gray-400 rounded-b-md overflow-hidden text-left">
+              <table className="details-table mt-2 w-full bg-white shadow-md text-[15px] font-[400] border-1 border-gray-400 shadow-gray-400 rounded-b-md overflow-hidden text-left">
                 <thead>
                   <tr className="bg-gray-200 border border-gray-400">
                     <th className="p-2 border border-gray-400">FIELD</th>
@@ -181,7 +181,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
                     <td className="p-2 font-semibold border border-gray-400">
                       Ward Name
                     </td>
-                    <td className="p-2 border border-gray-400">{Area_name}</td>
+                    <td className="p-2 border border-gray-400">{area_name}</td>
                   </tr>
                   <tr>
                     <td className="p-2 font-semibold border border-gray-400">
