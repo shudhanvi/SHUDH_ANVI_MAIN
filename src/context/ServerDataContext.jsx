@@ -243,7 +243,7 @@ export const ServerDataProvider = ({ children }) => {
         fetchData(backendApi.operationsdata, "OperationsData"),
       ]);
 
-      setMessage("✅ All data loaded");
+      setMessage(null);
       setLoading(false);
     };
 
