@@ -1,4 +1,5 @@
 
+import { X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 // import { Chart, registerables } from 'chart.js'; // <-- REMOVED
 // Removed imports for: ChartDataLabels, html2canvas, jsPDF
@@ -264,13 +265,13 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
               🤖 Robot {isSingle ? 'Individual' : 'Aggregate'} Analysis
             </h2>
             {/* --- ADDED 'no-print-pdf' CLASS --- */}
-            <button onClick={onClose} className="text-black text-[20px] font-bold no-print-pdf">&times;</button>
+            <button onClick={onClose} className="text-black text-[20px] font-bold no-print-pdf cursor-pointer"><X/></button>
           </div>
 
           {/* Scrollable Content Area */}
           <div
             // --- ADDED 'report-content-scroll' CLASS ---
-            className={`report-content-scroll bg-white p-6 ${!isGeneratingPDF ? 'overflow-y-auto max-h-[80vh]' : 'overflow-visible h-auto'}`}
+            className={`report-content-scroll bg-white p-6 ${!isGeneratingPDF ? 'overflow-y-auto custom-scrollbar max-h-[80vh]' : 'overflow-visible h-auto'}`}
           >
             {/* Top Stats */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
@@ -354,7 +355,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
         <div className="flex-shrink-0 flex justify-end p-4 border-t border-[#e5e7eb] bg-[#f9fafb] rounded-b-lg no-print">
           <button 
             onClick={handleDownloadPDF} 
-            className="px-6 py-2 bg-[#1E9AB0] text-white font-semibold rounded-lg hover:bg-[#187A8A] disabled:opacity-50"
+            className="px-6 py-2 bg-[#1E9AB0] text-white font-semibold rounded-lg hover:bg-[#187A8A] disabled:opacity-50 cursor-pointer"
             disabled={isGeneratingPDF || !libsLoaded}
           >
             {isGeneratingPDF ? "Generating..." : (!libsLoaded ? "Loading Libs..." : "Download PDF")}

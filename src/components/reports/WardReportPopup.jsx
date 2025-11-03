@@ -1,5 +1,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
+import { X } from 'lucide-react';
 // import { Chart, registerables } from "chart.js"; // <-- REMOVED
 // Removed static imports for ChartDataLabels, html2canvas, and jsPDF
 
@@ -253,16 +254,16 @@ export const WardReportPopup = ({ reportData, onClose }) => {
             <h2 className="text-2xl font-bold text-[#1f2937]">📊 Ward Report - Hasmathpet</h2>
             <button 
               onClick={onClose} 
-              className="text-[#6b7280] hover:text-[#111827] text-2xl no-print-pdf"
+              className="text-[#111827] text-5xl no-print-pdf cursor-pointer "
             >
-              &times;
+              <X />
             </button>
           </div>
 
           {/* Printable/Scrollable Area (Inside wrapper) */}
           <div
             className={`report-content-scroll bg-white p-6 ${
-              !isGeneratingPDF ? 'overflow-y-auto max-h-[80vh]' : 'overflow-visible h-auto'
+              !isGeneratingPDF ? 'overflow-y-auto custom-scrollbar max-h-[80vh]' : 'overflow-visible h-auto '
             }`}
           >
             {/* Stats */}
@@ -298,10 +299,10 @@ export const WardReportPopup = ({ reportData, onClose }) => {
         <div className="flex-shrink-0 flex justify-end p-4 border-t border-[#e5e7eb] bg-[#f9fafb] rounded-b-lg">
           <button 
             onClick={handleDownloadPDF} 
-            className="px-6 py-2 bg-[#1E9AB0] text-white rounded-lg hover:bg-[#187A8A] disabled:opacity-50"
+            className="px-6 py-2 bg-[#1E9AB0] text-white rounded-lg hover:bg-[#187A8A] disabled:opacity-50 cursor-pointer no-print-pdf"
             disabled={isGeneratingPDF || !libsLoaded}
           >
-            {isGeneratingPDF ? "Generating..." : (!libsLoaded ? "Loading Libs..." : "Download PDF")}
+            {isGeneratingPDF ? "Loading...." : (!libsLoaded ? "Loading Libs..." : "Download PDF")}
           </button>
         </div>
       </div>

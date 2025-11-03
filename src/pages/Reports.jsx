@@ -36,7 +36,7 @@ export const Reports = () => {
     const cityList = [...new Set(normalized.map((i) => i.City).filter(Boolean))];
     setCities(cityList);
 
-    console.log("✅ Manhole Data from Context:", normalized);
+    // console.log("✅ Manhole Data from Context:", normalized);
   }, [data]);
 
   // ✅ Handle dependent dropdowns
@@ -174,75 +174,73 @@ export const Reports = () => {
 
           <button
             onClick={handleViewReports}
-            className="px-[20px] py-[10px] text-white flex items-center gap-[4px] bg-[#1E9AB0] rounded-[12px] hover:bg-[#157a8c] transition-all"
+            className="px-[20px] py-[10px] text-white flex items-center gap-[4px] bg-[#1E9AB0] rounded-[12px] hover:bg-[#157a8c] transition-all cursor-pointer"
           >
             <span>{IconsData.search}</span>View Reports
           </button>
         </div>
+{/* Loading message below filters */}
+{loading ? (
+  <div className="text-center py-4 text-gray-600">
+    <p>{message || "Loading data..."}</p>
+  </div>
+) : !viewClicked ? (
+  <div className="text-center py-10 px-6">
+    <img
+      src="/images/Report.png"
+      alt="Report Placeholder"
+      className="mx-auto h-48 w-48 object-contain"
+    />
+    <p className="mt-4 text-[#65758B]" style={{fontStyle:"italic"}}>
+      "No reports to display yet. Please select a Division and Section to generate reports."
+    </p>
+  </div>
+) : (
+  <div className="mt-6">
+    {/* Tabs */}
+    <div className="flex gap-2">
+      {["Manhole Reports", "Robot Reports", "Ward Reports"].map((type) => (
+        <button
+          key={type}
+          onClick={() => setActiveReportType(type)}
+          className={`px-[16px] py-[12px] text-sm rounded-[8px] font-medium border transition-colors cursor-pointer ${
+            activeReportType === type
+              ? "bg-[#1A8BA8] text-white"
+              : "border-[#1A8BA8]"
+          }`}
+        >
+          {type}
+        </button>
+      ))}
+    </div>
 
-        {/* Loading message below filters */}
-        {loading && (
-          <div className="text-center py-4 text-gray-600">
-            <p>{message || "Loading data..."}</p>
-          </div>
-        )}
+    {/* Report Components */}
+    <div className="mt-4">
+      {activeReportType === "Manhole Reports" && (
+        <ManholeReportsComponent
+          city={confirmedInputs.city}
+          division={confirmedInputs.division}
+          section={confirmedInputs.section}
+        />
+      )}
+      {activeReportType === "Robot Reports" && (
+        <RobotReportsComponent
+          city={confirmedInputs.city}
+          division={confirmedInputs.division}
+          section={confirmedInputs.section}
+        />
+      )}
+      {activeReportType === "Ward Reports" && (
+        <WardReportsComponent
+          city={confirmedInputs.city}
+          division={confirmedInputs.division}
+          section={confirmedInputs.section}
+        />
+      )}
+    </div>
+  </div>
+)}
 
-        {/* Reports display */}
-        {!viewClicked ? (
-          <div className="text-center py-10 px-6">
-            <img
-              src="/images/Report.png"
-              alt="Report Placeholder"
-              className="mx-auto h-48 w-48 object-contain"
-            />
-            <p className="mt-4 text-[#65758B] ">
-              No reports to display yet. Please select a Division and Section to generate reports.
-            </p>
-          </div>
-        ) : (
-          <div className="mt-6">
-            {/* Tabs */}
-            <div className="flex gap-2">
-              {["Manhole Reports", "Robot Reports", "Ward Reports"].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setActiveReportType(type)}
-                  className={`px-[16px] py-[12px] text-sm rounded-[8px] font-medium border transition-colors ${activeReportType === type
-                    ? "bg-[#1A8BA8] text-white"
-                    : "border-[#1A8BA8]"
-                    }`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-
-            {/* Report Components */}
-            <div className="mt-4">
-              {activeReportType === "Manhole Reports" && (
-                <ManholeReportsComponent
-                  city={confirmedInputs.city}
-                  division={confirmedInputs.division}
-                  section={confirmedInputs.section}
-                />
-              )}
-              {activeReportType === "Robot Reports" && (
-                <RobotReportsComponent
-                  city={confirmedInputs.city}
-                  division={confirmedInputs.division}
-                  section={confirmedInputs.section}
-                />
-              )}
-              {activeReportType === "Ward Reports" && (
-                <WardReportsComponent
-                  city={confirmedInputs.city}
-                  division={confirmedInputs.division}
-                  section={confirmedInputs.section}
-                />
-              )}
-            </div>
-          </div>
-        )}
       </section>
     </section>
   );

@@ -88,7 +88,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
   return (
     <div className="fixed inset-0 min-h-screen flex items-center justify-center bg-transparent bg-opacity-50 z-[910]">
       <div className="w-full h-screen bg-[#00000099] flex place-content-center">
-        <div className="mx-auto bg-white w-full max-w-[1000px] rounded-lg px-6 overflow-y-auto max-h-[100vh] relative top-5 shadow-2xl border border-gray-297">
+        <div className="mx-auto bg-white w-full max-w-[1000px] rounded-lg px-6 overflow-y-auto max-h-[100vh] relative top-5 shadow-2xl border border-gray-297 custom-scrollbar">
           <button
             onClick={closePopup}
             className="popup-btn absolute right-6 text-gray-500 hover:text-black text-5xl top-[10px] cursor-pointer "
@@ -342,7 +342,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                   )}
                 </div>
               </div>
-              {console.log("LatLng:", lat, lng)}
+              {/* {console.log("LatLng:", lat, lng)} */}
 
               {/* Images and Report */}
               <h1 className="text-[16px] text-[#21232C] mt-[24px] text-start">Operation Images</h1>
@@ -468,44 +468,52 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                       <li className="text-center text-gray-500 py-4">No Records Found</li>
                     )}
                 </ul>
-              </div> */}
-              <div className="h-80 shadow overflow-y-auto rounded-md p-2 px-6">
-  <ul className="space-y-3">
-    {detailedFilteredData.length > 0
-      ? // Create a shallow copy, reverse it, then map
-        [...detailedFilteredData].reverse().map((history, index) => {
-          const isActive = selectedHistory?.timestamp === history.timestamp;
-          return (
-            <li key={index} className={`flex items-center justify-between h-12 transition-all ${isActive ? "bg-gray-200" : ""}`}>
-              <div>
-                <span className="mr-8">
-                  <CalendarIcon className="h-4 inline-block" />
-                  {new Date(history.timestamp).toLocaleDateString()}
-                </span>
-                <span className="mr-8">
-                  <ClockIcon className="h-4 inline-block" />
-                  {new Date(history.timestamp).toLocaleTimeString("en-GB", {
-                    hour: "2-digit",
-                  minute: "2-digit",
-             second: "2-digit",
-                    hour12: false,
-                  })}
-                </span>
-              </div>
-              <button
-                className={`btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors bg-blue-500 text-white`}
-                onClick={() => setSelectedHistory(history)}
-              >
-                View More
-             </button>
-            </li>
-          );
-        })
-      : (
-        <li className="text-center text-gray-500 py-4">No Records Found</li>
-      )}
-  </ul>
+              </div> */}  
+         <div className="h-80 shadow overflow-y-auto rounded-md py-[8px] px-[10px] custom-scrollbar">
+  <ul className="space-y-3">
+    {detailedFilteredData.length > 0 ? (
+      // ✅ Sort by timestamp (latest first)
+      [...detailedFilteredData]
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .map((history, index) => {
+          const isActive = selectedHistory?.timestamp === history.timestamp;
+          return (
+            <li
+              key={index}
+              className={`flex items-center justify-between h-12 transition-all px-[4px] ${
+                isActive ? "bg-gray-200" : ""
+              }`}
+            >
+              <div>
+                <span className="mr-8">
+                  <CalendarIcon className="h-4 inline-block" />
+                  {new Date(history.timestamp).toLocaleDateString()}
+                </span>
+                <span className="mr-8">
+                  <ClockIcon className="h-4 inline-block" />
+                  {new Date(history.timestamp).toLocaleTimeString("en-GB", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: false,
+                  })}
+                </span>
+              </div>
+              <button
+                className="btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors bg-blue-500 text-white"
+                onClick={() => setSelectedHistory(history)}
+              >
+                View More
+              </button>
+            </li>
+          );
+        })
+    ) : (
+      <li className="text-center text-gray-500 py-4">No Records Found</li>
+    )}
+  </ul>
 </div>
+
             </div>
           </div>
         </div>
