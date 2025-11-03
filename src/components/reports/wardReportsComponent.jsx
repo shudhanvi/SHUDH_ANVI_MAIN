@@ -38,7 +38,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
             command: "generate_ward_report",
         };
 
-        console.log("Sending corrected payload to backend:", payload);
+        // console.log("Sending corrected payload to backend:", payload);
 
         try {
             const response = await fetch(backendApi.wardsReportUrl, {
@@ -56,7 +56,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
             }
 
             const data = await response.json();
-            console.log("Backend response:", data);
+            // console.log("Backend response:", data);
             setReportData(data);
             setShowPopup(true);
         } catch (error) {
@@ -78,29 +78,54 @@ export const WardReportsComponent = ({ city, division, section }) => {
                 />
             )}
             {/* 🔹 Date filters */}
-            <div className="flex items-end gap-x-4 px-[30px] py-[10px] mb-[10px] bg-white rounded-lg border-[1.5px] border-[#E1E7EF]">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
-                    <DatePicker
-                        selected={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
-                        onChange={(date) => setFromDate(formatDate(date))}
-                        dateFormat="dd/MM/yyyy"
-                        placeholderText="Select from date"
-                        className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-[#1E9AB0]"
-                    />
+          <div className="flex items-end gap-x-4 px-[30px] py-[10px] mb-[10px] rounded-lg border-[1.5px] border-[#E1E7EF] bg-white">
+                {/* From Date */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    From
+                  </label>
+                  <DatePicker
+                    selected={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
+                    onChange={(date) => setFromDate(date ? formatDate(date) : null)} // ✅ handle null
+                    dateFormat="dd/MM/yyyy"
+                    placeholderText="Select from date"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-[#1E9AB0] focus:border-[#1E9AB0] sm:text-sm"
+                  />
+                  {fromDate && (
+                    <button
+                      type="button"
+                      onClick={() => setFromDate(null)} // ✅ clears date
+                      className="absolute right-2 top-8 border text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
-                    <DatePicker
-                        selected={toDate ? new Date(toDate.split("-").reverse().join("-")) : null}
-                        onChange={(date) => setToDate(formatDate(date))}
-                        dateFormat="dd/MM/yyyy"
-                        placeholderText="Select to date"
-                        minDate={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
-                        className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-[#1E9AB0]"
-                    />
+              
+                {/* To Date */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    To
+                  </label>
+                  <DatePicker
+                    selected={toDate ? new Date(toDate.split("-").reverse().join("-")) : null}
+                    onChange={(date) => setToDate(date ? formatDate(date) : null)} // ✅ handle null
+                    dateFormat="dd/MM/yyyy"
+                    placeholderText="Select to date"
+                    minDate={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-[#1E9AB0] focus:border-[#1E9AB0] sm:text-sm"
+                  />
+                  {toDate && (
+                    <button
+                      type="button"
+                      onClick={() => setToDate(null)} // ✅ clears date
+                      className="absolute right-2 top-8 border text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
-            </div>
+              </div>
 
             <div className="mt-4">
                 <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
@@ -117,11 +142,9 @@ export const WardReportsComponent = ({ city, division, section }) => {
 
                     <button
                         onClick={handleOpenReport}
-                        disabled={isButtonDisabled}
-                        className={`px-5 py-2.5 text-sm font-semibold rounded-lg shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 ${isButtonDisabled
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300'
-                            : 'bg-white text-[#1E9AB0] border border-[#1E9AB0] hover:bg-[#E5F7FA]'
-                            }`}
+                        className={`px-5 py-2.5 text-sm font-semibold rounded-lg shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 
+                          bg-white text-[#1E9AB0] border border-[#1E9AB0] hover:bg-[#E5F7FA]
+                           cursor-pointer `}
                         title={!section ? "Please select a Section from the dropdown above" : "Generate Ward Report"}
                     >
                         {isLoading ? "Loading..." : "Open Report"}

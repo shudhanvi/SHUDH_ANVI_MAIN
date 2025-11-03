@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 // import Chart from "chart.js/auto"; // <-- REMOVED
 // Removed: ChartDataLabels, useReactToPrint
@@ -307,16 +308,16 @@ export const ManholeReportPopup = ({ reportData, onClose }) => {
             </div>
             <button
               onClick={onClose}
-              className="text-[20px] font-bold text-black hover:text-[#fca5a5] no-print-pdf"
+              className="text-[20px] font-bold text-black no-print-pdf cursor-pointer"
             >
-              &times;
+              <X />
             </button>
           </div>
 
           {/* Printable/Scrollable Area (Inside wrapper) */}
           <div
             className={`report-content-scroll bg-[#f9fafb] p-6 ${
-              !isGeneratingPDF ? 'overflow-y-auto max-h-[80vh]' : 'overflow-visible h-auto'
+              !isGeneratingPDF ? 'overflow-y-auto max-h-[80vh] custom-scrollbar' : 'overflow-visible h-auto'
             }`}
           >
             {isAggregate ? (
@@ -401,10 +402,10 @@ export const ManholeReportPopup = ({ reportData, onClose }) => {
         <div className="flex justify-end p-4 border-t border-[#e5e7eb] bg-[#f3f4f6] rounded-b-lg">
           <button
             onClick={handleDownloadPDF}
-            className="px-6 py-2 bg-[#1E9AB0] text-white font-semibold rounded-lg hover:bg-[#187A8A] disabled:opacity-50"
+            className="px-6 py-2 bg-[#1E9AB0] text-white font-semibold rounded-lg hover:bg-[#187A8A] disabled:opacity-50 cursor-pointer"
             disabled={isGeneratingPDF || !libsLoaded}
           >
-           {isGeneratingPDF ? "Generating..." : (!libsLoaded ? "Loading Libs..." : "Download PDF")}   </button>
+           {isGeneratingPDF ? "Loading..." : (!libsLoaded ? "Loading Libs..." : "Download PDF")}   </button>
         </div>
       </div>
     </div>

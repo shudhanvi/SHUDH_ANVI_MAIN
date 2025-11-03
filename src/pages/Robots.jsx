@@ -9,7 +9,7 @@ const userInputsObj = { division: "", section: "", fromDate: "", toDate: "" };
 const userInputsErrorObj = { division: false, section: false, fromDate: false, toDate: false };
 
 export const Robots = () => {
-  const { data, loading, message } = useServerData();  // ✅ use new context data
+  const { data, loading, message,refreshData } = useServerData();  // ✅ use new context data
   const [inputError, setInputError] = useState(userInputsErrorObj);
   const [userInputs, setUserInputs] = useState(userInputsObj);
   const [MainData, setMainData] = useState([]);
@@ -52,6 +52,15 @@ export const Robots = () => {
       };
     });
   };
+  
+useEffect(() => {
+  const interval = setInterval(() => {
+    refreshData();
+  }, 60000); // every 60 seconds
+
+  return () => clearInterval(interval); // cleanup
+}, []);
+
 
   // ✅ Merge context data once available
   useEffect(() => {
@@ -61,6 +70,27 @@ export const Robots = () => {
     setMainData(normalized);
   }, [data]);
 
+// Keep activeRobot in sync with latest MainData
+useEffect(() => {
+  if (!activeRobot) return;
+
+  // Find updated robot operations from MainData
+  const updatedOperations = MainData.filter(
+    (op) => op.device_id === activeRobot.device_id
+  );
+
+  if (updatedOperations.length > 0) {
+    const latestOp = updatedOperations.reduce(
+      (a, b) => new Date(a.timestamp) > new Date(b.timestamp) ? a : b,
+      updatedOperations[0]
+    );
+
+    setActiveRobot({
+      ...latestOp,
+      operation_history: updatedOperations,
+    });
+  }
+}, [MainData]);
 
   // Build division → section hierarchy
   const hierarchyData = useMemo(() => {
@@ -358,7 +388,7 @@ export const Robots = () => {
         ) : (
           <div className="flex flex-col justify-center items-center mt-[50px]">
             <img className="h-[130px] w-[130px]" src="/images/Robot-filter.png"/>
-          <p className="text-gray-400 text-center ">
+          <p className="text-gray-400 text-center  " style={{ fontStyle: "italic" }}>
             “No robots to display yet. Please select a Division and Section to get started.”
           </p>
           </div>
