@@ -57,7 +57,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
       command: "generate_ward_report",
     };
 
-    console.log("Sending payload to backend:", payload);
+ 
 
     try {
       // --- Replace with your actual API endpoint ---
@@ -83,7 +83,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
       }
 
       const data = await response.json();
-      console.log("Backend response:", data);
+ 
  
       alert("Report generated successfully! (Check console for mock data)"); // Simple alert for now
     } catch (error) {
