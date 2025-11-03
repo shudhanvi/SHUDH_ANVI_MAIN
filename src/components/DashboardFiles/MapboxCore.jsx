@@ -174,22 +174,22 @@ const MapboxCore = ({
     const handleStyleLoad = () => {
       const centerVal = centerToRestore?.current;
       const zoomVal = zoomToRestore?.current;
-      console.log(">>> style.load: Refs BEFORE restore:", { center: centerVal, zoom: zoomVal });
+    
 
       drawLayers(); // Redraw layers first
 
       if (centerVal && zoomVal !== null) {
-        console.log(">>> style.load: Map view BEFORE jumpTo:", { center: mapInstance?.getCenter(), zoom: mapInstance?.getZoom() });
+      
         mapInstance?.jumpTo({ center: centerVal, zoom: zoomVal });
         setTimeout(() => {
             if (mapRef.current) {
-               console.log(">>> style.load: Map view AFTER jumpTo:", { center: mapRef.current.getCenter(), zoom: mapRef.current.getZoom() });
+              
             }
         }, 0);
         if(centerToRestore) centerToRestore.current = null;
         if(zoomToRestore) zoomToRestore.current = null;
       } else {
-         console.log(">>> style.load: No view state found in refs to restore.");
+ 
       }
     };
 
@@ -273,7 +273,7 @@ const MapboxCore = ({
     if (!mapRef.current || !mapRef.current.isStyleLoaded() || !mapRef.current.loaded()) return;
     const currentStyle = mapRef.current.getStyle();
     if (!currentStyle || currentStyle.url === styleUrl) return;
-    console.log(">>> Applying new style URL:", styleUrl);
+    
     mapRef.current.setStyle(styleUrl);
   }, [styleUrl, mapRef]);
 

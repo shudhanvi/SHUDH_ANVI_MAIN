@@ -48,7 +48,7 @@ const MapComponent = () => {
   const mapRef = useRef(null);
   // --- End Refs ---
   // const { data: manholeData, loading: manholeLoading, message: manholeError } = useServerData();
-  console.log(data, loading, error);
+ 
   /**
    * Helper utility to convert Excel serial date numbers to JS Date objects.
    * This should be defined OUTSIDE your React component.
@@ -152,7 +152,7 @@ const MapComponent = () => {
     if (!loading && data) {
       // 1. Process Manhole Data
       if (data.ManholeData && Array.isArray(data.ManholeData)) {
-        console.log(`Context: Fetched ${data.ManholeData.length} manhole records.`);
+ 
         setAllManholeData(data.ManholeData);
         // Use lowercase 'division' (matching sample data)
         const uniqueDivisions = [...new Set(data.ManholeData.map((row) => row.division))].filter(Boolean).sort();
@@ -165,7 +165,7 @@ const MapComponent = () => {
 
       // 2. Process Ward Coordinates Data
       if (data.WardData && Array.isArray(data.WardData)) {
-        console.log(`Context: Fetched ${data.WardData.length} ward records.`);
+ 
         const allRows = data.WardData;
 
         // --- Parsing logic (same as before) ---
@@ -177,7 +177,7 @@ const MapComponent = () => {
           const areaRaw = row.area_name ?? row.section ?? row.area ?? row["area Name"] ?? row["area_name"] ?? row["section"];
           if (!areaRaw) return;
           const area = String(areaRaw).trim();
-          console.log(`Processing ward area: "${area}"`);
+ 
           const lonVal = row.longitude ?? row.Longitude ?? row.lon ?? row.x ?? row.X;
           const latVal = row.latitude ?? row.Latitude ?? row.lat ?? row.y ?? row.Y;
           const lonNum = Number(lonVal);
@@ -332,7 +332,7 @@ const MapComponent = () => {
   const handleAlertManholeClick = useCallback((manholeId) => {
     const manholeData = allManholeData.find(mh => mh.id === manholeId);
     if (manholeData) {
-      console.log("Alert-triggered manhole click for ID:", manholeData);
+ 
       const lat = parseFloat(manholeData.latitude);
       const lon = parseFloat(manholeData.longitude);
       const manholeStatus = getManholeStatus(manholeData.last_operation_date);
