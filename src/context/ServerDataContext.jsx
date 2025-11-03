@@ -1,42 +1,115 @@
-// src/context/ServerDataContext.jsx
+// import { createContext, useContext, useEffect, useState } from "react";
+// import { backendApi } from "../utils/backendApi";
+// const ServerDataContext = createContext();
+
+// export const ServerDataProvider = ({ children }) => {
+//   const [data, setData] = useState({
+//     ManholeData: [],
+//     RobotsData: [],
+//     MHData: [],
+//     WardData: [],
+//     OperationsData: [],
+//   });
+//   const [loading, setLoading] = useState(true);
+//   const [message, setMessage] = useState("");
+
+  
+
+//   // 👇 Fetch only the table_data
+//   const fetchData = async (endpoint, key) => {
+//     try {
+//       const res = await fetch(endpoint);
+//       const json = await res.json();
+//       const tableData = json?.table_data || []; // ✅ only store table_data
+//       setData(prev => ({ ...prev, [key]: tableData }));
+//     } catch (err) {
+//       console.error(`Error fetching ${key}:`, err);
+//     }
+//   };
+
+//   useEffect(() => {
+//     const loadAll = async () => {
+//       setLoading(true);
+//       setMessage("Loading data...");
+
+//       await Promise.all([
+//         fetchData(backendApi.manholeData, "ManholeData"),
+//         fetchData(backendApi.robotData, "RobotsData"),
+//         fetchData(backendApi.mhData, "MHData"),
+//         fetchData(backendApi.warddata, "WardData"),
+//         fetchData(backendApi.operationsdata, "OperationsData"),
+//       ]);
+
+//       setMessage(null);
+//       setLoading(false);
+//     };
+
+//     loadAll();
+//   }, []);
+
+//   console.log("✅ Fetched data:", data);
+
+//   return (
+//     <ServerDataContext.Provider value={{ data, loading, message }}>
+//       {children}
+//     </ServerDataContext.Provider>
+//   );
+// };
+
+// export const useServerData = () => useContext(ServerDataContext);
+
+
+
 import { createContext, useContext, useEffect, useState } from "react";
+import { backendApi } from "../utils/backendApi";
 
 const ServerDataContext = createContext();
 
 export const ServerDataProvider = ({ children }) => {
-  const [serverData, setServerData] = useState([]);
+  const [data, setData] = useState({
+    ManholeData: [],
+    RobotsData: [],
+    MHData: [],
+    WardData: [],
+    OperationsData: [],
+  });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
+  // Fetch only the table_data
+  const fetchData = async (endpoint, key) => {
+    try {
+      const res = await fetch(endpoint);
+      const json = await res.json();
+      const tableData = json?.table_data || [];
+      setData(prev => ({ ...prev, [key]: tableData }));
+    } catch (err) {
+      console.error(`Error fetching ${key}:`, err);
+    }
+  };
+
+  // Load all data (can be reused)
+  const loadAllData = async () => {
+    // setLoading(true);
+    // setMessage("Loading ...");
+    await Promise.all([
+      fetchData(backendApi.manholeData, "ManholeData"),
+      fetchData(backendApi.robotData, "RobotsData"),
+      fetchData(backendApi.mhData, "MHData"),
+      fetchData(backendApi.warddata, "WardData"),
+      fetchData(backendApi.operationsdata, "OperationsData"),
+    ]);
+    setMessage(null);
+    setLoading(false);
+  };
+
+  // Fetch once on mount
   useEffect(() => {
-    const fetchServerData = async () => {
-      try {
-        setMessage("Fetching Bots data...");
-        setLoading(true);
-
-        const response = await fetch(
-          "https://sewage-bot.onrender.com/api/data"
-        );
-
-        if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-        const data = await response.json();
-        setServerData(data || []);
-        setMessage("Server data loaded");
-      } catch (error) {
-        console.error("⚠ Server fetch failed:", error.message);
-        setMessage("⚠ Failed to load server data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchServerData();
+    loadAllData();
   }, []);
-//   console.log("ServerDataContext:", serverData);
 
   return (
-    <ServerDataContext.Provider value={{ serverData, loading, message }}>
+    <ServerDataContext.Provider value={{ data, loading, message, refreshData: loadAllData }}>
       {children}
     </ServerDataContext.Provider>
   );

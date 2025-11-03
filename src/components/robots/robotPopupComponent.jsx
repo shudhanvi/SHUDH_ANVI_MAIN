@@ -16,13 +16,24 @@ import {
   ClockIcon,
   Download,
 } from "lucide-react";
-import { backendApi } from "../../utils/backendApi";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { OperationPopup } from "./OperationPopup";
+// ✅ Fix Leaflet marker issue for Vite/Render builds
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: new URL("leaflet/dist/images/marker-icon-2x.png", import.meta.url).href,
+  iconUrl: new URL("leaflet/dist/images/marker-icon.png", import.meta.url).href,
+  shadowUrl: new URL("leaflet/dist/images/marker-shadow.png", import.meta.url).href,
+});
+
 
 export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
   const [detailedFromDate, setDetailedFromDate] = useState(null);
   const [detailedToDate, setDetailedToDate] = useState(null);
   const [detailedFilteredData, setDetailedFilteredData] = useState([]);
   const [selectedHistory, setSelectedHistory] = useState(null);
+  const [showOperationPopup, setShowOperationPopup] = useState(false);
 
 
   useEffect(() => {
@@ -58,7 +69,13 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
 
     setDetailedFilteredData(filtered);
   };
+  // Determine which record to show in right panel
+  const currentRecord = selectedHistory || activeRecord;
 
+
+
+  let lat = currentRecord?.latitude;
+  let lng = currentRecord?.longitude;
   const RecenterMap = ({ lat, lng }) => {
     const map = useMap();
     useEffect(() => {
@@ -67,66 +84,11 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
     return null;
   };
 
-  // Determine which record to show in right panel
-  const currentRecord = selectedHistory || activeRecord;
-
-  // Extract geo location
-  let lat = 0,
-    lng = 0;
-
-  if (currentRecord?.location) {
-    try {
-      const loc = JSON.parse(currentRecord.location); // parse stringified JSON
-      lat = parseFloat(loc.latitude); // convert to float
-      lng = parseFloat(loc.longitude); // convert to float
-    } catch (err) {
-      console.error("Invalid geo_location format:", currentRecord.location, err);
-    }
-  }
-  const handleGenerateReport = async () => {
-    try {
-
-      const response = await fetch(backendApi.analyze, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          command: "generate_Robot_report",
-          params: {
-            'device_id': currentRecord.device_id,
-            'district': currentRecord.district,
-            'division': currentRecord.division,
-            'id': currentRecord.id,
-            'area': currentRecord.area
-
-          }
-
-
-
-          // 'device_id':currentRecord.device_id,
-
-          // 'division':'DC',
-
-        }),
-      });
-      console.log("Sending payload:", { command: "generate_report" });
-
-
-      // console.log(body)
-      const data = await response.json();
-      console.log("Backend response:", data);
-      alert(data.Allert);
-    } catch (error) {
-      console.error("Error calling backend:", error);
-    }
-  };
-
 
   return (
     <div className="fixed inset-0 min-h-screen flex items-center justify-center bg-transparent bg-opacity-50 z-[910]">
       <div className="w-full h-screen bg-[#00000099] flex place-content-center">
-        <div className="mx-auto bg-white w-full max-w-[1000px] rounded-lg px-6 overflow-y-auto max-h-[100vh] relative top-5 shadow-2xl border border-gray-297">
+        <div className="mx-auto bg-white w-full max-w-[1000px] rounded-lg px-6 overflow-y-auto max-h-[100vh] relative top-5 shadow-2xl border border-gray-297 custom-scrollbar">
           <button
             onClick={closePopup}
             className="popup-btn absolute right-6 text-gray-500 hover:text-black text-5xl top-[10px] cursor-pointer "
@@ -184,24 +146,50 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                 <span className="flex flex-row">
                   <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
-                    Task Duration
-                    <span className="text-[#21232C] text-[16px]">{currentRecord?.operation_time_minutes || "-"} mins</span>
+                    Ending Time
+                    <span className="text-[#21232C] text-[16px]">{new Date(currentRecord.endtime).toLocaleTimeString()}</span>
                   </span>
                 </span>
                 <span className="flex flex-row">
+                  <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
+                  <span className="flex flex-col ml-2">
+                    Task Duration
+                    {/* <span className="text-[#21232C] text-[16px]">{currentRecord?.operation_time_minutes || "-"} secs</span> */}
+                    <span className="text-[#21232C] text-[16px]">
+                      {(() => {
+                        const totalSecs = Number(currentRecord?.operation_time_minutes);
+                        if (isNaN(totalSecs) || totalSecs < 0) return "-";
+
+                        const hours = Math.floor(totalSecs / 3600);
+                        const minutes = Math.floor((totalSecs % 3600) / 60);
+                        const seconds = Math.floor(totalSecs % 60);
+
+                        let result = "";
+
+                        if (hours > 0) result += `${hours} hr${hours > 1 ? "s" : ""} `;
+                        if (minutes > 0) result += `${minutes} min${minutes > 1 ? "s" : ""} `;
+                        if (seconds > 0 || result === "") result += `${seconds} sec${seconds !== 1 ? "s" : ""}`;
+
+                        return result.trim();
+                      })()}
+                    </span>
+
+                  </span>
+                </span>
+                {/* <span className="flex flex-row">
                   <Trash className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
                     Waste Collected
                     <span className="text-[#21232C] text-[16px]">{currentRecord?.waste_collected_kg || "-"} kgs</span>
                   </span>
-                </span>
+                </span> */}
                 <span>
                   <MapPin className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   {currentRecord.area}
                 </span>
               </div>
 
-              {/* Gas Level */}
+              {/* Gas Level
               <div className="flex flex-row mt-[24px] border border-gray-500 p-2 py-5 rounded-2xl">
                 <div className="flex flex-col text-start text-[14px] text-[#676D7E] gap-y-2 w-max-content flex-shrink-0">
                   <h1 className="text-[18px] text-black font-bold">Gas Level</h1>
@@ -252,21 +240,77 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Map */}
+              {/* Map Section */}
+              {/* <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
+  <div className="flex flex-row justify-between">
+    <h1 className="pb-1 text-start">
+      {currentRecord?.latitude && currentRecord?.longitude
+        ? `${currentRecord.latitude}, ${currentRecord.longitude}`
+        : "-"}
+    </h1>
+    <h1>Manhole ID : {currentRecord?.manhole_id || "-"}</h1>
+  </div>
+
+  <div className="bd-gray">
+    {currentRecord &&
+    !isNaN(Number(currentRecord.latitude)) &&
+    !isNaN(Number(currentRecord.longitude)) ? (
+      <MapContainer
+        center={[
+          Number(currentRecord.latitude),
+          Number(currentRecord.longitude),
+        ]}
+        zoom={15}
+        className="h-40 rounded-lg"
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <Marker
+          position={[
+            Number(currentRecord.latitude),
+            Number(currentRecord.longitude),
+          ]}
+        >
+          <LeafletPopup>
+           
+          </LeafletPopup>
+        </Marker>
+        <RecenterMap
+          lat={Number(currentRecord.latitude)}
+          lng={Number(currentRecord.longitude)}
+        />
+      </MapContainer>
+    ) : (
+      <p className="text-gray-500 flex items-center justify-center h-40">
+        No location available
+      </p>
+    )}
+  </div>
+</div> */}
               <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
                 <div className="flex flex-row justify-between">
                   <h1 className="pb-1 text-start">
-                    {lat ?? "-"},{lng ?? ""}
+                    {currentRecord?.latitude && currentRecord?.longitude
+                      ? `${currentRecord.latitude}, ${currentRecord.longitude}`
+                      : "-"}
                   </h1>
-                  <h1>Manhole ID : {currentRecord?.manhole_id || "-"}</h1>
+                  <h1>Manhole ID : {currentRecord?.manhole_id}</h1>
                 </div>
 
                 <div className="bd-gray">
-                  {lat !== null && lat !== undefined && lng !== null && lng !== undefined ? (
+                  {currentRecord &&
+                    !isNaN(Number(currentRecord.latitude)) &&
+                    !isNaN(Number(currentRecord.longitude)) ? (
                     <MapContainer
-                      center={[Number(lat), Number(lng)]}
+                      center={[
+                        Number(currentRecord.latitude),
+                        Number(currentRecord.longitude),
+                      ]}
                       zoom={15}
                       className="h-40 rounded-lg"
                     >
@@ -274,10 +318,22 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                       />
-                      <Marker position={[Number(lat), Number(lng)]}>
-                        <LeafletPopup>{currentRecord.location}</LeafletPopup>
+
+                      <Marker
+                        position={[
+                          Number(currentRecord.latitude),
+                          Number(currentRecord.longitude),
+                        ]}
+                      >
+                        <LeafletPopup>
+                          {currentRecord.area || currentRecord.section || "Unknown Location"}
+                        </LeafletPopup>
                       </Marker>
-                      <RecenterMap lat={Number(lat)} lng={Number(lng)} />
+
+                      <RecenterMap
+                        lat={Number(currentRecord.latitude)}
+                        lng={Number(currentRecord.longitude)}
+                      />
                     </MapContainer>
                   ) : (
                     <p className="text-gray-500 flex items-center justify-center h-40">
@@ -286,7 +342,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                   )}
                 </div>
               </div>
-
+              {/* {console.log("LatLng:", lat, lng)} */}
 
               {/* Images and Report */}
               <h1 className="text-[16px] text-[#21232C] mt-[24px] text-start">Operation Images</h1>
@@ -318,9 +374,9 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                   <Download className="inline-block w-5 h-5 mr-1" color="white" />
                   Generate Operation Report
                 </button> */}
-                {console.log("currentRecord:", currentRecord)}
+
                 <button
-                  onClick={handleGenerateReport}
+                  // onClick={() => setShowOperationPopup(true)}
                   className="flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px] w-full text-white rounded-[16px] cursor-pointer btn-hover"
                 >
                   <Download className="inline-block w-5 h-5 mr-1" color="white" />
@@ -347,7 +403,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                   <DatePicker
                     selected={detailedFromDate}
                     onChange={(date) => setDetailedFromDate(date)}
-                    dateFormat="yyyy-MM-dd"
+                    dateFormat="dd-MM-yyyy"
                     className="border border-gray-300 rounded-md p-2 w-full text-sm"
                     placeholderText="Select From Date"
                     maxDate={new Date()}
@@ -359,7 +415,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                   <DatePicker
                     selected={detailedToDate}
                     onChange={(date) => setDetailedToDate(date)}
-                    dateFormat="yyyy-MM-dd"
+                    dateFormat="dd-MM-yyyy"
                     className="border border-gray-300 rounded-md p-2 w-full text-sm"
                     placeholderText="Select Date"
                     maxDate={new Date()}
@@ -377,7 +433,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                 </div>
               </div>
 
-              <div className="h-80 shadow overflow-y-auto rounded-md p-2 px-6">
+              {/* <div className="h-80 shadow overflow-y-auto rounded-md p-2 px-6">
                 <ul className="space-y-3">
                   {detailedFilteredData.length > 0
                     ? detailedFilteredData.map((history, index) => {
@@ -412,16 +468,69 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                       <li className="text-center text-gray-500 py-4">No Records Found</li>
                     )}
                 </ul>
+              </div> */}  
+         <div className="h-80 shadow overflow-y-auto rounded-md py-[8px] px-[10px] custom-scrollbar">
+  <ul className="space-y-3">
+    {detailedFilteredData.length > 0 ? (
+      // ✅ Sort by timestamp (latest first)
+      [...detailedFilteredData]
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .map((history, index) => {
+          const isActive = selectedHistory?.timestamp === history.timestamp;
+          return (
+            <li
+              key={index}
+              className={`flex items-center justify-between h-12 transition-all px-[4px] ${
+                isActive ? "bg-gray-200" : ""
+              }`}
+            >
+              <div>
+                <span className="mr-8">
+                  <CalendarIcon className="h-4 inline-block" />
+                  {new Date(history.timestamp).toLocaleDateString()}
+                </span>
+                <span className="mr-8">
+                  <ClockIcon className="h-4 inline-block" />
+                  {new Date(history.timestamp).toLocaleTimeString("en-GB", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: false,
+                  })}
+                </span>
               </div>
+              <button
+                className="btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors bg-blue-500 text-white"
+                onClick={() => setSelectedHistory(history)}
+              >
+                View More
+              </button>
+            </li>
+          );
+        })
+    ) : (
+      <li className="text-center text-gray-500 py-4">No Records Found</li>
+    )}
+  </ul>
+</div>
+
             </div>
           </div>
         </div>
+
+
       </div>
 
 
-
+      {showOperationPopup && (
+        <OperationPopup
+          record={currentRecord}
+          closePopup={() => setShowOperationPopup(false)}
+        />
+      )}
 
     </div>
+
   );
 };
 

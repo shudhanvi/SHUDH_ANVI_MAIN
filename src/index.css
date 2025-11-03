@@ -63,3 +63,32 @@ button:not(.popup-btn):not(.manhole-popup-btn):not(.btn-view-more) {
 .db-popup-container::-webkit-scrollbar{
   width: 0px;
 }
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Add this to your CSS file */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f3f3f3;
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color:  #848688;
+  border-radius: 8px;
+  border: 2px solid #f3f3f3;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color:#717274 ;
+}
