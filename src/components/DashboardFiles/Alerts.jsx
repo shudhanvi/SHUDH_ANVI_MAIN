@@ -49,7 +49,7 @@ const ZoneAlertItem = ({ zoneName, alerts, onManholeSelect }) => {
                   {/* Serial Number */}
                   <td className={`py-2.5 pr-2 w-10 text-sm text-center text-gray-700 ${index < alerts.length - 1 ? 'border-b border-gray-100' : ''}`}>{index + 1}</td>
                   {/* Manhole ID */}
-                  <td className={`py-2.5 px-2 text-sm text-gray-700 ${index < alerts.length - 1 ? 'border-b border-gray-100' : ''}`}>{alert.id}</td>
+                  <td className={`py-2.5 text-sm text-gray-700 ${index < alerts.length - 1 ? 'border-b border-gray-100' : ''}`}>{alert.id}</td>
                   {/* Clickable Location */}
                   <td
                     className={`py-2.5 px-2 text-sm text-blue-600 cursor-pointer hover:underline ${index < alerts.length - 1 ? 'border-b border-gray-100' : ''}`}
