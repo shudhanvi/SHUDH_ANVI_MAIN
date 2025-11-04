@@ -440,9 +440,9 @@ const formatTime = (timestamp) => {
       <button
         type="button"
         onClick={() => setDetailedFromDate(null)}
-        className="absolute right-2 top- border text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
+        className="absolute right-2 top-[10px] border text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
       >
-        ✖
+         ×
       </button>
     )}
   </div>
