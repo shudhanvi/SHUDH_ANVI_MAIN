@@ -1,115 +1,109 @@
-
 import React, { useState, useEffect } from "react";
 import IconsData from "../data/iconsdata";
 import { RobotReportsComponent } from "../components/reports/robotReportsComponent";
 import { ManholeReportsComponent } from "../components/reports/manholeReportsComponent";
 import { WardReportsComponent } from "../components/reports/wardReportsComponent";
+import { useServerData } from "../context/ServerDataContext";
 
 export const Reports = () => {
-  const [locationsData, setLocationsData] = useState([]);
+  const { data, loading, message } = useServerData(); // ✅ context data
+  const [manholeData, setManholeData] = useState([]);
+
   const [cities, setCities] = useState([]);
   const [divisions, setDivisions] = useState([]);
   const [sections, setSections] = useState([]);
 
-  // 🔹 Temporary selections (change immediately in UI)
   const [userInputs, setUserInputs] = useState({ city: "", division: "", section: "" });
-
-  // 🔹 Committed inputs (only update on View Reports click)
   const [confirmedInputs, setConfirmedInputs] = useState({ city: "", division: "", section: "" });
-
-  const [errors, setErrors] = useState({ city: "", division: "", section: "" });
+  const [errors, setErrors] = useState({});
   const [viewClicked, setViewClicked] = useState(false);
   const [activeReportType, setActiveReportType] = useState("Manhole Reports");
 
-  // ✅ Fetch CSV data
+  // ✅ Use only the Manhole data from context
   useEffect(() => {
-    fetch("/datafiles/CSVs/ManHoles_Data.csv")
-      .then((response) => (response.ok ? response.text() : Promise.reject("Network Error")))
-      .then((text) => {
-        const rows = text.trim().split("\n").filter(Boolean);
-        if (rows.length < 2) return;
-        const headers = rows[0].split(",").map((h) => h.trim());
-        const data = rows.slice(1).map((row) => {
-          const values = row.split(",").map((v) => v.trim());
-          return headers.reduce((obj, header, i) => {
-            obj[header] = values[i] || "";
-            return obj;
-          }, {});
-        });
-        setLocationsData(data);
-        setCities([...new Set(data.map((r) => r.City).filter(Boolean))]);
-      })
-      .catch((error) => console.error("Error fetching location data:", error));
-  }, []);
+    if (!data?.ManholeData?.length) return;
 
-  // ✅ Handle dropdown input change
-  const handleInput = (field, value) => {
-    setUserInputs((prev) => {
-      const next = { ...prev, [field]: value };
-      if (field === "city") {
-        next.division = "";
-        next.section = "";
-      }
-      if (field === "division") {
-        next.section = "";
-      }
-      return next;
-    });
-    if (value) setErrors((prev) => ({ ...prev, [field]: "" }));
-  };
+    const normalized = data.ManholeData.map((item) => ({
+      City: item.City || item.city || item.district || "",
+      Division: item.Division || item.division || "",
+      Section: item.Section || item.section || item.area || "",
+      ...item,
+    }));
 
-  // ✅ Update division list when city changes
+    setManholeData(normalized);
+
+    // Populate dropdown cities
+    const cityList = [...new Set(normalized.map((i) => i.City).filter(Boolean))];
+    setCities(cityList);
+
+    // console.log("✅ Manhole Data from Context:", normalized);
+  }, [data]);
+
+  // ✅ Handle dependent dropdowns
   useEffect(() => {
     if (userInputs.city) {
-      setDivisions([
+      const divs = [
         ...new Set(
-          locationsData
+          manholeData
             .filter((r) => r.City === userInputs.city)
             .map((r) => r.Division)
             .filter(Boolean)
         ),
-      ]);
-    } else setDivisions([]);
-  }, [userInputs.city, locationsData]);
+      ];
+      setDivisions(divs);
+    } else {
+      setDivisions([]);
+      setSections([]);
+    }
+  }, [userInputs.city, manholeData]);
 
-  // ✅ Update section list when division changes
   useEffect(() => {
     if (userInputs.division) {
-      setSections([
+      const secs = [
         ...new Set(
-          locationsData
-            .filter((r) => r.City === userInputs.city && r.Division === userInputs.division)
+          manholeData
+            .filter(
+              (r) =>
+                r.City === userInputs.city &&
+                r.Division === userInputs.division
+            )
             .map((r) => r.Section)
             .filter(Boolean)
         ),
-      ]);
-    } else setSections([]);
-  }, [userInputs.division, userInputs.city, locationsData]);
+      ];
+      setSections(secs);
+    } else {
+      setSections([]);
+    }
+  }, [userInputs.division, userInputs.city, manholeData]);
 
-  // ✅ Validate form
-  const validate = () => {
-    const newErrors = { city: "", division: "", section: "" };
-    let isValid = true;
-    if (!userInputs.city) {
-      newErrors.city = "*City is required";
-      isValid = false;
-    }
-    if (!userInputs.division) {
-      newErrors.division = "*Division is required";
-      isValid = false;
-    }
-    if (!userInputs.section) {
-      newErrors.section = "*Section is required";
-      isValid = false;
-    }
-    setErrors(newErrors);
-    return isValid;
+  // ✅ Handle Input
+  const handleInput = (field, value) => {
+    setUserInputs((prev) => {
+      const updated = { ...prev, [field]: value };
+      if (field === "city") {
+        updated.division = "";
+        updated.section = "";
+      } else if (field === "division") {
+        updated.section = "";
+      }
+      return updated;
+    });
+    if (value) setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  // ✅ On clicking "View Reports"
+  // ✅ Validate & Confirm
+  const validate = () => {
+    const newErrors = {};
+    if (!userInputs.city) newErrors.city = "*City is required";
+    if (!userInputs.division) newErrors.division = "*Division is required";
+    if (!userInputs.section) newErrors.section = "*Section is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleViewReports = () => {
     if (validate()) {
-      // 🔹 Update confirmed (locked-in) inputs for report rendering
       setConfirmedInputs({ ...userInputs });
       setViewClicked(true);
     }
@@ -129,7 +123,7 @@ export const Reports = () => {
         {/* Filters */}
         <div className="flex flex-wrap items-end gap-6 p-6 border-[1.5px] border-[#E1E7EF] rounded-lg bg-white">
           {/* City */}
-          <div className="flex-1 min-w-[250px]">
+          <div className="flex-1 min-w-[250px] relative flex flex-col">
             <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
             <select
               value={userInputs.city}
@@ -138,119 +132,115 @@ export const Reports = () => {
             >
               <option value="">Select City</option>
               {cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
+                <option key={c} value={c}>{c}</option>
               ))}
             </select>
-            {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+            {errors.city && <p className="text-red-500 text-xs absolute bottom-[-18px]">{errors.city}</p>}
           </div>
 
           {/* Division */}
-          <div className="flex-1 min-w-[250px]">
+          <div className="flex-1 min-w-[250px] relative flex flex-col">
             <label className="block text-sm font-medium text-gray-700 mb-1">Division</label>
             <select
               value={userInputs.division}
               onChange={(e) => handleInput("division", e.target.value)}
               disabled={!userInputs.city}
-              className="w-full h-10 px-3 border rounded-md disabled:bg-gray-100 border-gray-300"
+              className="w-full h-10 px-3 border rounded-md border-gray-300 disabled:bg-gray-100"
             >
               <option value="">Select Division</option>
               {divisions.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
+                <option key={d} value={d}>{d}</option>
               ))}
             </select>
-            {errors.division && <p className="text-red-500 text-xs mt-1">{errors.division}</p>}
+            {errors.division && <p className="text-red-500 text-xs absolute bottom-[-18px]">{errors.division}</p>}
           </div>
 
           {/* Section */}
-          <div className="flex-1 min-w-[250px]">
+          <div className="flex-1 min-w-[250px] relative flex flex-col">
             <label className="block text-sm font-medium text-gray-700 mb-1">Section</label>
             <select
               value={userInputs.section}
               onChange={(e) => handleInput("section", e.target.value)}
               disabled={!userInputs.division}
-              className="w-full h-10 px-3 border rounded-md disabled:bg-gray-100 border-gray-300"
+              className="w-full h-10 px-3 border rounded-md border-gray-300 disabled:bg-gray-100"
             >
               <option value="">Select Section</option>
               {sections.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
-            {errors.section && <p className="text-red-500 text-xs mt-1">{errors.section}</p>}
+            {errors.section && <p className="text-red-500 text-xs absolute bottom-[-18px]">{errors.section}</p>}
           </div>
 
           <button
             onClick={handleViewReports}
-            className="px-[20px] py-[10px] text-white flex items-center gap-[2px] bg-[#1E9AB0] rounded-[12px] hover:rounded-[0px]"
+            className="px-[20px] py-[10px] text-white flex items-center gap-[4px] bg-[#1E9AB0] rounded-[12px] hover:bg-[#157a8c] transition-all cursor-pointer"
           >
             <span>{IconsData.search}</span>View Reports
           </button>
         </div>
+{/* Loading message below filters */}
+{loading ? (
+  <div className="text-center py-4 text-gray-600">
+    <p>{message || "Loading data..."}</p>
+  </div>
+) : !viewClicked ? (
+  <div className="text-center py-10 px-6">
+    <img
+      src="/images/Report.png"
+      alt="Report Placeholder"
+      className="mx-auto h-48 w-48 object-contain"
+    />
+    <p className="mt-4 text-[#65758B]" style={{fontStyle:"italic"}}>
+      "No reports to display yet. Please select a Division and Section to generate reports."
+    </p>
+  </div>
+) : (
+  <div className="mt-6">
+    {/* Tabs */}
+    <div className="flex gap-2">
+      {["Manhole Reports", "Robot Reports", "Ward Reports"].map((type) => (
+        <button
+          key={type}
+          onClick={() => setActiveReportType(type)}
+          className={`px-[16px] py-[12px] text-sm rounded-[8px] font-medium border transition-colors cursor-pointer ${
+            activeReportType === type
+              ? "bg-[#1A8BA8] text-white"
+              : "border-[#1A8BA8]"
+          }`}
+        >
+          {type}
+        </button>
+      ))}
+    </div>
 
-        {/* Content */}
-        {!viewClicked ? (
-          <div className="text-center py-10 px-6">
-            <img
-              src="/images/Report.png"
-              alt="Report Placeholder"
-              className="mx-auto h-48 w-48 object-contain"
-            />
-            <p className="mt-4 text-[#65758B]">
-              No reports to display yet. Please select a Division and Section to generate reports.
-            </p>
-          </div>
-        ) : (
-          <div className="mt-6">
-            {/* Tabs */}
-            <div className="flex gap-2">
-              {["Manhole Reports", "Robot Reports", "Ward Reports"].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setActiveReportType(type)}
-                  className={`px-[16px] py-[12px] text-sm rounded-[8px] font-medium border transition-colors ${activeReportType === type
-                    ? "bg-[#1A8BA8] text-white"
-                    : "border-[#1A8BA8]"
-                    }`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
+    {/* Report Components */}
+    <div className="mt-4">
+      {activeReportType === "Manhole Reports" && (
+        <ManholeReportsComponent
+          city={confirmedInputs.city}
+          division={confirmedInputs.division}
+          section={confirmedInputs.section}
+        />
+      )}
+      {activeReportType === "Robot Reports" && (
+        <RobotReportsComponent
+          city={confirmedInputs.city}
+          division={confirmedInputs.division}
+          section={confirmedInputs.section}
+        />
+      )}
+      {activeReportType === "Ward Reports" && (
+        <WardReportsComponent
+          city={confirmedInputs.city}
+          division={confirmedInputs.division}
+          section={confirmedInputs.section}
+        />
+      )}
+    </div>
+  </div>
+)}
 
-            {/* Report Components */}
-            <div className="mt-4">
-              {activeReportType === "Manhole Reports" && (
-                <ManholeReportsComponent
-                  key={`${confirmedInputs.city}-${confirmedInputs.division}-${confirmedInputs.section}-manhole`}
-                  city={confirmedInputs.city}
-                  division={confirmedInputs.division}
-                  section={confirmedInputs.section}
-                />
-              )}
-              {activeReportType === "Robot Reports" && (
-                <RobotReportsComponent
-                  key={`${confirmedInputs.city}-${confirmedInputs.division}-${confirmedInputs.section}-robot`}
-                  city={confirmedInputs.city}
-                  division={confirmedInputs.division}
-                  section={confirmedInputs.section}
-                />
-              )}
-              {activeReportType === "Ward Reports" && (
-                <WardReportsComponent
-                  key={`${confirmedInputs.city}-${confirmedInputs.division}-${confirmedInputs.section}-ward`}
-                  city={confirmedInputs.city}
-                  division={confirmedInputs.division}
-                  section={confirmedInputs.section}
-                />
-              )}
-            </div>
-          </div>
-        )}
       </section>
     </section>
   );

@@ -88,7 +88,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
       zone,
       command: "generate_manhole_report"
     };
-    console.log("sending Paylod:", payload)
+    // console.log("sending Paylod:", payload)
     try {
       const response = await fetch(backendApi.manholesReportUrl, {
         method: "POST",
@@ -101,11 +101,11 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
       const data = await response.json();
       setReportData(data);
 
-      console.log("Backend response:", data)
+      // console.log("Backend response:", data)
       setShowPopup(true);
     } catch (error) {
       console.error("Error sending data:", error);
-      alert("Failed to fetch report data.");
+      alert(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -118,34 +118,55 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
       )}
 
       {/* 🔹 Date Pickers */}
-      <div className="flex items-end gap-x-4 px-[30px] py-[10px] mb-[10px]  rounded-lg border-[1.5px] border-[#E1E7EF] bg-white ">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            From
-          </label>
-          <DatePicker
-            selected={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
-            onChange={(date) => setFromDate(formatDate(date))}
-            dateFormat="dd/MM/yyyy"
-            placeholderText="Select from date"
-            className="w-full px-3 py-1.5 border border-gray-300 rounded-md  focus:outline-none focus:ring-[#1E9AB0] focus:border-[#1E9AB0] sm:text-sm"
-          />
-        </div>
+    <div className="flex items-end gap-x-4 px-[30px] py-[10px] mb-[10px] rounded-lg border-[1.5px] border-[#E1E7EF] bg-white">
+  {/* From Date */}
+  <div className="relative">
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      From
+    </label>
+    <DatePicker
+      selected={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
+      onChange={(date) => setFromDate(date ? formatDate(date) : null)} // ✅ handle null
+      dateFormat="dd/MM/yyyy"
+      placeholderText="Select from date"
+      className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-[#1E9AB0] focus:border-[#1E9AB0] sm:text-sm"
+    />
+    {fromDate && (
+      <button
+        type="button"
+        onClick={() => setFromDate(null)} // ✅ clears date
+        className="absolute right-2 top-8 border text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
+      >
+        ×
+      </button>
+    )}
+  </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            To
-          </label>
-          <DatePicker
-            selected={toDate ? new Date(toDate.split("-").reverse().join("-")) : null}
-            onChange={(date) => setToDate(formatDate(date))}
-            dateFormat="dd/MM/yyyy"
-            placeholderText="Select to date"
-            minDate={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
-            className="w-full px-3 py-1.5 border border-gray-300 rounded-md  focus:outline-none focus:ring-[#1E9AB0] focus:border-[#1E9AB0] sm:text-sm"
-          />
-        </div>
-      </div>
+  {/* To Date */}
+  <div className="relative">
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      To
+    </label>
+    <DatePicker
+      selected={toDate ? new Date(toDate.split("-").reverse().join("-")) : null}
+      onChange={(date) => setToDate(date ? formatDate(date) : null)} // ✅ handle null
+      dateFormat="dd/MM/yyyy"
+      placeholderText="Select to date"
+      minDate={fromDate ? new Date(fromDate.split("-").reverse().join("-")) : null}
+      className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-[#1E9AB0] focus:border-[#1E9AB0] sm:text-sm"
+    />
+    {toDate && (
+      <button
+        type="button"
+        onClick={() => setToDate(null)} // ✅ clears date
+        className="absolute right-2 top-8 border text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
+      >
+        ×
+      </button>
+    )}
+  </div>
+</div>
+
 
 
       {/* Main UI Container */}
@@ -153,7 +174,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
         {/* --- Header Section (Updated with Date Pickers) --- */}
         <div className="flex items-center justify-between mb-4 pb-4">
           <div className='flex gap-[20px] items-center'>
-            <button onClick={onBack} className="flex items-center justify-center border-[1.5px] h-[30px] w-[30px] border-[#1E9AB0] rounded-full hover:bg-[#E5F7FA]">
+            <button onClick={onBack} className="flex items-center justify-center border-[1.5px] h-[30px] w-[30px] border-[#1E9AB0] rounded-full hover:bg-[#E5F7FA] cursor-pointer">
               {IconsData.BackArrowIcon}
             </button>
             <div className='flex flex-col gap-[4px]'>
@@ -165,8 +186,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
                   onChange={handleSelectAll}
                   className="h-4 w-4 text-[15px] rounded border-gray-300 focus:ring-[#1E9AB0] accent-[#1E9AB0]"
                 />
-                Select All on Page
-              </label>
+                Select All              </label>
             </div>
           </div>
 
@@ -180,9 +200,9 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
             <button
               onClick={handleViewReport}
               className={`px-8 py-3 text-white font-semibold rounded-lg shadow-md transition-colors bg-[#1E9AB0] cursor-pointer ${isLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
-              disabled={isLoading}
+              
             >
-              {isLoading ? 'Generating...' : 'View Selected Report'}
+              {isLoading ? 'Loading...' : 'View Report'}
             </button>
           </div>
         </div>

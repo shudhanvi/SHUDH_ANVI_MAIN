@@ -2,64 +2,31 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Bot, Calendar, MapPin, Search, FireExtinguisher } from "lucide-react";
-import Papa from "papaparse";
 import { useServerData } from "../context/ServerDataContext";
 import { RobotPopupComponent } from "../components/robots/robotPopupComponent";
 
-const userInputsObj = {
-  division: "",
-  section: "",
-  fromDate: "",
-  toDate: "",
-};
-
-const userInputsErrorObj = {
-  division: false,
-  section: false,
-  fromDate: false,
-  toDate: false,
-};
+const userInputsObj = { division: "", section: "", fromDate: "", toDate: "" };
+const userInputsErrorObj = { division: false, section: false, fromDate: false, toDate: false };
 
 export const Robots = () => {
-  const { serverData, loading, message } = useServerData();
+  const { data, loading, message, refreshData } = useServerData();  // ✅ use new context data
   const [inputError, setInputError] = useState(userInputsErrorObj);
   const [userInputs, setUserInputs] = useState(userInputsObj);
   const [MainData, setMainData] = useState([]);
-  const [staticData, setStaticData] = useState([]);
   const [showFiltered, setShowFiltered] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [activeRobot, setActiveRobot] = useState(null);
   const [appliedFilters, setAppliedFilters] = useState(userInputsObj);
-  const backendCalls = useRef({ static: false, server: false });
 
-  // Handle input changes
   const handleInput = (key, value) => {
-    setUserInputs((prev) => {
+    setUserInputs(prev => {
       const updated = { ...prev, [key]: value };
-      if (key === "division") updated.section = ""; // reset section when division changes
+      if (key === "division") updated.section = "";
       return updated;
     });
   };
 
-  // Fetch static CSV once
-  useEffect(() => {
-    const fetchCSV = async () => {
-      try {
-        const res = await fetch("/datafiles/CSVs/Robo_Operations.csv");
-        const csvText = await res.text();
-        const parsedCSV = Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-        }).data;
-        setStaticData(parsedCSV);
-      } catch (err) {
-        console.error("Error fetching CSV:", err);
-      }
-    };
-    fetchCSV();
-  }, []);
-
-  // Normalize data
+  // ✅ Combine & normalize both RobotsData + OperationsData
   const structingData = (dataObj) => {
     return Object.keys(dataObj).map((index) => {
       const item = dataObj[index];
@@ -67,40 +34,63 @@ export const Robots = () => {
         id: item?.id || "-",
         operation_id: item?.operation_id || "-",
         device_id: item?.device_id || item?.deviceId || item?.robot_id || "-",
-        before_path: item?.before_path || "-",
-        after_path: item?.after_path || "-",
+        before_path: item?.before_path || item.before_image_url || "-",
+        after_path: item?.after_path || item.after_image_url || "-",
         gas_data_raw: item?.gas_data_raw || "-",
         gas_status: item?.gas_status || "-",
         location: item?.location || "-",
-        timestamp: item?.timestamp || item?.time || "-",
+        latitude: item?.latitude || item?.lat || "0",
+        longitude: item?.longitude || item?.lon || item?.lng || "0",
+        timestamp: item?.timestamp || item?.start_time || "-",
+        endtime: item?.endtime || item?.end_time || "-",
         district: item?.district || item?.city || "-",
         division: item?.division || "-",
         area: item?.area || item?.section || "-",
-        operation_time_minutes: item?.operation_time_minutes || "-",
+        operation_time_minutes: item?.operation_time_minutes || item?.duration_seconds || "-",
         manhole_id: item?.manhole_id || "Unknown",
-        waste_collected_kg:
-          item?.waste_collected_kg || item?.wasteCollectedKg || "-",
+        waste_collected_kg: item?.waste_collected_kg || item?.wasteCollectedKg || "-",
       };
     });
   };
 
-  // Merge static data
-  useEffect(() => {
-    if (staticData?.length > 0 && !backendCalls.current.static) {
-      backendCalls.current.static = true;
-      const StaticStructData = structingData(staticData);
-      setMainData((prev) => [...prev, ...StaticStructData]);
-    }
-  }, [staticData]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     refreshData();
+  //   }, 60000); // every 60 seconds
 
-  // Merge server data
+  //   return () => clearInterval(interval); // cleanup
+  // }, []);
+
+
+  // ✅ Merge context data once available
   useEffect(() => {
-    if (serverData?.length > 0 && !backendCalls.current.server) {
-      backendCalls.current.server = true;
-      const backendStructData = structingData(serverData);
-      setMainData((prev) => [...prev, ...backendStructData]);
+    if (!data?.RobotsData?.length && !data?.OperationsData?.length) return;
+    const combined = [...(data.RobotsData || []), ...(data.OperationsData || [])];
+    const normalized = structingData(combined);
+    setMainData(normalized);
+  }, [data]);
+
+  // Keep activeRobot in sync with latest MainData
+  useEffect(() => {
+    if (!activeRobot) return;
+
+    // Find updated robot operations from MainData
+    const updatedOperations = MainData.filter(
+      (op) => op.device_id === activeRobot.device_id
+    );
+
+    if (updatedOperations.length > 0) {
+      const latestOp = updatedOperations.reduce(
+        (a, b) => new Date(a.timestamp) > new Date(b.timestamp) ? a : b,
+        updatedOperations[0]
+      );
+
+      setActiveRobot({
+        ...latestOp,
+        operation_history: updatedOperations,
+      });
     }
-  }, [serverData]);
+  }, [MainData]);
 
   // Build division → section hierarchy
   const hierarchyData = useMemo(() => {
@@ -197,7 +187,23 @@ export const Robots = () => {
     setAppliedFilters(userInputs);
     setShowFiltered(true);
   };
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
+
+
+  // console.log("MainData:", MainData);
   return (
     <div className="w-full ">
       <section className="section1 border-b-[1.5px] border-[#E1E7EF] py-[10px] px-[30px] bg-white ">
@@ -207,74 +213,75 @@ export const Robots = () => {
 
       {/* Filters */}
       <section className="flex justify-center h-auto w-full mt-6 ">
-        <div className="flex flex-wrap justify-evenly gap-[1%] p-[22px] pb-[26px] mx-[30px] rounded-xl border-[1.5px] border-[#E1E7EF]  items-center max-w-[2400px] w-[100%] bg-white ">
-          {/* Division */}
-          <div className=" text-start relative">
-            <label className="block font-semibold mb-1">Division</label>
-            <div className="flex flex-col">
+        <div className="flex  gap-[10px] justify-evenly p-[22px] pb-[26px] mx-[30px] rounded-xl border-[1.5px] border-[#E1E7EF]  items-center max-w-[2400px] w-[100%] bg-white ">
+          <div className="flex justify-evenly w-[85%] gap-[15px]">
+            {/* Division */}
+            <div className=" text-start relative w-[-webkit-fill-available] " >
+              <label className="block font-semibold mb-1">Division</label>
+              <div className="flex flex-col">
+                <select
+                  value={userInputs.division}
+                  onChange={(e) => handleInput("division", e.target.value)}
+                  className="border  border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm relative "
+                >
+                  <option value="">Select Division</option>
+                  {divisions.map((div) => (
+                    <option key={div} value={div}>
+                      {div}
+                    </option>
+                  ))}
+                </select>
+                <span className="absolute bottom-[-20px] ">{inputError.division && (
+                  <span className="text-red-500 text-xs mt-1 ml-2">
+                    *Division required
+                  </span>
+                )}</span>
+              </div>
+            </div>
+
+            {/* Section */}
+            <div className=" text-start w-[-webkit-fill-available]" >
+              <label className="block font-semibold mb-1">Section</label>
               <select
-                value={userInputs.division}
-                onChange={(e) => handleInput("division", e.target.value)}
-                className="border border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm relative "
+                value={userInputs.section}
+                onChange={(e) => handleInput("section", e.target.value)}
+                className="border border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm"
               >
-                <option value="">Select Division</option>
-                {divisions.map((div) => (
-                  <option key={div} value={div}>
-                    {div}
+                <option value="">Select Section</option>
+                {sections.map((sec) => (
+                  <option key={sec} value={sec}>
+                    {sec}
                   </option>
                 ))}
               </select>
-              <span className="absolute bottom-[-20px] ">{inputError.division && (
-                <span className="text-red-500 text-xs mt-1 ml-2">
-                  *Division required
-                </span>
-              )}</span>
+            </div>
+
+            {/* From Date */}
+            <div className=" text-start relative w-[-webkit-fill-available]">
+              <label className="block font-semibold mb-1">From Date</label>
+              <DatePicker
+                selected={userInputs.fromDate}
+                onChange={(date) => handleInput("fromDate", date)}
+                className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
+                placeholderText="Pick a date"
+                maxDate={new Date()}
+              />
+              <Calendar className="absolute top-8 right-2 text-gray-600" />
+            </div>
+
+            {/* To Date */}
+            <div className=" text-start relative w-[-webkit-fill-available]">
+              <label className="block font-semibold mb-1">To Date</label>
+              <DatePicker
+                selected={userInputs.toDate}
+                onChange={(date) => handleInput("toDate", date)}
+                className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
+                placeholderText="Pick a date"
+                maxDate={new Date()}
+              />
+              <Calendar className="absolute top-8 right-2 text-gray-600" />
             </div>
           </div>
-
-          {/* Section */}
-          <div className=" text-start">
-            <label className="block font-semibold mb-1">Section</label>
-            <select
-              value={userInputs.section}
-              onChange={(e) => handleInput("section", e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm"
-            >
-              <option value="">Select Section</option>
-              {sections.map((sec) => (
-                <option key={sec} value={sec}>
-                  {sec}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* From Date */}
-          <div className=" text-start relative">
-            <label className="block font-semibold mb-1">From Date</label>
-            <DatePicker
-              selected={userInputs.fromDate}
-              onChange={(date) => handleInput("fromDate", date)}
-              className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
-              placeholderText="Pick a date"
-              maxDate={new Date()}
-            />
-            <Calendar className="absolute top-8 right-2 text-gray-600" />
-          </div>
-
-          {/* To Date */}
-          <div className=" text-start relative">
-            <label className="block font-semibold mb-1">To Date</label>
-            <DatePicker
-              selected={userInputs.toDate}
-              onChange={(date) => handleInput("toDate", date)}
-              className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
-              placeholderText="Pick a date"
-              maxDate={new Date()}
-            />
-            <Calendar className="absolute top-8 right-2 text-gray-600" />
-          </div>
-
           {/* Button */}
           <div className="">
             <button
@@ -342,11 +349,15 @@ export const Robots = () => {
                           <p className="flex items-center mb-2">
                             <Calendar className="inline-block w-3 h-4 mr-2 mb-1" />
                             Last operation:{" "}
-                            {item?.latestTimestamp
-                              ? new Date(
-                                item.latestTimestamp
-                              ).toLocaleDateString()
-                              : "-"}
+                            {item?.latestTimestamp ? (
+                              <>
+                                <span>{formatDate(item.latestTimestamp)}</span>
+
+                              </>
+                            ) : (
+                              "-"
+                            )}
+
                           </p>
                           <p className="flex items-center mb-2">
                             <FireExtinguisher className="inline-block w-4 h-4 mr-1 mb-1" />
@@ -370,7 +381,7 @@ export const Robots = () => {
                       <div className="flex justify-between items-center">
                         <div className="text-center">
                           <p className="text-2xl ">
-                            {item?.waste_collected_kg ?? "-"} Kgs
+                            {item?.waste_collected_kg || "-"} Kgs
                           </p>
                           <p className="text-xs text-gray-500">
                             Waste Collected
@@ -396,7 +407,7 @@ export const Robots = () => {
         ) : (
           <div className="flex flex-col justify-center items-center mt-[50px]">
             <img className="h-[130px] w-[130px]" src="/images/Robot-filter.png" />
-            <p className="text-gray-400 text-center ">
+            <p className="text-gray-400 text-center  " style={{ fontStyle: "italic" }}>
               “No robots to display yet. Please select a Division and Section to get started.”
             </p>
           </div>

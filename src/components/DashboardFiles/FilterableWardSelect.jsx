@@ -23,7 +23,7 @@ const FilterableWardSelect = ({ wardData, selectedWard, setSelectedWard, setSele
   };
 
   const handleOptionSelect = (option) => {
-    console.log(option)
+    // console.log(option)
     setSelectedWard(option);
     setSelectedManholeLocation("");
     setInputValue(option);
