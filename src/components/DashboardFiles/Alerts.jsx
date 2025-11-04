@@ -2,28 +2,28 @@
 import React, { useState } from 'react';
 import { TriangleAlert, ChevronDown, ChevronUp } from 'lucide-react';
 
- 
+
 const ZoneAlertItem = ({ zoneName, alerts, onManholeSelect }) => {
- 
+
   const [isExpanded, setIsExpanded] = useState(false);
- 
+
   const handleToggle = () => setIsExpanded(!isExpanded);
 
   return (
- 
-    <div className="bg-gray-50 rounded-lg mb-3 shadow-sm border border-gray-200">
- 
+    <div className="bg-gray-50 rounded
+ -lg mb-3 shadow-sm border border-gray-200  ">
+
       <div
         className="flex justify-between items-center p-3 cursor-pointer font-semibold"
         onClick={handleToggle}
       >
- 
-        <div className="flex items-center text-base">
+
+        <div className="flex items-center text-base w-[100%]">
           <span className="mr-2 text-red-600">
-            <TriangleAlert size={18} />  
+            <TriangleAlert size={18} />
           </span>
-          {zoneName} ({alerts.length})  
-        </div> 
+          {zoneName} ({alerts.length})
+        </div>
         <span className="text-gray-500">
           {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </span>
@@ -79,7 +79,7 @@ export default function Alerts({ alertData = [], onManholeSelect }) {
   // Display a message if there are no danger alerts for the selected ward
   if (!alertData || alertData.length === 0) {
     return (
-      <section className="p-4 font-sans text-gray-700 max-w-md mx-auto">
+      <section className="  w-full font-sans text-gray-700 max-w-md mx-auto ">
         <h3 className="text-sm text-gray-500 font-medium mb-4 pl-2">Zone Alerts</h3>
         <p className="text-center text-gray-500 mt-5">
           No danger alerts found for this ward.
@@ -91,7 +91,7 @@ export default function Alerts({ alertData = [], onManholeSelect }) {
   // Render the list of collapsible zone alerts
   return (
     <>
-      <section className="p-4 font-sans text-gray-700 max-w-md mx-auto">
+      <section className=" font-sans text-gray-700 max-w-md mx-auto">
         <h3 className="text-sm text-gray-500 font-medium mb-4 pl-2">Zone alerts</h3>
         {/* Map over the data grouped by zone */}
         {alertData.map((zoneData) => (

@@ -276,8 +276,21 @@ export const WardReportPopup = ({ reportData, onClose }) => {
               <InfoCard label="Date Range" value={data["Date Range"] || 'N/A'} />
             </div>
 
+
+         <div>
+            <div className="flex justify-evenly pb-[25px]">
+                <span className="p-2 items-center justify-center shadow-md bg-white rounded-[10px] flex flex-col"><img className="h-[220px]" src="/images/Hotspot.jpg"/><p>Hotspot</p></span>
+                <span className="p-2 items-center justify-center shadow-md bg-white rounded-[10px] flex flex-col"><img className="h-[220px]" src="/images/Landuse.jpg"/><p>Landuse</p></span>
+            </div>
+            <div className="flex justify-evenly pb-[25px]">
+                <span className="p-2 items-center justify-center shadow-md bg-white rounded-[10px] flex flex-col"><img className="h-[220px]" src="/images/SewageNetwork.png"/><p>Sewage Network</p></span>
+                <span className="p-2 items-center justify-center shadow-md bg-white rounded-[10px] flex flex-col"><img className="h-[220px]" src="/images/Surface.jpg"/><p>Surface</p></span>
+            </div>
+         </div>
+
+
             {/* Charts */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 mb-6">
               <ChartCard title="Manhole Condition Distribution" chartId="manholeConditionChart" chartRef={el => chartRefs.current.manholeConditionChart = el} />
               <ChartCard title="Land Use Distribution" chartId="landUseChart" chartRef={el => chartRefs.current.landUseChart = el} />
               <ChartCard title="Sewer Length by Area" chartId="sewerLengthChart" chartRef={el => chartRefs.current.sewerLengthChart = el} />
@@ -319,7 +332,7 @@ const InfoCard = ({ label, value }) => (
 );
 
 const ChartCard = ({ title, chartId, chartRef }) => (
-  <div className="bg-white border border-[#e5e7eb] rounded-lg shadow-sm p-4 h-64 flex flex-col">
+  <div className="bg-white border border-[#e5e7eb] rounded-lg shadow-sm p-4 h-74 flex flex-col">
     <h4 className="text-center font-semibold mb-2">{title}</h4>
     <div className="relative flex-grow">
       <canvas

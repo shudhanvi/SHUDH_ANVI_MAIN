@@ -36,6 +36,27 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
   const [showOperationPopup, setShowOperationPopup] = useState(false);
 
 
+  // ✅ Consistent Date & Time formatting (DD/MM/YYYY and 24-hour HH:mm:ss)
+const formatDate = (timestamp) => {
+  if (!timestamp) return "-";
+  const date = new Date(timestamp);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const formatTime = (timestamp) => {
+  if (!timestamp) return "-";
+  const date = new Date(timestamp);
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  return `${hours}:${minutes}:${seconds}`;
+};
+
+
+
   useEffect(() => {
     // Disable background scroll
     document.body.style.overflow = "hidden";
@@ -124,7 +145,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
               <div className="grid grid-cols-2 w-full text-start text-[14px] text-[#676D7E] mt-5 gap-y-6">
                 <span className="flex flex-row">
                   <Bot className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
-                  <span className="flex flex-col ml-2">
+                  <span className="flex flex-col ml-2 text-[14px]">
                     Device Id
                     <span className="text-[#21232C] text-[16px]">{currentRecord.device_id}</span>
                   </span>
@@ -133,21 +154,27 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                   <Calendar className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
                     Date
-                    <span className="text-[#21232C] text-[16px]">{new Date(currentRecord.timestamp).toLocaleDateString()}</span>
+<span className="text-[#21232C] text-[16px]">
+  {formatDate(currentRecord.timestamp)}
+</span>
                   </span>
                 </span>
                 <span className="flex flex-row">
                   <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
                     Starting Time
-                    <span className="text-[#21232C] text-[16px]">{new Date(currentRecord.timestamp).toLocaleTimeString()}</span>
+<span className="text-[#21232C] text-[16px]">
+  {formatTime(currentRecord.timestamp)}
+</span>
                   </span>
                 </span>
                 <span className="flex flex-row">
                   <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
                     Ending Time
-                    <span className="text-[#21232C] text-[16px]">{new Date(currentRecord.endtime).toLocaleTimeString()}</span>
+<span className="text-[#21232C] text-[16px]">
+  {formatTime(currentRecord.timestamp)}
+</span>
                   </span>
                 </span>
                 <span className="flex flex-row">
@@ -398,31 +425,52 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                 <h1 className="text-start text-[14px]"> Filter by Date Range </h1>
               </div>
               <div className="flex flex-row w-full justify-between mb-5 mt-3 gap-2">
-                <div className="text-start w-[45%] mt-2">
-                  <label className="block text-[16px] text-[#676D7E100] mb-1">From Date</label>
-                  <DatePicker
-                    selected={detailedFromDate}
-                    onChange={(date) => setDetailedFromDate(date)}
-                    dateFormat="dd-MM-yyyy"
-                    className="border border-gray-300 rounded-md p-2 w-full text-sm"
-                    placeholderText="Select From Date"
-                    maxDate={new Date()}
-                  />
+               <div className="text-start w-[45%] mt-2 relative">
+  <label className="block text-[16px] text-[#676D7E] mb-1">From Date</label>
+  <div className="relative">
+    <DatePicker
+      selected={detailedFromDate}
+      onChange={(date) => setDetailedFromDate(date)}
+      dateFormat="dd-MM-yyyy"
+      className="border border-gray-300 rounded-md p-2 w-full text-sm pr-8"
+      placeholderText="Select From Date"
+      maxDate={new Date()}
+    />
+    {detailedFromDate && (
+      <button
+        type="button"
+        onClick={() => setDetailedFromDate(null)}
+        className="absolute right-2 top- border text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
+      >
+        ✖
+      </button>
+    )}
+  </div>
+</div>
 
-                </div>
-                <div className="text-start w-[45%] mt-2">
-                  <label className="block text-[16px] text-[#676D7E100] mb-1">To Date</label>
-                  <DatePicker
-                    selected={detailedToDate}
-                    onChange={(date) => setDetailedToDate(date)}
-                    dateFormat="dd-MM-yyyy"
-                    className="border border-gray-300 rounded-md p-2 w-full text-sm"
-                    placeholderText="Select Date"
-                    maxDate={new Date()}
-                  />
+<div className="text-start w-[45%] mt-2 relative">
+  <label className="block text-[16px] text-[#676D7E] mb-1">To Date</label>
+  <div className="relative">
+    <DatePicker
+      selected={detailedToDate}
+      onChange={(date) => setDetailedToDate(date)}
+      dateFormat="dd-MM-yyyy"
+      className="border border-gray-300 rounded-md p-2 w-full text-sm pr-8"
+      placeholderText="Select To Date"
+      maxDate={new Date()}
+    />
+    {detailedToDate && (
+      <button
+        type="button"
+        onClick={() => setDetailedToDate(null)}
+        className="absolute right-2 top-8 border text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
+      >
+        ✖
+      </button>
+    )}
+  </div>
+</div>
 
-
-                </div>
                 <div>
                   <button
                     className="bg-[#1A8BA8] cursor-pointer text-white rounded-md h-10 text-sm px-6 mt-8.5 btn-hover"
@@ -485,22 +533,19 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
               }`}
             >
               <div>
-                <span className="mr-8">
+                <span className="mr-8 text-[14px]">
                   <CalendarIcon className="h-4 inline-block" />
-                  {new Date(history.timestamp).toLocaleDateString()}
+                 {formatDate(history.timestamp)}
+
                 </span>
-                <span className="mr-8">
+                <span className="mr-8 text-[14px]">
                   <ClockIcon className="h-4 inline-block" />
-                  {new Date(history.timestamp).toLocaleTimeString("en-GB", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    hour12: false,
-                  })}
+                  {formatTime(history.timestamp)}
+
                 </span>
               </div>
               <button
-                className="btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors bg-blue-500 text-white"
+                className="btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors text-[12px] bg-blue-500 text-white"
                 onClick={() => setSelectedHistory(history)}
               >
                 View More

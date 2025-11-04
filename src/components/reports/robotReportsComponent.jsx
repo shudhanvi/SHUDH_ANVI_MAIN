@@ -118,43 +118,55 @@ export const RobotReportsComponent = ({ division, section, city }) => {
   };
 
   // ✅ View report
-  const handleViewReport = async () => {
-    if (selectedRobots.length === 0) {
-      alert("Please select at least one robot.");
-      return;
-    }
+const handleViewReport = async () => {
+  if (selectedRobots.length === 0) {
+    alert("Please select at least one robot.");
+    return;
+  }
 
-    setIsLoading(true);
-    const payload = {
-      selectedRobots,
-      userInputs: {
-        division,
-        section,
-        city,
-        dateRange: { from: fromDate, to: toDate },
-      },
-      command: "generate_robot_report",
-    };
+  setIsLoading(true);
 
-    try {
-      const response = await fetch(backendApi.robotsReportUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-      const data = await response.json();
-      setReportData(data);
-      setShowPopup(true);
-    } catch (err) {
-      console.error("Error fetching report:", err);
-      alert(`Failed to fetch report: ${err.message}`);
-    } finally {
-      setIsLoading(false);
-    }
+  const payload = {
+    selectedRobots,
+    userInputs: {
+      division,
+      section,
+      city,
+      dateRange: { from: fromDate, to: toDate },
+    },
+    command: "generate_robot_report",
   };
+
+  try {
+    const response = await fetch(backendApi.robotsReportUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    // ✅ Check for non-success responses
+    if (!response.ok) {
+      if ( response.status === 500|| response.status === 404) {
+        // Custom message for 500 error
+        throw new Error("No data found in the given date range.");
+      } else {
+        throw new Error(`Server error: ${response.status}`);
+      }
+    }
+
+    // ✅ Parse and display report
+    const data = await response.json();
+    setReportData(data);
+    setShowPopup(true);
+
+  } catch (err) {
+    console.error("Error fetching report:", err);
+    alert(err.message || "Failed to fetch report. Please try again later.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <>
