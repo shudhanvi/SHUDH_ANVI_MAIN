@@ -440,7 +440,7 @@ const formatTime = (timestamp) => {
       <button
         type="button"
         onClick={() => setDetailedFromDate(null)}
-        className="absolute right-2 top-[10px] border text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
+        className="absolute right-2 top-[10px]  text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
       >
          ×
       </button>
@@ -463,9 +463,9 @@ const formatTime = (timestamp) => {
       <button
         type="button"
         onClick={() => setDetailedToDate(null)}
-        className="absolute right-2 top-8 border text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
+        className="absolute right-2 top-[10px]  text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
       >
-        ✖
+        ×
       </button>
     )}
   </div>
@@ -533,19 +533,19 @@ const formatTime = (timestamp) => {
               }`}
             >
               <div>
-                <span className="mr-8 text-[14px]">
+                <span className="mr-8 text-[16px]">
                   <CalendarIcon className="h-4 inline-block" />
                  {formatDate(history.timestamp)}
 
                 </span>
-                <span className="mr-8 text-[14px]">
+                <span className="mr-8 text-[16px]">
                   <ClockIcon className="h-4 inline-block" />
                   {formatTime(history.timestamp)}
 
                 </span>
               </div>
               <button
-                className="btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors text-[12px] bg-blue-500 text-white"
+                className="btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors text-[14px] bg-blue-500 text-white"
                 onClick={() => setSelectedHistory(history)}
               >
                 View More
