@@ -3,13 +3,13 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Bot, Calendar, MapPin, Search, FireExtinguisher } from "lucide-react";
 import { useServerData } from "../context/ServerDataContext";
-import { RobotPopupComponent } from "../components/robots/robotPopupComponent"; 
+import { RobotPopupComponent } from "../components/robots/robotPopupComponent";
 
 const userInputsObj = { division: "", section: "", fromDate: "", toDate: "" };
 const userInputsErrorObj = { division: false, section: false, fromDate: false, toDate: false };
 
 export const Robots = () => {
-  const { data, loading, message,refreshData } = useServerData();  // ✅ use new context data
+  const { data, loading, message, refreshData } = useServerData();  // ✅ use new context data
   const [inputError, setInputError] = useState(userInputsErrorObj);
   const [userInputs, setUserInputs] = useState(userInputsObj);
   const [MainData, setMainData] = useState([]);
@@ -52,14 +52,14 @@ export const Robots = () => {
       };
     });
   };
-  
-useEffect(() => {
-  const interval = setInterval(() => {
-    refreshData();
-  }, 60000); // every 60 seconds
 
-  return () => clearInterval(interval); // cleanup
-}, []);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     refreshData();
+  //   }, 60000); // every 60 seconds
+
+  //   return () => clearInterval(interval); // cleanup
+  // }, []);
 
 
   // ✅ Merge context data once available
@@ -70,27 +70,27 @@ useEffect(() => {
     setMainData(normalized);
   }, [data]);
 
-// Keep activeRobot in sync with latest MainData
-useEffect(() => {
-  if (!activeRobot) return;
+  // Keep activeRobot in sync with latest MainData
+  useEffect(() => {
+    if (!activeRobot) return;
 
-  // Find updated robot operations from MainData
-  const updatedOperations = MainData.filter(
-    (op) => op.device_id === activeRobot.device_id
-  );
-
-  if (updatedOperations.length > 0) {
-    const latestOp = updatedOperations.reduce(
-      (a, b) => new Date(a.timestamp) > new Date(b.timestamp) ? a : b,
-      updatedOperations[0]
+    // Find updated robot operations from MainData
+    const updatedOperations = MainData.filter(
+      (op) => op.device_id === activeRobot.device_id
     );
 
-    setActiveRobot({
-      ...latestOp,
-      operation_history: updatedOperations,
-    });
-  }
-}, [MainData]);
+    if (updatedOperations.length > 0) {
+      const latestOp = updatedOperations.reduce(
+        (a, b) => new Date(a.timestamp) > new Date(b.timestamp) ? a : b,
+        updatedOperations[0]
+      );
+
+      setActiveRobot({
+        ...latestOp,
+        operation_history: updatedOperations,
+      });
+    }
+  }, [MainData]);
 
   // Build division → section hierarchy
   const hierarchyData = useMemo(() => {
@@ -188,100 +188,100 @@ useEffect(() => {
     setShowFiltered(true);
   };
   const formatDate = (timestamp) => {
-  const date = new Date(timestamp);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-};
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
-const formatTime = (timestamp) => {
-  const date = new Date(timestamp);
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${hours}:${minutes}`;
-};
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
 
 
   // console.log("MainData:", MainData);
   return (
     <div className="w-full ">
       <section className="section1 border-b-[1.5px] border-[#E1E7EF] py-[10px] px-[30px] bg-white ">
-      <h1 className="text-[24px] font-bold">Robots</h1>
-      <p className="text-[14px] text-[#65758B]">Monitor and manage robot fleet</p>
+        <h1 className="text-[24px] font-bold">Robots</h1>
+        <p className="text-[14px] text-[#65758B]">Monitor and manage robot fleet</p>
       </section>
 
       {/* Filters */}
       <section className="flex justify-center h-auto w-full mt-6 ">
         <div className="flex  gap-[10px] justify-evenly p-[22px] pb-[26px] mx-[30px] rounded-xl border-[1.5px] border-[#E1E7EF]  items-center max-w-[2400px] w-[100%] bg-white ">
-         <div className="flex justify-evenly w-[85%] gap-[15px]">
-          {/* Division */}
-          <div className=" text-start relative w-[-webkit-fill-available] " >
-            <label className="block font-semibold mb-1">Division</label>
-            <div className="flex flex-col">
+          <div className="flex justify-evenly w-[85%] gap-[15px]">
+            {/* Division */}
+            <div className=" text-start relative w-[-webkit-fill-available] " >
+              <label className="block font-semibold mb-1">Division</label>
+              <div className="flex flex-col">
+                <select
+                  value={userInputs.division}
+                  onChange={(e) => handleInput("division", e.target.value)}
+                  className="border  border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm relative "
+                >
+                  <option value="">Select Division</option>
+                  {divisions.map((div) => (
+                    <option key={div} value={div}>
+                      {div}
+                    </option>
+                  ))}
+                </select>
+                <span className="absolute bottom-[-20px] ">{inputError.division && (
+                  <span className="text-red-500 text-xs mt-1 ml-2">
+                    *Division required
+                  </span>
+                )}</span>
+              </div>
+            </div>
+
+            {/* Section */}
+            <div className=" text-start w-[-webkit-fill-available]" >
+              <label className="block font-semibold mb-1">Section</label>
               <select
-                value={userInputs.division}
-                onChange={(e) => handleInput("division", e.target.value)}
-                className="border  border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm relative "
+                value={userInputs.section}
+                onChange={(e) => handleInput("section", e.target.value)}
+                className="border border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm"
               >
-                <option value="">Select Division</option>
-                {divisions.map((div) => (
-                  <option key={div} value={div}>
-                    {div}
+                <option value="">Select Section</option>
+                {sections.map((sec) => (
+                  <option key={sec} value={sec}>
+                    {sec}
                   </option>
                 ))}
               </select>
-              <span className="absolute bottom-[-20px] ">{inputError.division && (
-                <span className="text-red-500 text-xs mt-1 ml-2">
-                  *Division required
-                </span>
-              )}</span>
+            </div>
+
+            {/* From Date */}
+            <div className=" text-start relative w-[-webkit-fill-available]">
+              <label className="block font-semibold mb-1">From Date</label>
+              <DatePicker
+                selected={userInputs.fromDate}
+                onChange={(date) => handleInput("fromDate", date)}
+                className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
+                placeholderText="Pick a date"
+                maxDate={new Date()}
+              />
+              <Calendar className="absolute top-8 right-2 text-gray-600" />
+            </div>
+
+            {/* To Date */}
+            <div className=" text-start relative w-[-webkit-fill-available]">
+              <label className="block font-semibold mb-1">To Date</label>
+              <DatePicker
+                selected={userInputs.toDate}
+                onChange={(date) => handleInput("toDate", date)}
+                className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
+                placeholderText="Pick a date"
+                maxDate={new Date()}
+              />
+              <Calendar className="absolute top-8 right-2 text-gray-600" />
             </div>
           </div>
-
-          {/* Section */}
-          <div className=" text-start w-[-webkit-fill-available]" >
-            <label className="block font-semibold mb-1">Section</label>
-            <select
-              value={userInputs.section}
-              onChange={(e) => handleInput("section", e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-full min-w-[150px] text-sm"
-            >
-              <option value="">Select Section</option>
-              {sections.map((sec) => (
-                <option key={sec} value={sec}>
-                  {sec}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* From Date */}
-          <div className=" text-start relative w-[-webkit-fill-available]">
-            <label className="block font-semibold mb-1">From Date</label>
-            <DatePicker
-              selected={userInputs.fromDate}
-              onChange={(date) => handleInput("fromDate", date)}
-              className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
-              placeholderText="Pick a date"
-              maxDate={new Date()}
-            />
-            <Calendar className="absolute top-8 right-2 text-gray-600" />
-          </div>
-
-          {/* To Date */}
-          <div className=" text-start relative w-[-webkit-fill-available]">
-            <label className="block font-semibold mb-1">To Date</label>
-            <DatePicker
-              selected={userInputs.toDate}
-              onChange={(date) => handleInput("toDate", date)}
-              className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
-              placeholderText="Pick a date"
-              maxDate={new Date()}
-            />
-            <Calendar className="absolute top-8 right-2 text-gray-600" />
-          </div>
-</div>
           {/* Button */}
           <div className="">
             <button
@@ -350,13 +350,13 @@ const formatTime = (timestamp) => {
                             <Calendar className="inline-block w-3 h-4 mr-2 mb-1" />
                             Last operation:{" "}
                             {item?.latestTimestamp ? (
-  <>
-    <span>{formatDate(item.latestTimestamp)}</span>
-    
-  </>
-) : (
-  "-"
-)}
+                              <>
+                                <span>{formatDate(item.latestTimestamp)}</span>
+
+                              </>
+                            ) : (
+                              "-"
+                            )}
 
                           </p>
                           <p className="flex items-center mb-2">
@@ -364,9 +364,9 @@ const formatTime = (timestamp) => {
                             Gas status:{" "}
                             {item.gas_status
                               ? item.gas_status
-                                  .charAt(0)
-                                  .toUpperCase() +
-                                item.gas_status.slice(1).toLowerCase()
+                                .charAt(0)
+                                .toUpperCase() +
+                              item.gas_status.slice(1).toLowerCase()
                               : "N/A"}
                           </p>
                           <p className="flex items-center mb-2">
@@ -406,10 +406,10 @@ const formatTime = (timestamp) => {
           )
         ) : (
           <div className="flex flex-col justify-center items-center mt-[50px]">
-            <img className="h-[130px] w-[130px]" src="/images/Robot-filter.png"/>
-          <p className="text-gray-400 text-center  " style={{ fontStyle: "italic" }}>
-            “No robots to display yet. Please select a Division and Section to get started.”
-          </p>
+            <img className="h-[130px] w-[130px]" src="/images/Robot-filter.png" />
+            <p className="text-gray-400 text-center  " style={{ fontStyle: "italic" }}>
+              “No robots to display yet. Please select a Division and Section to get started.”
+            </p>
           </div>
         )}
 
