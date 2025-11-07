@@ -11,9 +11,9 @@ import WardDetailsPopUp from "./WardDetailsPopUp";
 
 const mapStyles = [
 
-  { url: "mapbox://styles/shubhamgv/cmdr5g1b2000c01sd8h0y6awy", img: "/images/street.png" },
-  { url: "mapbox://styles/shubhamgv/cmggj327600ke01pd15kqh8v6", img: "/images/Satilight.png" },
-  { url: "mapbox://styles/shubhamgv/cmh5vh70d001q01qvhqhwh5b9", img: "/images/diameter.png" },
+  { url: "mapbox://styles/shubhamgv/cmdr5g1b2000c01sd8h0y6awy", img: "/images/street.png" ,name: "Street"},
+  { url: "mapbox://styles/shubhamgv/cmggj327600ke01pd15kqh8v6", img: "/images/Satilight.png", name: "Satellite" },
+  { url: "mapbox://styles/shubhamgv/cmh5vh70d001q01qvhqhwh5b9", img: "/images/diameter.png", name: "Diameter" },
 ];
 
 
@@ -450,7 +450,22 @@ const MapComponent = () => {
           <div className="absolute right-2 top-10 z-[500] group mt-3">
             <button className=" bg-[#eee] font-extralight  border cursor-pointer border-gray-300 shadow-md rounded-md w-12 h-7 mr-2 flex items-center justify-center hover:bg-[#fff] transition duration-300 opacity-80"> <Map /> </button>
             <div className="absolute top-full mt-1 left--4 grid grid-rows-3 gap-1 w-13.5 rounded-md overflow-hidden transform scale-y-0 opacity-0 origin-top transition-all duration-200 group-hover:scale-y-100 group-hover:opacity-100">
-              {mapStyles.map((style) => (<button key={style.url} onClick={() => handleStyleChange(style.url)} className={` w-12 h-12 border-2 rounded-md overflow-hidden transition-all duration-150 cursor-pointer ${mapStyle === style.url ? "border-blue-500" : "border-transparent hover:border-gray-400"}`}> <img src={style.img} alt={style.url} className="w-full h-full object-cover" /> </button>))}
+              {mapStyles.map((style) => (<button
+      key={style.url}
+      onClick={() => handleStyleChange(style.url)}
+      className={`flex flex-col items-center w-12 border-2 bg-white rounded-md overflow-hidden transition-all duration-150 cursor-pointer ${
+        mapStyle === style.url
+          ? "border-blue-500"
+          : "border-transparent hover:border-gray-400"
+      }`}
+    >
+      <img
+        src={style.img}
+        alt={style.name}
+        className="w-16 h-10 object-cover"
+      />
+      <span className="text-[10px] text-gray-700 mt-0">{style.name}</span>
+    </button>))}
             </div>
           </div>
           {/* --- CORE MAP COMPONENT --- */}

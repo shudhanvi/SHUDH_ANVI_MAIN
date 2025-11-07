@@ -108,7 +108,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
           <div className="flex flex-col justify-center relative align-middle gap-2 text-white text-left">
             <h1 className="text-xl font-bold ">{`Ward: ${area_name}`}</h1>
             <p className="text-[12px]">{`Division :${zone}`}</p>
-            <button
+            {/* <button
               type="button"
               className="btn-hover cursor-pointer"
               style={{
@@ -122,12 +122,12 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
               onClick={() => handleOpenReport()}
             >
               Generate Report
-            </button>
+            </button> */}
 
           </div>
           <button
             onClick={() => setSelectedWard("All")}
-            className="absolute cursor-pointer top-5 right-2  text-black hover:text-gray-800 hover:rotate-180 transition-all duration-110"
+            className="absolute cursor-pointer top-5 right-6  text-black hover:text-gray-800 hover:rotate-180 transition-all duration-110"
           >
             <span className="text-2xl font-bold">&#x2715;</span>
           </button>
