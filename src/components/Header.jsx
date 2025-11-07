@@ -11,14 +11,14 @@ export const Header = () => {
       <div className="h-[100px] max-w-full px-[60px] flex justify-between items-center py-[20px]">
         <div className="flex items-center">
           <img
-            src="/anvi-robotics-logo.png"
-            alt="anvi-robotics-logo"
-            className="max-w-[150px] h-[80px] object-cover"
+            src="/Primary.png"
+            alt="Primary.png"
+            className="max-w-[160px] h-[80px] object-cover"
           />
         </div>
 
         <div className="flex flex-row m-auto">
-          <h1 className="font-[Merriweather] text-[26px]">PROJECT  SHUDH</h1>
+          <h1 className="font-[Merriweather] text-[26px]">PROJECT SHUDH</h1>
         </div>
 
         <div className="flex items-center gap-[10px]">
