@@ -193,10 +193,10 @@ const ManholePopUp = ({
         </div>
 
         {/* Separated Water Level Display Box (Optional) */}
-        <div className="px-2 py-2 m-2 rounded-md border flex place-content-center">
-              <h4 className="font-[400] grid grid-cols-2">
-                 Live Water Level:{" "}
-                 <span className="font-[500] text-right text-[#0A0A0A]">
+        <div className="px-2 py-2 m-2 rounded-md border flex place-content-center gap-5 grid-col-2">
+              <h4 className="font-[400] grid grid-cols-2 ">
+                 Water Level:{" "}
+                 <span className="font-[500] text-right text-[#0A0A0A]  items-end">
                     {displayBlynkWaterLevel()}
                  </span>{" "}
              </h4>
@@ -217,18 +217,18 @@ const ManholePopUp = ({
 
       {/* Buttons Footer */}
       <div className="w-full flex justify-around items-center gap-2 my-0 px-4 py-3 border-t border-gray-200 flex-shrink-0 bg-white">
-        <button
+        {/* <button
           onClick={() => onGenerateReport("maintenance")}
           className="manhole-popup-btn w-1/2 text-[10px] whitespace-nowrap self-center border border-[#16A249] text-[#16A249] hover:text-white hover:bg-[#16A249] px-6 py-2 rounded-lg font-medium cursor-pointer btn-hover transition-all"
         >
           Generate Report
-        </button>
+        </button> */}
         <button
           onClick={() => {
             onClose();
             alert("Bot assignment requested."); // Consider using a less disruptive notification
           }}
-          className="manhole-popup-btn w-1/2 text-[10px] whitespace-nowrap self-center bg-[#1E9AB0] text-white px-6 py-2 rounded-lg font-medium cursor-pointer btn-hover transition-all duration-120"
+          className="manhole-popup-btn w-full text-[12px] whitespace-nowrap self-center bg-[#1E9AB0] text-white px-6 py-3  rounded-lg font-medium cursor-pointer btn-hover transition-all duration-120"
         >
           Assign a Bot
         </button>
