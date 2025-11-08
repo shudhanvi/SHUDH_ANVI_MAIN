@@ -1,52 +1,22 @@
+
 export const backendApi = {
-    // baseUrl: "http://192.168.1.38:8000",
-    // analyze: "http://192.168.1.38:8000/analytics/analyze",
-    // manholesReportUrl: "http://192.168.1.38:8000/analytics/analyze/manholes",
-    // robotsReportUrl: "http://192.168.1.38:8000/analytics/analyze/robot",
-    // wardsReportUrl: "http://192.168.1.38:8000/analytics/analyze/ward",
+    // baseUrl: "http://192.168.1.35:8080",
+    // baseUrl: "http://10.102.189.129:8080",
+    // baseUrl: "https://shudh-all-backend.onrender.com",
+    // baseUrl: " https://sewage-fast-backend-295884782547.us-central1.run.app",
+    baseUrl: "https://shudh-all-backend-docker-295884782547.asia-south1.run.app/"
+};
 
-    
-    // baseUrl: "http://192.168.1.38:5001",
-    // analyze: "http://192.168.1.38:5001/api/analyze",
-    // manholesReportUrl: "http://192.168.1.38:5001/api/analyze/manhole",
-    // robotsReportUrl: "http://192.168.1.38:5001/api/analyze/robot",
-    // wardsReportUrl: "http://192.168.1.38:5001/api/analyze/ward",
-    // operations: "http://192.168.1.38:5001/api/analyze/operations",
+backendApi.analyze = `${backendApi.baseUrl}/analytics/analyze`;
+backendApi.manholesReportUrl = `${backendApi.baseUrl}/analytics/analyze/manholes`;
+backendApi.robotsReportUrl =`${backendApi.baseUrl}/analytics/analyze/robots`;
+backendApi.wardsReportUrl = `${backendApi.baseUrl}/analytics/analyze/ward`;
+backendApi.manholeData = `${backendApi.baseUrl}/database/table/ManHoles_Data`;
+backendApi.robotData = `${backendApi.baseUrl}/database/table/Robo_Operations`;
+backendApi.mhData = `${backendApi.baseUrl}/database/table/ManHoles_Data_MH`;
+backendApi.operationsdata = `${backendApi.baseUrl}/database/table/operations`;
+backendApi.warddata = `${backendApi.baseUrl}/database/table/Ward_Coordinates`;
 
-    // {render-old backend}
-
-    // baseUrl: "https://shudh-fastapi-backend-1.onrender.com",
-    // analyze: "https://shudh-fastapi-backend-1.onrender.com/api/analyze",
-    // manholesReportUrl: "https://shudh-fastapi-backend-1.onrender.com/api/analyze/manholes",
-    // robotsReportUrl: "https://shudh-fastapi-backend-1.onrender.com/api/analyze/robot",
-    // wardsReportUrl: "https://shudh-fastapi-backend-1.onrender.com/api/analyze/ward",
-    // operations: "https://shudh-fastapi-backend-1.onrender.com/api/analyze/operations",
-
-    // {Render-new backend}
-    baseUrl: "https://shudh-all-backend.onrender.com",
-    analyze: "https://shudh-all-backend.onrender.com/analytics/analyze",
-    manholesReportUrl: "https://shudh-all-backend.onrender.com/analytics/analyze/manholes",
-    robotsReportUrl: "https://shudh-all-backend.onrender.com/analytics/analyze/robots",
-    wardsReportUrl: "https://shudh-all-backend.onrender.com/analytics/analyze/ward",
-    manholeData:"https://shudh-all-backend.onrender.com/database/table/ManHoles_Data",
-    robotData:"https://shudh-all-backend.onrender.com/database/table/Robo_Operations",
-    mhData:"https://shudh-all-backend.onrender.com/database/table/ManHoles_Data_MH",
-    operationsdata:"https://shudh-all-backend.onrender.com/database/table/operations",
-    warddata:"https://shudh-all-backend.onrender.com/database/table/Ward_Coordinates",
-     
-
-
-    // operations: "https://shudh-all-backend.onrender.com/analytics/analyze/operations",
-    // https://shudh-all-backend.onrender.com
-
-
-    // baseUrl: "http://192.168.1.38:8000",
-    // analyze: "http://192.168.1.38:8000/analytics/analyze",
-    // manholesReportUrl: "http://192.168.1.38:8000/analytics/analyze/manholes",
-    // robotsReportUrl: "http://192.168.1.38:8000/analytics/analyze/robots",
-    // wardsReportUrl: "http://192.168.1.38:8000/analytics/analyze/ward",
-
-}
 
 const Url = {
     waterlevel: "https://blynk.cloud/external/api/get?token=uIoyHjYevzfdrBa0gYu-VYfuFqFurr6q&dataStreamId=2",
