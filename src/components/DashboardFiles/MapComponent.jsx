@@ -101,8 +101,8 @@ const MapComponent = () => {
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
     // Logic is now correct
-    if (diffDays >= 10) return "danger";
-    if (diffDays >= 7) return "warning";
+    if (diffDays >= 20) return "danger";
+    if (diffDays >= 10) return "warning";
     return "safe";
   }, []); // No dependencies needed
 
@@ -147,6 +147,71 @@ const MapComponent = () => {
     };
   }, [getManholeStatus]);
 
+// // --- 1. NEW useEffect: Fetches your LOCAL manhole json ---
+//   useEffect(() => {
+//     const fetchLocalManholeData = async () => {
+//       try {
+//         // Make sure this file is in /public/datafiles/CSVs/csvjson.json
+//         const res = await fetch("/datafiles/CSVs/csvjson.json");
+        
+//         if (!res.ok) {
+//           throw new Error(`Failed to fetch local JSON: ${res.statusText}`);
+//         }
+        
+//         const manholeData = await res.json();
+
+//         // This is your original processing logic, now applied to the fetched data
+//         if (manholeData && Array.isArray(manholeData)) {
+//           setAllManholeData(manholeData);
+//           const uniqueDivisions = [...new Set(manholeData.map((row) => row.division))].filter(Boolean).sort();
+//           setDivisionList(["All", ...uniqueDivisions]);
+//         } else {
+//           console.warn("Fetched JSON: Data is not in the expected array format.");
+//           setAllManholeData([]);
+//           setDivisionList(["All"]);
+//         }
+
+//       } catch (err) {
+//         console.error("Error fetching local manhole data:", err);
+//         setAllManholeData([]);
+//         setDivisionList(["All"]);
+//       }
+//     };
+
+//     fetchLocalManholeData();
+//   }, []); // The empty [] array means this runs ONCE when the component mounts.
+
+
+//   // --- 2. MODIFIED useEffect: Processes data from your CONTEXT ---
+//   useEffect(() => {
+//     // Only process data if loading is done, there's no error, and data exists
+//     if (!loading && data) {
+      
+//       // 1. ManholeData processing is GONE from here (it's handled above)
+
+//       // 2. Process Ward Coordinates Data (This part STAYS)
+//       if (data.WardData && Array.isArray(data.WardData)) {
+        
+//         const allRows = data.WardData;
+//         // ... (all your existing logic for parsing WardData) ...
+//         // ... (groupedCoords, detailsMap, etc.) ...
+//         // ...
+        
+//         // Assuming your parsing logic results in these variables
+//         // setWardPolygons(groupedCoords); 
+//         // setWardDetailsMap(detailsMap);
+        
+//         console.log("Context: WardData processed.");
+        
+//       } else {
+//         console.warn("Context: 'WardData' is missing or not an array.");
+//         setWardPolygons({});
+//         setWardDetailsMap({});
+//       }
+//     }
+    
+//     // This still depends on the context data
+//   }, [data, loading]);
   useEffect(() => {
     // Only process data if loading is done, there's no error, and data exists
     if (!loading && data) {
@@ -358,41 +423,94 @@ const MapComponent = () => {
     setFilteredManholeGeoJSON(generateManholeGeoJSON(filtered));
   }, [selectedDivision, selectedAreaName, selectedZone, allManholeData, generateManholeGeoJSON]);
 
-  // --- EFFECT TO PREPARE WARD POLYGON & TRIGGER ZOOM ---
+  // --- EFFECT TO PREPARE WARD POLYGON & TRIGGER ZOOM ---// --- EFFECT TO PREPARE WARD POLYGON & TRIGGER ZOOM ---
   useEffect(() => {
-    if (Object.keys(wardPolygons).length === 0) { return; }
+    // Exit if no polygons are loaded AND no manholes are filtered (e.g., on initial load)
+    if (Object.keys(wardPolygons).length === 0 && (!filteredManholeGeoJSON || filteredManholeGeoJSON.features.length === 0)) {
+       return; 
+    }
+    
+    // Exit if no ward is selected
     if (!selectedAreaName || selectedAreaName === "All") {
       setActiveWardGeoJSON(null);
       return;
     }
+
     const normalized = String(selectedAreaName).trim().toLowerCase();
     const matchKey = Object.keys(wardPolygons).find(k => k.trim().toLowerCase() === normalized);
-    if (!matchKey) { console.warn("No polygon found for area:", selectedAreaName); setActiveWardGeoJSON(null); return; }
-    const coords = wardPolygons[matchKey];
-    if (!Array.isArray(coords) || coords.length < 4) { console.warn("Insufficient coords for polygon:", matchKey, coords); setActiveWardGeoJSON(null); return; }
-    const geojson = { type: "Feature", geometry: { type: "Polygon", coordinates: [coords] }, properties: { name: matchKey } };
-    setActiveWardGeoJSON(geojson);
-    try {
-      const bounds = new mapboxgl.LngLatBounds();
-      let validCoordsFound = false;
-      coords.forEach((c, index) => {
-        if (Array.isArray(c) && c.length === 2 && typeof c[0] === 'number' && !isNaN(c[0]) && typeof c[1] === 'number' && !isNaN(c[1])) {
-          bounds.extend(c);
-          validCoordsFound = true;
-        } else {
-          console.warn(`Invalid coordinate pair at index ${index} for ward "${selectedAreaName}":`, c);
-        }
-      });
-      if (validCoordsFound) {
-        setFlyToLocation({ bounds: bounds, padding: 40 });
-      } else {
-        console.warn("❌ No valid coordinates found for ward:", selectedAreaName, " Skipping zoom.");
+
+    if (matchKey) {
+      // --- PRIMARY LOGIC: Polygon exists, zoom to it ---
+      const coords = wardPolygons[matchKey];
+      if (!Array.isArray(coords) || coords.length < 4) { 
+        console.warn("Insufficient coords for polygon:", matchKey, coords); 
+        setActiveWardGeoJSON(null); 
+        return; // Invalid polygon, stop here
       }
-    } catch (error) {
-      console.error("Error creating or extending bounds:", error);
-      setActiveWardGeoJSON(null);
+
+      const geojson = { type: "Feature", geometry: { type: "Polygon", coordinates: [coords] }, properties: { name: matchKey } };
+      setActiveWardGeoJSON(geojson);
+      
+      try {
+        const bounds = new mapboxgl.LngLatBounds();
+        let validCoordsFound = false;
+        coords.forEach((c, index) => {
+          if (Array.isArray(c) && c.length === 2 && typeof c[0] === 'number' && !isNaN(c[0]) && typeof c[1] === 'number' && !isNaN(c[1])) {
+            bounds.extend(c);
+            validCoordsFound = true;
+          } else {
+            console.warn(`Invalid coordinate pair at index ${index} for ward "${selectedAreaName}":`, c);
+          }
+        });
+
+        if (validCoordsFound) {
+          setFlyToLocation({ bounds: bounds, padding: 40 });
+        } else {
+          console.warn("❌ No valid coordinates found for ward polygon:", selectedAreaName, " Skipping zoom.");
+        }
+      } catch (error) {
+        console.error("Error creating or extending polygon bounds:", error);
+        setActiveWardGeoJSON(null);
+      }
+    } else {
+      // --- FALLBACK LOGIC: No polygon found, try to zoom to manholes ---
+      console.warn("No polygon found for area:", selectedAreaName, ". Attempting to zoom to manholes.");
+      setActiveWardGeoJSON(null); // Ensure no old polygon is shown
+
+      if (filteredManholeGeoJSON && filteredManholeGeoJSON.features.length > 0) {
+        console.log(`Found ${filteredManholeGeoJSON.features.length} manholes to zoom to.`);
+        try {
+          const manholeBounds = new mapboxgl.LngLatBounds();
+          let validManholeCoordsFound = false;
+
+          filteredManholeGeoJSON.features.forEach(feature => {
+            const coords = feature.geometry.coordinates; // [lon, lat]
+            if (Array.isArray(coords) && coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+              manholeBounds.extend(coords);
+              validManholeCoordsFound = true;
+            }
+          });
+
+          if (validManholeCoordsFound) {
+            if (filteredManholeGeoJSON.features.length === 1) {
+              // If only one manhole, just center on it with a high zoom
+              setFlyToLocation({ center: filteredManholeGeoJSON.features[0].geometry.coordinates, zoom: 18 });
+            } else {
+              // Otherwise, fit all manholes in view
+              setFlyToLocation({ bounds: manholeBounds, padding: 40 });
+            }
+          } else {
+             console.warn("No valid coordinates found for manholes in ward:", selectedAreaName);
+          }
+        } catch (error) {
+           console.error("Error creating bounds for manholes:", error);
+        }
+      } else {
+        console.warn("No manholes found to zoom to for ward:", selectedAreaName);
+      }
     }
-  }, [selectedAreaName, wardPolygons]);
+  // Add filteredManholeGeoJSON to the dependency array
+  }, [selectedAreaName, wardPolygons, filteredManholeGeoJSON]);
 
   // --- DERIVED STATE FOR POPUPS ---
   const alertData = useMemo(() => {
