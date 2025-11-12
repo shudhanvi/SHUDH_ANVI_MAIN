@@ -101,8 +101,8 @@ const MapComponent = () => {
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
     // Logic is now correct
-    if (diffDays >= 10) return "danger";
-    if (diffDays >= 7) return "warning";
+    if (diffDays >= 20) return "danger";
+    if (diffDays >= 10) return "warning";
     return "safe";
   }, []); // No dependencies needed
 
@@ -147,6 +147,71 @@ const MapComponent = () => {
     };
   }, [getManholeStatus]);
 
+// // --- 1. NEW useEffect: Fetches your LOCAL manhole json ---
+//   useEffect(() => {
+//     const fetchLocalManholeData = async () => {
+//       try {
+//         // Make sure this file is in /public/datafiles/CSVs/csvjson.json
+//         const res = await fetch("/datafiles/CSVs/csvjson.json");
+        
+//         if (!res.ok) {
+//           throw new Error(`Failed to fetch local JSON: ${res.statusText}`);
+//         }
+        
+//         const manholeData = await res.json();
+
+//         // This is your original processing logic, now applied to the fetched data
+//         if (manholeData && Array.isArray(manholeData)) {
+//           setAllManholeData(manholeData);
+//           const uniqueDivisions = [...new Set(manholeData.map((row) => row.division))].filter(Boolean).sort();
+//           setDivisionList(["All", ...uniqueDivisions]);
+//         } else {
+//           console.warn("Fetched JSON: Data is not in the expected array format.");
+//           setAllManholeData([]);
+//           setDivisionList(["All"]);
+//         }
+
+//       } catch (err) {
+//         console.error("Error fetching local manhole data:", err);
+//         setAllManholeData([]);
+//         setDivisionList(["All"]);
+//       }
+//     };
+
+//     fetchLocalManholeData();
+//   }, []); // The empty [] array means this runs ONCE when the component mounts.
+
+
+//   // --- 2. MODIFIED useEffect: Processes data from your CONTEXT ---
+//   useEffect(() => {
+//     // Only process data if loading is done, there's no error, and data exists
+//     if (!loading && data) {
+      
+//       // 1. ManholeData processing is GONE from here (it's handled above)
+
+//       // 2. Process Ward Coordinates Data (This part STAYS)
+//       if (data.WardData && Array.isArray(data.WardData)) {
+        
+//         const allRows = data.WardData;
+//         // ... (all your existing logic for parsing WardData) ...
+//         // ... (groupedCoords, detailsMap, etc.) ...
+//         // ...
+        
+//         // Assuming your parsing logic results in these variables
+//         // setWardPolygons(groupedCoords); 
+//         // setWardDetailsMap(detailsMap);
+        
+//         console.log("Context: WardData processed.");
+        
+//       } else {
+//         console.warn("Context: 'WardData' is missing or not an array.");
+//         setWardPolygons({});
+//         setWardDetailsMap({});
+//       }
+//     }
+    
+//     // This still depends on the context data
+//   }, [data, loading]);
   useEffect(() => {
     // Only process data if loading is done, there's no error, and data exists
     if (!loading && data) {

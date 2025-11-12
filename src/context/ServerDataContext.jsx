@@ -8,7 +8,7 @@ export const ServerDataProvider = ({ children }) => {
   const [data, setData] = useState({
     ManholeData: [],
     RobotsData: [],
-    MHData: [],
+    // MHData: [],
     WardData: [],
     OperationsData: [],
   });
@@ -34,10 +34,11 @@ export const ServerDataProvider = ({ children }) => {
     await Promise.all([
       fetchData(backendApi.manholeData, "ManholeData"),
       fetchData(backendApi.robotData, "RobotsData"),
-      fetchData(backendApi.mhData, "MHData"),
+      // fetchData(backendApi.mhData, "MHData"),
       fetchData(backendApi.warddata, "WardData"),
       fetchData(backendApi.operationsdata, "OperationsData"),
     ]);
+ 
     setMessage(null);
     setLoading(false);
   };
