@@ -60,6 +60,33 @@ const MapComponent = () => {
   };
 
   // --- Inside your React component ---
+  /**
+ * Cleans raw database names for display in the UI.
+ * - "Division 15(durgam cheruvu )" -> "durgam cheruvu"
+ * - "SR nagar (6)" -> "SR nagar"
+ * - "kukatpally (9)" -> "kukatpally"
+ */
+const getDisplayName = (rawName) => {
+  if (typeof rawName !== 'string') return rawName;
+
+  const match = rawName.match(/\(([^)]+)\)/); // Find text in ( )
+
+  if (match && match[1]) {
+    const textInside = match[1];
+    
+    // Check if the text inside parentheses contains letters
+    if (/[a-zA-Z]/.test(textInside)) {
+      // Use text inside: "Division 15(durgam cheruvu )" -> "durgam cheruvu"
+      return textInside.trim();
+    } else {
+      // Use text outside: "SR nagar (6)" -> "SR nagar"
+      return rawName.split('(')[0].trim();
+    }
+  }
+
+  // No parentheses, just return the name trimmed
+  return rawName.trim();
+};
 
   /**
    * Calculates the manhole status based on the last operation date.
@@ -220,7 +247,9 @@ const MapComponent = () => {
  
         setAllManholeData(data.ManholeData);
         // Use lowercase 'division' (matching sample data)
-        const uniqueDivisions = [...new Set(data.ManholeData.map((row) => row.division))].filter(Boolean).sort();
+        let uniqueDivisions = [...new Set(data.ManholeData.map((row) => row.division))].filter(Boolean).sort();
+        uniqueDivisions = [...uniqueDivisions.splice(1), uniqueDivisions[0]]
+        console.log("uniqueDivisions : ", uniqueDivisions)
         setDivisionList(["All", ...uniqueDivisions]);
       } else {
         console.warn("Context: 'ManholeData' is missing or not an array.");
@@ -557,10 +586,46 @@ const MapComponent = () => {
             <input type="number" placeholder="Latitude.." value={latInput} onChange={(e) => setLatInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]" />
             <input type="number" placeholder="Longitude.." value={lonInput} onChange={(e) => setLonInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]" />
             <button onClick={handleJumpToLocation} className="btn-blue btn-hover text-sm ml-3" style={{ paddingBlock: "6px", borderRadius: "8px" }}>Go</button>
-            <select value={selectedDivision} onChange={(event) => handleDivisionChange(event.target.value)} className="hover:shadow-md border cursor-pointer border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]"> <option value="All">Select Division</option> {divisionList.filter(d => d !== "All").map((division, idx) => (<option key={idx} value={division}>{division}</option>))} </select>
-            <select value={selectedAreaName} onChange={(event) => handleAreaNameChange(event.target.value)} disabled={selectedDivision === "All"} className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]"> <option value="All">Select Ward</option> {areaNameList.filter(a => a !== "All").map((area, idx) => (<option key={idx} value={area}>{area}</option>))} </select>
-            <select value={selectedZone} onChange={(event) => handleZoneChange(event.target.value)} disabled={selectedAreaName === "All"} className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[160px]"> <option value="All">Select Zone</option> {zoneList.filter(z => z !== "All").map((zone, idx) => (<option key={idx} value={zone}>{zone}</option>))} </select>
-          </div>
+           <select 
+    value={selectedDivision} 
+    onChange={(event) => handleDivisionChange(event.target.value)} 
+    className="hover:shadow-md border cursor-pointer border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]"
+  >
+    <option value="All">Select Division</option>
+    {divisionList.filter(d => d !== "All").map((division, idx) => (
+      <option key={idx} value={division}>
+        {getDisplayName(division)} {/* <-- CHANGED THIS LINE */}
+      </option>
+    ))}
+  </select>
+  
+  <select 
+    value={selectedAreaName} 
+    onChange={(event) => handleAreaNameChange(event.target.value)} 
+    disabled={selectedDivision === "All"} 
+    className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]"
+  >
+    <option value="All">Select Ward</option>
+    {areaNameList.filter(a => a !== "All").map((area, idx) => (
+      <option key={idx} value={area}>
+        {getDisplayName(area)} {/* <-- APPLIED SAME LOGIC HERE */}
+      </option>
+    ))}
+  </select>
+  
+  <select 
+    value={selectedZone} 
+    onChange={(event) => handleZoneChange(event.target.value)} 
+    disabled={selectedAreaName === "All"} 
+    className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[160px]"
+  >
+    <option value="All">Select Zone</option>
+    {zoneList.filter(z => z !== "All").map((zone, idx) => (
+      <option key={idx} value={zone}>
+        {getDisplayName(zone)} {/* <-- APPLIED SAME LOGIC HERE */}
+      </option>
+    ))}
+  </select></div>
         </div>
         {/* --- Map Container --- */}
         <div className="map-box relative rounded-lg overflow-hidden border border-gray-300" style={{ height: "445.52px", opacity: 1 }}>

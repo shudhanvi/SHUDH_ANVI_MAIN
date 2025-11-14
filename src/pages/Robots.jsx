@@ -26,6 +26,34 @@ export const Robots = () => {
     });
   };
 
+  /**
+ * Cleans raw database names for display in the UI.
+ * - "Division 15(durgam cheruvu )" -> "durgam cheruvu"
+ * - "SR nagar (6)" -> "SR nagar"
+ * - "kukatpally (9)" -> "kukatpally"
+ */
+const getDisplayName = (rawName) => {
+  if (typeof rawName !== 'string') return rawName;
+
+  const match = rawName.match(/\(([^)]+)\)/); // Find text in ( )
+
+  if (match && match[1]) {
+    const textInside = match[1];
+    
+    // Check if the text inside parentheses contains letters
+    if (/[a-zA-Z]/.test(textInside)) {
+      // Use text inside: "Division 15(durgam cheruvu )" -> "durgam cheruvu"
+      return textInside.trim();
+    } else {
+      // Use text outside: "SR nagar (6)" -> "SR nagar"
+      return rawName.split('(')[0].trim();
+    }
+  }
+
+  // No parentheses, just return the name trimmed
+  return rawName.trim();
+};
+
   // ✅ Combine & normalize both RobotsData + OperationsData
   const structingData = (dataObj) => {
     return Object.keys(dataObj).map((index) => {
@@ -227,7 +255,7 @@ export const Robots = () => {
                   <option value="">Select Division</option>
                   {divisions.map((div) => (
                     <option key={div} value={div}>
-                      {div}
+                      {getDisplayName(div)}
                     </option>
                   ))}
                 </select>
