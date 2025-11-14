@@ -20,6 +20,33 @@ export const Reports = () => {
   const [activeReportType, setActiveReportType] = useState("Manhole Reports");
 
   // ✅ Use only the Manhole data from context
+  /**
+ * Cleans raw database names for display in the UI.
+ * - "Division 15(durgam cheruvu )" -> "durgam cheruvu"
+ * - "SR nagar (6)" -> "SR nagar"
+ * - "kukatpally (9)" -> "kukatpally"
+ */
+const getDisplayName = (rawName) => {
+  if (typeof rawName !== 'string') return rawName;
+
+  const match = rawName.match(/\(([^)]+)\)/); // Find text in ( )
+
+  if (match && match[1]) {
+    const textInside = match[1];
+    
+    // Check if the text inside parentheses contains letters
+    if (/[a-zA-Z]/.test(textInside)) {
+      // Use text inside: "Division 15(durgam cheruvu )" -> "durgam cheruvu"
+      return textInside.trim();
+    } else {
+      // Use text outside: "SR nagar (6)" -> "SR nagar"
+      return rawName.split('(')[0].trim();
+    }
+  }
+
+  // No parentheses, just return the name trimmed
+  return rawName.trim();
+};
   useEffect(() => {
     if (!data?.ManholeData?.length) return;
 
@@ -149,7 +176,7 @@ export const Reports = () => {
             >
               <option value="">Select Division</option>
               {divisions.map((d) => (
-                <option key={d} value={d}>{d}</option>
+                <option key={d} value={d}>{getDisplayName(d)}</option>
               ))}
             </select>
             {errors.division && <p className="text-red-500 text-xs absolute bottom-[-18px]">{errors.division}</p>}
