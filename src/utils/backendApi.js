@@ -1,21 +1,21 @@
 
 export const backendApi = {
     // baseUrl: "http://192.168.1.35:8080",
-    // baseUrl: "http://192.168.1.11:8000",
+    baseUrl: "http://192.168.1.31:8000",
     // baseUrl: "http://10.102.189.129:8080",
     // baseUrl: "https://shudh-all-backend.onrender.com",
- baseUrl: "https://shudh-all-backend-docker-295884782547.asia-south1.run.app/"
+//  baseUrl: "https://shudh-all-backend-docker-295884782547.asia-south1.run.app/"
 };
 
 backendApi.analyze = `${backendApi.baseUrl}/analytics/analyze`;
 backendApi.manholesReportUrl = `${backendApi.baseUrl}/analytics/analyze/manholes`;
 backendApi.robotsReportUrl =`${backendApi.baseUrl}/analytics/analyze/robots`;
 backendApi.wardsReportUrl = `${backendApi.baseUrl}/analytics/analyze/ward`;
-backendApi.manholeData = `${backendApi.baseUrl}/database/table/ManHoles_Data`;
-backendApi.robotData = `${backendApi.baseUrl}/database/table/Robo_Operations`;
+backendApi.manholeData = `${backendApi.baseUrl}/database/table/manholes_data`;
+backendApi.robotData = `${backendApi.baseUrl}/database/table/robo_operations`;
 //  backendApi.mhData = `${backendApi.baseUrl}/database/table/ManHoles_Data`;
 backendApi.operationsdata = `${backendApi.baseUrl}/database/table/operations`;
-backendApi.warddata = `${backendApi.baseUrl}/database/table/Ward_Coordinates`;
+backendApi.warddata = `${backendApi.baseUrl}/database/table/ward_coordinates`;
  
 
 const Url = {
