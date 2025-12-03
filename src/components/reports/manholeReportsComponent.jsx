@@ -29,8 +29,8 @@ export const ManholeReportsComponent = ({ city, division, section }) => {
     try {
       const filtered = ManholeData.filter((item) => {
         const itemCity = normalize(item.City || item.city);
-        const itemDivision = normalize(item.Division || item.division);
-        const itemSection = normalize(item.Section || item.section);
+        const itemDivision = normalize(item.Division || item.division|| item.sw_mh_division_no);
+        const itemSection = normalize(item.Section || item.section || item.area || item.section_name);
 
         return (
           itemCity === normalize(city) &&
@@ -51,7 +51,7 @@ export const ManholeReportsComponent = ({ city, division, section }) => {
   // 🔹 Group by Zone
   const zoneWiseReports = useMemo(() => {
     const grouped = reportData.reduce((acc, item) => {
-      const zone = (item.Zone || item.zone || "").trim();
+      const zone = (item.Zone || item.zone || item.sw_mh_hydralic_zone ||"").trim();
       if (zone) {
         if (!acc[zone]) acc[zone] = { name: zone, count: 0 };
         acc[zone].count += 1;
@@ -109,7 +109,7 @@ export const ManholeReportsComponent = ({ city, division, section }) => {
                     manholes: report.count,
                     filteredData: reportData.filter(
                       (item) =>
-                        (item.Zone || item.zone || "").trim() === report.name
+                        (item.Zone || item.zone || item.sw_mh_hydralic_zone ||"").trim() === report.name
                     ),
                     userInputs: { city, division, section },
                   })

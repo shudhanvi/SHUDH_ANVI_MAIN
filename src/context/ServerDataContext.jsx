@@ -47,6 +47,7 @@ export const ServerDataProvider = ({ children }) => {
   useEffect(() => {
     loadAllData();
   }, []);
+  console.log("Server Data Context:", data);
 
   return (
     <ServerDataContext.Provider value={{ data, loading, message, refreshData: loadAllData }}>
