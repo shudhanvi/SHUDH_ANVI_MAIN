@@ -8,9 +8,10 @@ export const ServerDataProvider = ({ children }) => {
   const [data, setData] = useState({
     ManholeData: [],
     RobotsData: [],
-    // MHData: [],
+    // somajigudaData:[],
     WardData: [],
     OperationsData: [],
+
   });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -33,8 +34,9 @@ export const ServerDataProvider = ({ children }) => {
     setMessage("Loading ...");
     await Promise.all([
       fetchData(backendApi.manholeData, "ManholeData"),
+      // fetchData(backendApi.somajigudaData,"somajigudadata"),
+
       fetchData(backendApi.robotData, "RobotsData"),
-      // fetchData(backendApi.mhData, "MHData"),
       fetchData(backendApi.warddata, "WardData"),
       fetchData(backendApi.operationsdata, "OperationsData"),
     ]);
@@ -47,7 +49,7 @@ export const ServerDataProvider = ({ children }) => {
   useEffect(() => {
     loadAllData();
   }, []);
-
+ 
   return (
     <ServerDataContext.Provider value={{ data, loading, message, refreshData: loadAllData }}>
       {children}

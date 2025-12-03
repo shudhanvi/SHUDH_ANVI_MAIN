@@ -19,6 +19,7 @@ export const RobotReportsComponent = ({ division, section, city }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  console.log("✅ RobotsData:", robots);
 
   // ✅ Helper: Format date to dd-mm-yyyy
   const formatDate = (date) => {
@@ -69,33 +70,71 @@ export const RobotReportsComponent = ({ division, section, city }) => {
   }, [RobotsData, OperationsData]);
 
   // ✅ Apply relaxed filtering
-  useEffect(() => {
-    if (!robots.length) return;
+  // useEffect(() => {
+  //   if (!robots.length) return;
 
-    const normalize = (v) =>
-      (v || "").toLowerCase().replace(/[\s()_-]+/g, "").trim();
+  //   const normalize = (v) =>
+  //     (v || "").toLowerCase().replace(/[\s()_-]+/g, "").trim();
 
-    const normCity = normalize(city);
-    const normDivision = normalize(division);
-    const normSection = normalize(section);
+  //   const normCity = normalize(city);
+  //   const normDivision = normalize(division);
+  //   const normSection = normalize(section);
 
-    const filtered = robots.filter((r) => {
-      const rCity = normalize(r.city);
-      const rDivision = normalize(r.division);
-      const rSection = normalize(r.section);
+  //   const filtered = robots.filter((r) => {
+  //     const rCity = normalize(r.city);
+  //     const rDivision = normalize(r.division);
+  //     const rSection = normalize(r.section);
 
-      const matchCity = !normCity || rCity.includes(normCity);
-      const matchDivision = !normDivision || rDivision.includes(normDivision);
-      const matchSection = !normSection || rSection.includes(normSection);
+  //     const matchCity = !normCity || rCity.includes(normCity);
+  //     const matchDivision = !normDivision || rDivision.includes(normDivision);
+  //     const matchSection = !normSection || rSection.includes(normSection);
 
-      return matchCity && matchDivision && matchSection;
-    });
+  //     return matchCity && matchDivision && matchSection;
+  //   });
 
-    setFilteredRobots(filtered);
-    setSelectedRobots([]);
-    setSelectAll(false);
-    // console.log("✅ Filtered Robots:", filtered);
-  }, [robots, city, division, section]);
+  //   setFilteredRobots(filtered);
+  //   setSelectedRobots([]);
+  //   setSelectAll(false);
+  //   console.log("✅ Filtered Robots:", filtered);
+  // }, [robots, city, division, section]);
+useEffect(() => {
+  if (!robots.length) return;
+
+  const normalize = (v) =>
+    (v ?? "")
+      .toString()
+      .toLowerCase()
+      .replace(/[\s()_-]+/g, "")
+      .replace(/[0-9]/g, "") // <-- REMOVE DIGITS FROM USER INPUT & ROBOT DATA
+      .trim();
+
+  const normCity = normalize(city);
+  const normDivision = normalize(division);
+  const normSection = normalize(section);
+
+  const looseMatch = (a, b) => {
+    if (!b) return true;
+    return a.includes(b) || b.includes(a);
+  };
+
+  const filtered = robots.filter((r) => {
+    const rCity = normalize(r.city);
+    const rDivision = normalize(r.division);
+    const rSection = normalize(r.section);
+
+    const matchCity = looseMatch(rCity, normCity);
+    const matchDivision = looseMatch(rDivision, normDivision);
+    const matchSection = looseMatch(rSection, normSection);
+
+    return matchCity && matchDivision && matchSection;
+  });
+
+  setFilteredRobots(filtered);
+  setSelectedRobots([]);
+  setSelectAll(false);
+
+  console.log("✅ Filtered Robots:", filtered);
+}, [robots, city, division, section]);
 
   // ✅ Checkbox handlers
   const handleCheckboxChange = (device_id) => {
