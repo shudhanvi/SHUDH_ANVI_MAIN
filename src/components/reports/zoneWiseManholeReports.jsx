@@ -259,6 +259,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
   const [isLoading, setIsLoading] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
+  console.log("Filtered Data:", zone);
 
   // Date pickers
   const [fromDate, setFromDate] = useState('');

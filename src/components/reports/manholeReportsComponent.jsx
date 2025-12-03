@@ -51,7 +51,13 @@ export const ManholeReportsComponent = ({ city, division, section }) => {
   // 🔹 Group by Zone
   const zoneWiseReports = useMemo(() => {
     const grouped = reportData.reduce((acc, item) => {
-      const zone = (item.Zone || item.zone || item.sw_mh_hydralic_zone ||"").trim();
+const rawZone =
+  item.Zone ??
+  item.zone ??
+  item.sw_mh_docket_no ??
+  "";
+
+const zone = String(rawZone).trim();
       if (zone) {
         if (!acc[zone]) acc[zone] = { name: zone, count: 0 };
         acc[zone].count += 1;
@@ -94,7 +100,7 @@ export const ManholeReportsComponent = ({ city, division, section }) => {
                 </p>
                 <div>
                   <p className="font-semibold text-[16px] text-[#0F1729]">
-                    {report.name} Manholes Report
+                    Docket/Zone - {report.name} Manholes Report
                   </p>
                   <p className="text-sm text-gray-500">{`${report.count} Manholes`}</p>
                 </div>
@@ -108,8 +114,18 @@ export const ManholeReportsComponent = ({ city, division, section }) => {
                     zone: report.name,
                     manholes: report.count,
                     filteredData: reportData.filter(
-                      (item) =>
-                        (item.Zone || item.zone || item.sw_mh_hydralic_zone ||"").trim() === report.name
+                     (item) => {
+  const raw =
+    item.Zone ??
+    item.zone ??
+    item.sw_mh_docket_no ??
+    "";
+
+  const zone = String(raw).trim();   // ← handles numbers safely
+
+  return zone === report.name;
+}
+
                     ),
                     userInputs: { city, division, section },
                   })

@@ -658,8 +658,8 @@ export const WardReportPopup = ({ reportData, onClose }) => {
               />
 
               <TableSection
-                title="Top 10 Manholes with Repeated Operation-Time Anomalies"
-                data={data["Top 10 Manholes with Repeated Operation-Time Anomalies"]}
+                title="Top 10 Manholes with Operation-Time Anomalies(Last 30 Days)"
+                data={data["Top 10 Manholes with Operation-Time Anomalies(Last 30 Days)"]}
               />
             </div>
           </div>

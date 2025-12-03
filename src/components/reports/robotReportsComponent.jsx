@@ -490,14 +490,14 @@ export const RobotReportsComponent = ({ division, section, city }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-       // console.log("Response Status:", response);
+       console.log("Response Status:", response);
       if (!response.ok) {
         throw new Error( `Server error: ${response.status}`);
       }
 
       const data = await response.json();
       setReportData(data);
-      // console.log("Received Report Data:", data);
+      console.log("Received Report Data:", data);
       setShowPopup(true);
     } catch (err) {
       alert(err.message);
