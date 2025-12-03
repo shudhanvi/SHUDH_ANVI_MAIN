@@ -12,7 +12,7 @@ import WardDetailsPopUp from "./WardDetailsPopUp";
 const mapStyles = [
 
   { url: "mapbox://styles/shubhamgv/cmdr5g1b2000c01sd8h0y6awy", img: "/images/street.png" ,name: "Street"},
-  { url: "mapbox://styles/shubhamgv/cmggj327600ke01pd15kqh8v6", img: "/images/Satilight.png", name: "Satellite" },
+  { url: "mapbox://styles/shubhamgv/cmggj327600ke01pd15kqh8v6"  , img: "/images/Satilight.png", name: "Satellite" },
   { url: "mapbox://styles/shubhamgv/cmh5vh70d001q01qvhqhwh5b9", img: "/images/diameter.png", name: "Diameter" },
 ];
 
@@ -21,8 +21,8 @@ const emptyGeoJSON = { type: "FeatureCollection", features: [] };
 
 const MapComponent = () => {
   // --- State Management ---
-  //const [isLoading, setIsLoading] = useState(true);
-  //const [error, setError] = useState(null);
+  // const [isLoading, setIsLoading] = useState(true);
+  // const [error, setError] = useState(null);
   const [filter, setFilter] = useState("all");
   const [latInput, setLatInput] = useState("");
   const [lonInput, setLonInput] = useState("");
@@ -174,71 +174,159 @@ const getDisplayName = (rawName) => {
     };
   }, [getManholeStatus]);
 
-// // --- 1. NEW useEffect: Fetches your LOCAL manhole json ---
-//   useEffect(() => {
-//     const fetchLocalManholeData = async () => {
-//       try {
-//         // Make sure this file is in /public/datafiles/CSVs/csvjson.json
-//         const res = await fetch("/datafiles/CSVs/csvjson.json");
-        
-//         if (!res.ok) {
-//           throw new Error(`Failed to fetch local JSON: ${res.statusText}`);
-//         }
-        
-//         const manholeData = await res.json();
+// --- 1. NEW useEffect: Fetches your LOCAL manhole json (normalized) ---
+// useEffect(() => {
+//   const fetchLocalManholeData = async () => {
+//     try {
+//       const res = await fetch("/datafiles/CSVs/csvjson.json");
+//       if (!res.ok) throw new Error(`Failed to fetch local JSON: ${res.statusText}`);
 
-//         // This is your original processing logic, now applied to the fetched data
-//         if (manholeData && Array.isArray(manholeData)) {
-//           setAllManholeData(manholeData);
-//           const uniqueDivisions = [...new Set(manholeData.map((row) => row.division))].filter(Boolean).sort();
-//           setDivisionList(["All", ...uniqueDivisions]);
-//         } else {
-//           console.warn("Fetched JSON: Data is not in the expected array format.");
-//           setAllManholeData([]);
-//           setDivisionList(["All"]);
-//         }
+//       const raw = await res.json();
+//       console.log("RAW manholeData sample:", Array.isArray(raw) ? raw.slice(0,3) : raw);
 
-//       } catch (err) {
-//         console.error("Error fetching local manhole data:", err);
+//       if (!Array.isArray(raw) || raw.length === 0) {
+//         console.warn("Fetched JSON: Not an array or empty.");
 //         setAllManholeData([]);
 //         setDivisionList(["All"]);
+//         return;
 //       }
-//     };
 
-//     fetchLocalManholeData();
-//   }, []); // The empty [] array means this runs ONCE when the component mounts.
+//       // Normalize rows to the shape your app expects:
+//       // { id, latitude, longitude, division, section, zone, last_operation_date, ...rest }
+//       const normalized = raw.map((r, i) => {
+//         // helper to pick first existing key (case-insensitive)
+//         const pick = (...keys) => {
+//           for (const k of keys) {
+//             if (r[k] !== undefined && r[k] !== null) return r[k];
+//             // try lower/upper variants
+//             const lk = Object.keys(r).find(k2 => k2.toLowerCase() === String(k).toLowerCase());
+//             if (lk && r[lk] !== undefined) return r[lk];
+//           }
+//           return undefined;
+//         };
 
+//         const id = pick("id", "ID", "Id") ?? `mh_${i}`;
+//         const latRaw = pick("latitude", "lat", "Latitude", "Lat", "y", "Y");
+//         const lonRaw = pick("longitude", "lon", "Longitude", "Lon", "x", "X");
+//         const divisionRaw = pick("division", "Division", "zone", "Zone", "area_division");
+//         const sectionRaw = pick("section", "Section", "area_name", "Area_name", "area", "Area");
+//         const zoneRaw = pick("zone", "Zone");
+//         const lastOpRaw = pick("last_operation_date", "last_operation", "operation_date", "last_operation_date_string");
 
-//   // --- 2. MODIFIED useEffect: Processes data from your CONTEXT ---
-//   useEffect(() => {
-//     // Only process data if loading is done, there's no error, and data exists
-//     if (!loading && data) {
-      
-//       // 1. ManholeData processing is GONE from here (it's handled above)
+//         // clean and standardize strings
+//         const cleanStr = (v) => (v === undefined || v === null) ? v : String(v).trim();
 
-//       // 2. Process Ward Coordinates Data (This part STAYS)
-//       if (data.WardData && Array.isArray(data.WardData)) {
-        
-//         const allRows = data.WardData;
-//         // ... (all your existing logic for parsing WardData) ...
-//         // ... (groupedCoords, detailsMap, etc.) ...
-//         // ...
-        
-//         // Assuming your parsing logic results in these variables
-//         // setWardPolygons(groupedCoords); 
-//         // setWardDetailsMap(detailsMap);
-        
-//         console.log("Context: WardData processed.");
-        
-//       } else {
-//         console.warn("Context: 'WardData' is missing or not an array.");
+//         const latitude = latRaw !== undefined ? Number(latRaw) : undefined;
+//         const longitude = lonRaw !== undefined ? Number(lonRaw) : undefined;
+
+//         return {
+//           ...r, // keep original fields for debugging if needed
+//           id: id,
+//           latitude: Number.isFinite(latitude) ? latitude : null,
+//           longitude: Number.isFinite(longitude) ? longitude : null,
+//           division: cleanStr(divisionRaw) || "Unknown Division",
+//           section: cleanStr(sectionRaw) || "Unknown Section",
+//           zone: cleanStr(zoneRaw) || "Unknown Zone",
+//           last_operation_date: lastOpRaw ?? null,
+//         };
+//       });
+
+//       // Quick checks & logs
+//       const missingCoords = normalized.filter(n => n.latitude === null || n.longitude === null);
+//       if (missingCoords.length) {
+//         console.warn(`Manholes with missing coords: ${missingCoords.length}. Sample:`, missingCoords.slice(0,3));
+//       }
+
+//       // Build division list (unique, trimmed, sorted)
+//       const divisions = [...new Set(normalized.map(r => (r.division || "Unknown Division")).map(s => String(s).trim()))]
+//                          .filter(Boolean)
+//                          .sort();
+//       setAllManholeData(normalized);
+//       setDivisionList(["All", ...divisions]);
+
+//       console.log("Normalized manhole sample:", normalized.slice(0,4));
+//       console.log("Division list:", ["All", ...divisions]);
+
+//     } catch (err) {
+//       console.error("Error fetching local manhole data:", err);
+//       setAllManholeData([]);
+//       setDivisionList(["All"]);
+//     }
+//   };
+
+//   fetchLocalManholeData();
+// }, []);
+ // The empty [] array means this runs ONCE when the component mounts.
+
+// --- 2. useEffect: Fetch WardData (ward.json) and build polygons ---
+// useEffect(() => {
+//   const fetchWardData = async () => {
+//     try {
+//       const res = await fetch("/datafiles/CSVs/ward.json");
+//       if (!res.ok) throw new Error("Could not load ward.json");
+
+//       const rows = await res.json();
+//       console.log("Raw Ward JSON:", rows);
+
+//       if (!Array.isArray(rows)) {
+//         console.warn("ward.json should be an array.");
 //         setWardPolygons({});
 //         setWardDetailsMap({});
+//         return;
 //       }
+
+//       const groupedCoords = {}; // { ward_id: [ [lat,lng], [lat,lng] ] }
+//       const detailsMap = {};    // { ward_id: { ...wardDetails } }
+
+//       rows.forEach((row) => {
+//         const ward = row.ward_id;
+//         if (!ward) return;
+
+//         // Ensure array exists
+//         if (!groupedCoords[ward]) groupedCoords[ward] = [];
+
+//         // Push coordinate
+//         if (row.lat && row.lon) {
+//           groupedCoords[ward].push([Number(row.lat), Number(row.lon)]);
+//         }
+
+//         // Save ONE detail record per ward
+//         if (!detailsMap[ward]) {
+//           detailsMap[ward] = {
+//             ward_id: ward,
+//             Area_name: row.Area_name,
+//             area: row.area,
+//             perimeter: row.perimeter,
+//             Population: row.Population,
+//             no_of_manholes: row.no_of_manholes,
+//             waste_colleccted: row.waste_colleccted,
+//             robo_count: row["no_of_robo's"],
+//             Total_sewer_length: row.Total_sewer_length,
+//             landuse_classes: row.landuse_classes,
+//             zone: row.zone,
+//           };
+//         }
+//       });
+
+//       console.log("Processed Ward Polygons:", groupedCoords);
+//       console.log("Processed Ward Details:", detailsMap);
+
+//       // Save state
+//       setWardPolygons(groupedCoords);
+//       setWardDetailsMap(detailsMap);
+
+//     } catch (err) {
+//       console.error("Ward JSON Load Error:", err);
+//       setWardPolygons({});
+//       setWardDetailsMap({});
 //     }
-    
-//     // This still depends on the context data
-//   }, [data, loading]);
+//   };
+
+//   fetchWardData();
+// }, []);
+
+
+
   useEffect(() => {
     // Only process data if loading is done, there's no error, and data exists
     if (!loading && data) {
@@ -255,9 +343,11 @@ const getDisplayName = (rawName) => {
         console.warn("Context: 'ManholeData' is missing or not an array.");
         setAllManholeData([]);
         setDivisionList(["All"]);
+
       }
 
       // 2. Process Ward Coordinates Data
+
       if (data.WardData && Array.isArray(data.WardData)) {
  
         const allRows = data.WardData;
@@ -307,6 +397,9 @@ const getDisplayName = (rawName) => {
       }
     }
   }, [data, loading]);
+
+
+  
   const clearManholeSelection = useCallback(() => { setSelectedManholeLocation(null); }, []);
 
 

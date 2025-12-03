@@ -58,6 +58,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
             const data = await response.json();
             // console.log("Backend response:", data);
             setReportData(data);
+            console.log("Backend response:", data);
             setShowPopup(true);
         } catch (error) {
             console.error("Error fetching ward report:", error);
@@ -136,7 +137,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
                             </svg>
                         </div>
                         <span className="text-gray-800 font-semibold text-lg">
-                            Ward Report
+                           {section} Ward Report
                         </span>
                     </div>
 
