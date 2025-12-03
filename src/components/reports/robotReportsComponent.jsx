@@ -410,30 +410,27 @@ export const RobotReportsComponent = ({ division, section, city }) => {
     if (!robots.length) return;
 
     const normalize = (v) =>
-      (v ?? "")
-        .toString()
-        .toLowerCase()
-        .replace(/[\s()_-]+/g, "")
-        .replace(/[0-9]/g, "")
-        .trim();
+  (v ?? "")
+    .toString()
+    .toLowerCase()
+    .replace(/[\s()_-]+/g, "")
+    .replace(/[0-9]/g, "")
+    .trim();
 
-    const loose = (a, b) => !b || a.includes(b) || b.includes(a);
+const fuzzyMatch = (a, b) => !b || a.includes(b) || b.includes(a);
 
-    const matchCity = looseMatch(rCity, normCity);
-    const matchDivision = looseMatch(rDivision, normDivision);
-    const matchSection = looseMatch(rSection, normSection);
+const filtered = robots.filter((r) => {
+  const rc = normalize(r.city);
+  const rd = normalize(r.division);
+  const rs = normalize(r.section);
 
-    const filtered = robots.filter((r) => {
-      const rc = normalize(r.city);
-      const rd = normalize(r.division);
-      const rs = normalize(r.section);
+  return (
+    fuzzyMatch(rc, normCity) &&
+    fuzzyMatch(rd, normDivision) &&
+    fuzzyMatch(rs, normSection)
+  );
+});
 
-      return (
-        loose(rc, normCity) &&
-        loose(rd, normDivision) &&
-        loose(rs, normSection)
-      );
-    });
 
     setFilteredRobots(filtered);
     setSelectedRobots([]);
