@@ -1,10 +1,10 @@
 
 export const backendApi = {
     // baseUrl: "http://192.168.1.35:8080",
-    baseUrl: "http://192.168.1.22:8000",
+    // baseUrl: "http://192.168.1.22:8000",
     // baseUrl: "http://10.102.189.129:8080",
     // baseUrl: "https://shudh-all-backend.onrender.com",
-//  baseUrl: "https://shudh-all-backend-docker-295884782547.asia-south1.run.app/" 
+ baseUrl: "https://shudh-all-backend-docker-295884782547.asia-south1.run.app" 
 };
 
 backendApi.analyze = `${backendApi.baseUrl1}/analytics/analyze`;
