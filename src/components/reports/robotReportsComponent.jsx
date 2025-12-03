@@ -362,6 +362,7 @@ export const RobotReportsComponent = ({ division, section, city }) => {
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  console.log("✅ RobotsData:", robots);
 
   // 🔥 Sort robots by device_id (numeric-aware)
   const sortedRobots = [...filteredRobots].sort((a, b) =>
@@ -418,9 +419,9 @@ export const RobotReportsComponent = ({ division, section, city }) => {
 
     const loose = (a, b) => !b || a.includes(b) || b.includes(a);
 
-    const normCity = normalize(city);
-    const normDivision = normalize(division);
-    const normSection = normalize(section);
+    const matchCity = looseMatch(rCity, normCity);
+    const matchDivision = looseMatch(rDivision, normDivision);
+    const matchSection = looseMatch(rSection, normSection);
 
     const filtered = robots.filter((r) => {
       const rc = normalize(r.city);
