@@ -361,6 +361,7 @@ export const RobotReportsComponent = ({ division, section, city }) => {
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  console.log("✅ RobotsData:", robots);
 
   // 🔥 Sort robots by device_id (numeric-aware)
   const sortedRobots = [...filteredRobots].sort((a, b) =>
