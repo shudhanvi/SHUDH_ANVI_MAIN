@@ -37,23 +37,23 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
 
 
   // ✅ Consistent Date & Time formatting (DD/MM/YYYY and 24-hour HH:mm:ss)
-const formatDate = (timestamp) => {
-  if (!timestamp) return "-";
-  const date = new Date(timestamp);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-};
+  const formatDate = (timestamp) => {
+    if (!timestamp) return "-";
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
-const formatTime = (timestamp) => {
-  if (!timestamp) return "-";
-  const date = new Date(timestamp);
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}`;
-};
+  const formatTime = (timestamp) => {
+    if (!timestamp) return "-";
+    const date = new Date(timestamp);
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${hours}:${minutes}:${seconds}`;
+  };
 
 
 
@@ -154,27 +154,27 @@ const formatTime = (timestamp) => {
                   <Calendar className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
                     Date
-<span className="text-[#21232C] text-[16px]">
-  {formatDate(currentRecord.timestamp)}
-</span>
+                    <span className="text-[#21232C] text-[16px]">
+                      {formatDate(currentRecord.timestamp)}
+                    </span>
                   </span>
                 </span>
                 <span className="flex flex-row">
                   <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
                     Starting Time
-<span className="text-[#21232C] text-[16px]">
-  {formatTime(currentRecord.timestamp)}
-</span>
+                    <span className="text-[#21232C] text-[16px]">
+                      {formatTime(currentRecord.timestamp)}
+                    </span>
                   </span>
                 </span>
                 <span className="flex flex-row">
                   <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
                     Ending Time
-<span className="text-[#21232C] text-[16px]">
-  {formatTime(currentRecord.timestamp)}
-</span>
+                    <span className="text-[#21232C] text-[16px]">
+                      {formatTime(currentRecord.timestamp)}
+                    </span>
                   </span>
                 </span>
                 <span className="flex flex-row">
@@ -203,129 +203,23 @@ const formatTime = (timestamp) => {
 
                   </span>
                 </span>
-                {/* <span className="flex flex-row">
-                  <Trash className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
-                  <span className="flex flex-col ml-2">
-                    Waste Collected
-                    <span className="text-[#21232C] text-[16px]">{currentRecord?.waste_collected_kg || "-"} kgs</span>
-                  </span>
-                </span> */}
+                
                 <span>
                   <MapPin className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   {currentRecord.area}
                 </span>
               </div>
 
-              {/* Gas Level
-              <div className="flex flex-row mt-[24px] border border-gray-500 p-2 py-5 rounded-2xl">
-                <div className="flex flex-col text-start text-[14px] text-[#676D7E] gap-y-2 w-max-content flex-shrink-0">
-                  <h1 className="text-[18px] text-black font-bold">Gas Level</h1>
-                  <p>
-                    Methane(CH4):
-                    <span className="text-[16px] text-[#21232C]">
-                      {currentRecord?.gas_data_raw ? JSON.parse(currentRecord.gas_data_raw).CH4 : "N/A"} ppm
-                    </span>
-                  </p>
-                  <p>
-                    Carbon Monoxide(CO):
-                    <span className="text-[16px] text-[#21232C]">
-                      {currentRecord?.gas_data_raw ? JSON.parse(currentRecord.gas_data_raw).CO : "N/A"} ppm
-                    </span>
-                  </p>
-                  <p>
-                    Hydrogen Sulphate(H2S):
-                    <span className="text-[16px] text-[#21232C]">
-                      {currentRecord?.gas_data_raw ? JSON.parse(currentRecord.gas_data_raw).H2S : "N/A"} ppm
-                    </span>
-                  </p>
-                </div>
-                <div className="flex items-center justify-center max-w-[120px] m-auto flex-shrink-1">
-                  <div style={{ width: "100%", height: "auto", aspectRatio: 1 / 1 }}>
-                    <CircularProgressbar
-                      value={
-                        currentRecord.gas_status?.toLowerCase() === "safe"
-                          ? 22
-                          : currentRecord.gas_status?.toLowerCase() === "alert"
-                            ? 55
-                            : currentRecord.gas_status?.toLowerCase() === "toxic"
-                              ? 80
-                              : 0
-                      }
-                      text={currentRecord.gas_status ? currentRecord.gas_status.charAt(0).toUpperCase() + currentRecord.gas_status.slice(1).toLowerCase() : "N/A"}
-                      styles={buildStyles({
-                        textSize: "16px",
-                        textColor: "#000",
-                        pathColor:
-                          currentRecord.gas_status?.toLowerCase() === "toxic"
-                            ? "red"
-                            : currentRecord.gas_status?.toLowerCase() === "alert"
-                              ? "orange"
-                              : "green",
-                        trailColor: "#eee",
-                        strokeLinecap: "round",
-                      })}
-                    />
-                  </div>
-                </div>
-              </div> */}
 
-              {/* Map */}
-              {/* Map Section */}
-              {/* <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
-  <div className="flex flex-row justify-between">
-    <h1 className="pb-1 text-start">
-      {currentRecord?.latitude && currentRecord?.longitude
-        ? `${currentRecord.latitude}, ${currentRecord.longitude}`
-        : "-"}
-    </h1>
-    <h1>Manhole ID : {currentRecord?.manhole_id || "-"}</h1>
-  </div>
-
-  <div className="bd-gray">
-    {currentRecord &&
-    !isNaN(Number(currentRecord.latitude)) &&
-    !isNaN(Number(currentRecord.longitude)) ? (
-      <MapContainer
-        center={[
-          Number(currentRecord.latitude),
-          Number(currentRecord.longitude),
-        ]}
-        zoom={15}
-        className="h-40 rounded-lg"
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <Marker
-          position={[
-            Number(currentRecord.latitude),
-            Number(currentRecord.longitude),
-          ]}
-        >
-          <LeafletPopup>
-           
-          </LeafletPopup>
-        </Marker>
-        <RecenterMap
-          lat={Number(currentRecord.latitude)}
-          lng={Number(currentRecord.longitude)}
-        />
-      </MapContainer>
-    ) : (
-      <p className="text-gray-500 flex items-center justify-center h-40">
-        No location available
-      </p>
-    )}
-  </div>
-</div> */}
               <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
                 <div className="flex flex-row justify-between">
                   <h1 className="pb-1 text-start">
-                    {currentRecord?.latitude && currentRecord?.longitude
-                      ? `${currentRecord.latitude}, ${currentRecord.longitude}`
-                      : "-"}
-                  </h1>
+  {currentRecord?.latitude && currentRecord?.longitude
+    ? `${Number(currentRecord.latitude).toFixed(5)}, ${Number(currentRecord.longitude).toFixed(5)}`
+    : "-"
+  }
+</h1>
+
                   <h1>Manhole ID : {currentRecord?.manhole_id}</h1>
                 </div>
 
@@ -425,51 +319,51 @@ const formatTime = (timestamp) => {
                 <h1 className="text-start text-[14px]"> Filter by Date Range </h1>
               </div>
               <div className="flex flex-row w-full justify-between mb-5 mt-3 gap-2">
-               <div className="text-start w-[45%] mt-2 relative">
-  <label className="block text-[16px] text-[#676D7E] mb-1">From Date</label>
-  <div className="relative">
-    <DatePicker
-      selected={detailedFromDate}
-      onChange={(date) => setDetailedFromDate(date)}
-      dateFormat="dd-MM-yyyy"
-      className="border border-gray-300 rounded-md p-2 w-full text-sm pr-8"
-      placeholderText="Select From Date"
-      maxDate={new Date()}
-    />
-    {detailedFromDate && (
-      <button
-        type="button"
-        onClick={() => setDetailedFromDate(null)}
-        className="absolute right-2 top-[10px]  text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
-      >
-         ×
-      </button>
-    )}
-  </div>
-</div>
+                <div className="text-start w-[45%] mt-2 relative">
+                  <label className="block text-[16px] text-[#676D7E] mb-1">From Date</label>
+                  <div className="relative">
+                    <DatePicker
+                      selected={detailedFromDate}
+                      onChange={(date) => setDetailedFromDate(date)}
+                      dateFormat="dd-MM-yyyy"
+                      className="border border-gray-300 rounded-md p-2 w-full text-sm pr-8"
+                      placeholderText="Select From Date"
+                      maxDate={new Date()}
+                    />
+                    {detailedFromDate && (
+                      <button
+                        type="button"
+                        onClick={() => setDetailedFromDate(null)}
+                        className="absolute right-2 top-[10px]  text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                </div>
 
-<div className="text-start w-[45%] mt-2 relative">
-  <label className="block text-[16px] text-[#676D7E] mb-1">To Date</label>
-  <div className="relative">
-    <DatePicker
-      selected={detailedToDate}
-      onChange={(date) => setDetailedToDate(date)}
-      dateFormat="dd-MM-yyyy"
-      className="border border-gray-300 rounded-md p-2 w-full text-sm pr-8"
-      placeholderText="Select To Date"
-      maxDate={new Date()}
-    />
-    {detailedToDate && (
-      <button
-        type="button"
-        onClick={() => setDetailedToDate(null)}
-        className="absolute right-2 top-[10px]  text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
-      >
-        ×
-      </button>
-    )}
-  </div>
-</div>
+                <div className="text-start w-[45%] mt-2 relative">
+                  <label className="block text-[16px] text-[#676D7E] mb-1">To Date</label>
+                  <div className="relative">
+                    <DatePicker
+                      selected={detailedToDate}
+                      onChange={(date) => setDetailedToDate(date)}
+                      dateFormat="dd-MM-yyyy"
+                      className="border border-gray-300 rounded-md p-2 w-full text-sm pr-8"
+                      placeholderText="Select To Date"
+                      maxDate={new Date()}
+                    />
+                    {detailedToDate && (
+                      <button
+                        type="button"
+                        onClick={() => setDetailedToDate(null)}
+                        className="absolute right-2 top-[10px]  text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                </div>
 
                 <div>
                   <button
@@ -480,84 +374,46 @@ const formatTime = (timestamp) => {
                   </button>
                 </div>
               </div>
-
-              {/* <div className="h-80 shadow overflow-y-auto rounded-md p-2 px-6">
+              <div className="h-80 shadow overflow-y-auto rounded-md py-[8px] px-[10px] custom-scrollbar">
                 <ul className="space-y-3">
-                  {detailedFilteredData.length > 0
-                    ? detailedFilteredData.map((history, index) => {
-                      const isActive = selectedHistory?.timestamp === history.timestamp;
-                      return (
-                        <li key={index} className={`flex items-center justify-between h-12 transition-all ${isActive ? "bg-gray-200" : ""}`}>
-                          <div>
-                            <span className="mr-8">
-                              <CalendarIcon className="h-4 inline-block" />
-                              {new Date(history.timestamp).toLocaleDateString()}
-                            </span>
-                            <span className="mr-8">
-                              <ClockIcon className="h-4 inline-block" />
-                              {new Date(history.timestamp).toLocaleTimeString("en-GB", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                second: "2-digit",
-                                hour12: false,
-                              })}
-                            </span>
-                          </div>
-                          <button
-                            className={`btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors bg-blue-500 text-white`}
-                            onClick={() => setSelectedHistory(history)}
+                  {detailedFilteredData.length > 0 ? (
+                    // ✅ Sort by timestamp (latest first)
+                    [...detailedFilteredData]
+                      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                      .map((history, index) => {
+                        const isActive = selectedHistory?.timestamp === history.timestamp;
+                        return (
+                          <li
+                            key={index}
+                            className={`flex items-center justify-between h-12 transition-all px-[4px] ${isActive ? "bg-gray-200" : ""
+                              }`}
                           >
-                            View More
-                          </button>
-                        </li>
-                      );
-                    })
-                    : (
-                      <li className="text-center text-gray-500 py-4">No Records Found</li>
-                    )}
+                            <div>
+                              <span className="mr-8 text-[16px]">
+                                <CalendarIcon className="h-4 inline-block" />
+                                {formatDate(history.timestamp)}
+
+                              </span>
+                              <span className="mr-8 text-[16px]">
+                                <ClockIcon className="h-4 inline-block" />
+                                {formatTime(history.timestamp)}
+
+                              </span>
+                            </div>
+                            <button
+                              className="btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors text-[14px] bg-blue-500 text-white"
+                              onClick={() => setSelectedHistory(history)}
+                            >
+                              View More
+                            </button>
+                          </li>
+                        );
+                      })
+                  ) : (
+                    <li className="text-center text-gray-500 py-4">No Records Found</li>
+                  )}
                 </ul>
-              </div> */}  
-         <div className="h-80 shadow overflow-y-auto rounded-md py-[8px] px-[10px] custom-scrollbar">
-  <ul className="space-y-3">
-    {detailedFilteredData.length > 0 ? (
-      // ✅ Sort by timestamp (latest first)
-      [...detailedFilteredData]
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .map((history, index) => {
-          const isActive = selectedHistory?.timestamp === history.timestamp;
-          return (
-            <li
-              key={index}
-              className={`flex items-center justify-between h-12 transition-all px-[4px] ${
-                isActive ? "bg-gray-200" : ""
-              }`}
-            >
-              <div>
-                <span className="mr-8 text-[16px]">
-                  <CalendarIcon className="h-4 inline-block" />
-                 {formatDate(history.timestamp)}
-
-                </span>
-                <span className="mr-8 text-[16px]">
-                  <ClockIcon className="h-4 inline-block" />
-                  {formatTime(history.timestamp)}
-
-                </span>
               </div>
-              <button
-                className="btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors text-[14px] bg-blue-500 text-white"
-                onClick={() => setSelectedHistory(history)}
-              >
-                View More
-              </button>
-            </li>
-          );
-        })
-    ) : (
-      <li className="text-center text-gray-500 py-4">No Records Found</li>
-    )}
-  </ul>
-</div>
 
             </div>
           </div>
