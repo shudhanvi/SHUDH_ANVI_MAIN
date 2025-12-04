@@ -229,6 +229,13 @@ const getDisplayName = (rawName) => {
     const minutes = String(date.getMinutes()).padStart(2, "0");
     return `${hours}:${minutes}`;
   };
+const sortedBots = useMemo(() => {
+  return [...uniqueBots].sort((a, b) => {
+    const idA = String(a.device_id).toLowerCase();
+    const idB = String(b.device_id).toLowerCase();
+    return idA.localeCompare(idB);
+  });
+}, [uniqueBots]);
 
 
   // console.log("MainData:", MainData);
@@ -342,7 +349,8 @@ const getDisplayName = (rawName) => {
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-0">
-                {uniqueBots.map((item, idx) => (
+                
+                {sortedBots.map((item, idx) => (
                   <div
                     key={idx}
                     className="cursor-pointer bg-white border border-gray-200 rounded-xl px-2 h-80 hover:shadow-lg hover:shadow-[#1A8BA850] hover:scale-101 transition-all duration-110"
