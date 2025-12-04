@@ -58,7 +58,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
             const data = await response.json();
             // console.log("Backend response:", data);
             setReportData(data);
-            // console.log("Backend response:", data);
+            console.log("Backend response:", data);
             setShowPopup(true);
         } catch (error) {
             console.error("Error fetching ward report:", error);
