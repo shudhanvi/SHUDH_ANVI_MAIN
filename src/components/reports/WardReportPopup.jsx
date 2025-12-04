@@ -61,7 +61,7 @@ export const WardReportPopup = ({ reportData, onClose }) => {
   // FIXED: Report data is FLAT (NOT nested in .data)
   const data = reportData || {};
 
-  console.log("WardReportPopup received:", reportData);
+  // console.log("WardReportPopup received:", reportData);
 
   // Lock Scroll
   useEffect(() => {
@@ -246,7 +246,7 @@ export const WardReportPopup = ({ reportData, onClose }) => {
         <div ref={printableRef}>
           {/* HEADER */}
           <div className="flex justify-between items-center p-6 border-b">
-            <h2 className="text-2xl font-bold">📊 Ward Report - Hasmathpet</h2>
+            <h2 className="text-2xl font-bold">📊 Ward Report </h2>
             <button className="text-4xl no-print-pdf" onClick={onClose}>
               <X />
             </button>
