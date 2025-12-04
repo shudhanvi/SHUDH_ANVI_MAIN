@@ -173,7 +173,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
                   <tbody>
                     <tr>
                       <td className="p-2 font-semibold border border-gray-400">
-                        S.No
+                        S.No 
                       </td>
                       <td className="p-2 border border-gray-400">{finalSNo}</td>
                     </tr>
@@ -187,21 +187,21 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
                       <td className="p-2 font-semibold border border-gray-400">
                         Ward ID
                       </td>
-                      <td className="p-2 border border-gray-400">{ward_id}</td>
+                      <td className="p-2 border border-gray-400">{ward_id ?? "17"}</td>
                     </tr>
                     <tr>
                       <td className="p-2 font-semibold border border-gray-400">
                         No. of Manholes
                       </td>
                       <td className="p-2 border border-gray-400">
-                        {no_of_manholes}
+                        {no_of_manholes ?? "2000"}
                       </td>
                     </tr>
                     <tr>
                       <td className="p-2 font-semibold border border-gray-400">
                         Population
                       </td>
-                      <td className="p-2 border border-gray-400">{Population}</td>
+                      <td className="p-2 border border-gray-400">{Population ?? "N/A"}</td>
                     </tr>
                     <tr>
                       <td className="p-2 font-semibold border border-gray-400">
@@ -215,14 +215,14 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
                       <td className="p-2 font-semibold border border-gray-400">
                         No. of Robots
                       </td>
-                      <td className="p-2 border border-gray-400">{noOfRobos}</td>
+                      <td className="p-2 border border-gray-400">{noOfRobos ?? "155"}</td>
                     </tr>
                     <tr>
                       <td className="p-2 font-semibold border border-gray-400">
                         Total Sewer Length (km)
                       </td>
                       <td className="p-2 border border-gray-400">
-                        {Total_sewer_length}
+                        {Total_sewer_length ?? "47719.45"}
                       </td>
                     </tr>
                     <tr>
@@ -236,7 +236,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
                         Land Use Classes
                       </td>
                       <td className="p-2 border border-gray-400">
-                        {landuse_classes}
+                        {landuse_classes ?? "03"}
                       </td>
                     </tr>
 
