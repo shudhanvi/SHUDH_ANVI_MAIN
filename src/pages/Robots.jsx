@@ -229,6 +229,13 @@ const getDisplayName = (rawName) => {
     const minutes = String(date.getMinutes()).padStart(2, "0");
     return `${hours}:${minutes}`;
   };
+const sortedBots = useMemo(() => {
+  return [...uniqueBots].sort((a, b) => {
+    const idA = String(a.device_id).toLowerCase();
+    const idB = String(b.device_id).toLowerCase();
+    return idA.localeCompare(idB);
+  });
+}, [uniqueBots]);
 
 
   // console.log("MainData:", MainData);
@@ -342,7 +349,8 @@ const getDisplayName = (rawName) => {
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-0">
-                {uniqueBots.map((item, idx) => (
+                
+                {sortedBots.map((item, idx) => (
                   <div
                     key={idx}
                     className="cursor-pointer bg-white border border-gray-200 rounded-xl px-2 h-80 hover:shadow-lg hover:shadow-[#1A8BA850] hover:scale-101 transition-all duration-110"
@@ -369,7 +377,7 @@ const getDisplayName = (rawName) => {
                         className="w-40 h-40 mt-3 object-cover rounded-lg mb-4"
                       />
                       <div className="flex text-sm pl-2 text-gray-600 text-start items-center">
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-y-3">
                           <p className="flex items-center mb-2">
                             <Bot className="inline-block w-4 h-4 mr-1 mb-1" />
                             Device ID: {item?.device_id || "-"}
@@ -387,7 +395,7 @@ const getDisplayName = (rawName) => {
                             )}
 
                           </p>
-                          <p className="flex items-center mb-2">
+                          {/* <p className="flex items-center mb-2">
                             <FireExtinguisher className="inline-block w-4 h-4 mr-1 mb-1" />
                             Gas status:{" "}
                             {item.gas_status
@@ -396,7 +404,7 @@ const getDisplayName = (rawName) => {
                                 .toUpperCase() +
                               item.gas_status.slice(1).toLowerCase()
                               : "N/A"}
-                          </p>
+                          </p> */}
                           <p className="flex items-center mb-2">
                             <MapPin className="inline-block w-4 h-4 mr-1 mb-1" />
                             Ward: {item.area || "-"}

@@ -21,15 +21,15 @@ const MaintainenceCard = (props) => {
             {each.priority}
           </span>
         </span>
-        <div className="flex items-center gap-1 text-[12px] font-[400] text-[#657086]">
+        <div className="flex items-center gap-1 text-[12px] font-[400px] text-[#657086]">
           <MapPin size={18} color="grey"/>
           <p>{each.location}</p>
         </div>
-        <div className="flex items-center gap-1 text-[12px] font-[400] text-[#657086]">
+        <div className="flex items-center gap-1 text-[12px] font-[400px] text-[#657086]">
           <Calendar size={18} color="grey"/>
           <p>{each.dateTime}</p>
         </div>
-        <span className="flex items-center gap-1 text-[12px] font-[400] w-max bg-blue-500 mt-2 py-2 px-3 text-white rounded-md">
+        <span className="flex items-center gap-1 text-[12px] font-[400px] w-max bg-blue-500 mt-2 py-2 px-3 text-white rounded-md">
           <Calendar size={18} color="white"/>
           Scheduled
         </span>

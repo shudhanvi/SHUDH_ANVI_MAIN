@@ -47,13 +47,14 @@ const getDisplayName = (rawName) => {
   // No parentheses, just return the name trimmed
   return rawName.trim();
 };
+// console.log("Manhole Data:", manholeData)
   useEffect(() => {
     if (!data?.ManholeData?.length) return;
 
     const normalized = data.ManholeData.map((item) => ({
       City: item.City || item.city || item.district || "",
-      Division: item.Division || item.division || "",
-      Section: item.Section || item.section || item.area || "",
+      Division: item.Division || item.division || item.sw_mh_division_no || "",
+      Section: item.Section || item.section || item.area || item.section_name || "",
       ...item,
     }));
 

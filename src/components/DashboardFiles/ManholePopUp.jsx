@@ -158,7 +158,7 @@ const ManholePopUp = ({
         <div className="w-[95%] m-auto rounded-xl flex justify-center items-center p-3 my-4 gap-2 bg-[#FEF9E6]">
           <div className="manholePopupBox1 w-full flex flex-col justify-center gap-2 text-[12px] text-left text-[#717182]">
             {/* Manhole ID with Status Icon */}
-            <h4 className="font-[400] grid grid-cols-2 items-center">
+            <h4 className="font-[400px] grid grid-cols-2 items-center">
               Manhole :{" "}
               <span className="font-[500] text-right text-[#0A0A0A] flex justify-end items-center gap-1">
                 {getStatusIcon(selectedLocation.status)} {/* Status Icon */}
