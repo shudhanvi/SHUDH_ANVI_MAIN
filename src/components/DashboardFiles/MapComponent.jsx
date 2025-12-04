@@ -385,16 +385,22 @@ const getManholeDateById = useCallback((manholeId) => {
   // --- HANDLERS (Same as before) ---
   const clearManholeSelection = useCallback(() => { setSelectedManholeLocation(null); }, []);
 const handleClosePopup = useCallback(() => {
- 
+      // 1. Always close the popup
       setSelectedManholeLocation(null);
-  
+      
+      // 2. Always clear the search text
       setSearchId("");
 
- 
-      setFilteredManholeGeoJSON(emptyGeoJSON);
+      // 3. CONDITIONAL MAP CLEAR:
+      // Only clear the map points if the user has NOT selected a Division/Ward.
+      // (This implies they were looking at a temporary Search Result).
+      if (selectedDivision === "All" || selectedAreaName === "All") {
+          setFilteredManholeGeoJSON(emptyGeoJSON);
+      }
       
- 
-  }, []);  const handleGenerateReport = () => { console.log("Report generation triggered"); clearManholeSelection(); };
+      // If Division/Ward ARE selected, we do nothing here. 
+      // The map will continue to show the manholes for that Ward.
+  }, [selectedDivision, selectedAreaName]); const handleGenerateReport = () => { console.log("Report generation triggered"); clearManholeSelection(); };
   const handleAssignBot = () => { console.log("Assign bot triggered"); clearManholeSelection(); };
 
   const handleDivisionChange = useCallback((divisionValue) => {
