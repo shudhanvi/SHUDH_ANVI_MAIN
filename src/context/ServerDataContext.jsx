@@ -69,6 +69,7 @@ export const ServerDataProvider = ({ children }) => {
     RobotsData: [],
     WardData: [],
     OperationsData: [],
+    WeatherData: [],
 
   });
 
@@ -78,37 +79,77 @@ export const ServerDataProvider = ({ children }) => {
   // ----------------------------------------------------------
   // fetchData() — with UNIQUE FILTER FOR MANHOLES
   // ----------------------------------------------------------
+  // const fetchData = async (endpoint, key) => {
+  //   try {
+  //     const res = await fetch(endpoint);
+  //     const json = await res.json();
+  //     let tableData = json?.table_data || [];
+
+  //     // 🔥 APPLY UNIQUE FILTER ONLY FOR MANHOLE DATA
+  //     if (key === "ManholeData") {
+  //       const seen = new Set();
+  //       const uniqueRows = [];
+
+  //       for (const row of tableData) {
+  //         const id = row?.sw_mh_id != null ? String(row.sw_mh_id).trim() : null;
+  //         if (!id) continue; // Skip invalid rows
+
+  //         if (!seen.has(id)) {
+  //           seen.add(id);
+  //           uniqueRows.push(row);
+  //         }
+  //       }
+
+  //       tableData = uniqueRows;
+  //     }
+
+  //     setData(prev => ({ ...prev, [key]: tableData }));
+
+  //   } catch (err) {
+  //     console.error(`Error fetching ${key}:`, err);
+  //   }
+  // };
   const fetchData = async (endpoint, key) => {
-    try {
-      const res = await fetch(endpoint);
-      const json = await res.json();
-      let tableData = json?.table_data || [];
+  try {
+    const res = await fetch(endpoint);
+    const json = await res.json();
 
-      // 🔥 APPLY UNIQUE FILTER ONLY FOR MANHOLE DATA
-      if (key === "ManholeData") {
-        const seen = new Set();
-        const uniqueRows = [];
+    // ⭐ SPECIAL CASE: Weather API does NOT return table_data
+    if (key === "WeatherData") {
+      setData(prev => ({ ...prev, WeatherData: json }));
+      return;
+    }
 
-        for (const row of tableData) {
-          const id = row?.sw_mh_id != null ? String(row.sw_mh_id).trim() : null;
-          if (!id) continue; // Skip invalid rows
+    // ⭐ DEFAULT CASE: APIs that return table_data
+    let tableData = json?.table_data || [];
 
-          if (!seen.has(id)) {
-            seen.add(id);
-            uniqueRows.push(row);
-          }
+    // Unique filter ONLY for manhole data
+    if (key === "ManholeData") {
+      const seen = new Set();
+      const uniqueRows = [];
+
+      for (const row of tableData) {
+        const id = row?.sw_mh_id != null ? String(row.sw_mh_id).trim() : null;
+        if (!id) continue;
+
+        if (!seen.has(id)) {
+          seen.add(id);
+          uniqueRows.push(row);
         }
-
-        tableData = uniqueRows;
       }
 
-      setData(prev => ({ ...prev, [key]: tableData }));
-
-    } catch (err) {
-      console.error(`Error fetching ${key}:`, err);
+      tableData = uniqueRows;
     }
-  };
 
+    setData(prev => ({ ...prev, [key]: tableData }));
+
+  } catch (err) {
+    console.error(`Error fetching ${key}:`, err);
+  }
+};
+
+
+  console.log(backendApi.weatherdata);
   // ----------------------------------------------------------
   // Load all datasets
   // ----------------------------------------------------------
@@ -123,8 +164,11 @@ export const ServerDataProvider = ({ children }) => {
       fetchData(backendApi.robotData, "RobotsData"),
       fetchData(backendApi.warddata, "WardData"),
       fetchData(backendApi.operationsdata, "OperationsData"),
-    ]);
+      fetchData(backendApi.weatherdata,"WeatherData"),
 
+     
+    ]);
+    
     setMessage(null);
     setLoading(false);
   };
@@ -134,7 +178,7 @@ export const ServerDataProvider = ({ children }) => {
     loadAllData();
   }, []);
 
-  // console.log("Server Data Context:", data);
+  console.log("Server Data Context:", data);
 
   return (
     <ServerDataContext.Provider

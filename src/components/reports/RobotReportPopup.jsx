@@ -455,7 +455,7 @@ const ArrayTable = ({ columns = [], rows = [], emptyMessage = "No records found"
       : [];
 
   return (
-    <table className="w-full border border-gray-300 text-left bg-white mb-4">
+    <table className="w-full border border-gray-300 text-left bg-white mb-4 table-fixed">
       <thead className="bg-gray-200 text-gray-800">
         <tr>
           {finalColumns.map((c) => (
@@ -502,11 +502,11 @@ const KeyValueTable = ({ data = {}, emptyMessage = "No records found" }) => {
     );
   }
   return (
-    <table className="w-full border border-gray-300 text-left bg-white mb-4">
+    <table className="w-full border border-gray-300 text-left bg-white mb-4 table-fixed">
       <thead className="bg-gray-200 text-gray-800">
         <tr>
-          <th className="p-2 border">Key</th>
-          <th className="p-2 border">Value</th>
+          <th className="p-2 border ">Key</th>
+          <th className="p-2 border ">Value</th>
         </tr>
       </thead>
       <tbody>
@@ -1024,7 +1024,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
         </div>
 
         {/* footer */}
-        <div className="p-4 border-t bg-gray-50 flex justify-end">
+        {/* <div className="p-4 border-t bg-gray-50 flex justify-end">
           <button
             onClick={handleDownloadPDF}
             className="px-6 py-2 bg-[#0097b2] text-white rounded-lg"
@@ -1032,7 +1032,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
           >
             {isGeneratingPDF ? "Generating..." : "Download PDF"}
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

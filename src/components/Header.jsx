@@ -11,9 +11,9 @@ export const Header = () => {
       <div className="h-[100px] max-w-full px-[60px] flex justify-between items-center py-[20px]">
         <div className="flex items-center">
           <img
-            src="/Primary.png"
+            src="/images/primary_white.svg"
             alt="Primary.png"
-            className="max-w-[160px] h-[80px] object-cover"
+            className="max-w-[160px] h-[60px] object-cover"
           />
         </div>
 
@@ -23,9 +23,9 @@ export const Header = () => {
 
         <div className="flex items-center gap-[10px]">
           <div className="flex flex-col justify-end">
-            <h3 className="text-[12px] font-bold text-[#65758B]">THE BOT FACTORY</h3>
-            <h1 className="text-[20px] font-bold">All India Robotics Association</h1>
-            <p className="text-[14px] text-[#65758B]">
+            {/* <h3 className="text-[12px] font-bold text-[#65758B]">THE BOT FACTORY</h3> */}
+            <h1 className="text-[16px] font-bold">All India Robotics Association</h1>
+            <p className="text-[12px] text-[#65758B]">
               Smart Manhole Management System
             </p>
           </div>
