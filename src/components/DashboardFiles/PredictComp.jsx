@@ -1,175 +1,154 @@
+import React from 'react';
+
 const PredictComp = () => {
-  const riskData = [
-    { ward: "Ward 18", code: "MH-034", riskPercent: 92 },
-    { ward: "Ward 12", code: "MH-058", riskPercent: 82 },
-  ];
-
-  const rainfallData = [
-    { day: "D1", rainfall: 12 },
-    { day: "D2", rainfall: 5 },
-    { day: "D3", rainfall: 0 },
-    { day: "D4", rainfall: 8 },
-    { day: "D5", rainfall: 21 },
-    { day: "D6", rainfall: 33 },
-    { day: "D7", rainfall: 10 },
-  ];
-
-  const sewerFlowZones = [
-    { zone: "Zone A", status: "Stable" },
-    { zone: "Zone B", status: "Over Flow" },
-    { zone: "Zone C", status: "Stable" },
-  ];
-
-  const gasRiskZones = {
-    location: "North West",
-    gas: "H₂S",
-    riskLevel: "Elevated",
-    riskDesc: "Moderate",
+  // 1. Weather & Location Data
+  const weatherAlert = {
+    location: "Somajiguda",
+    forecast: " Rain Expected",
+    timeline: "In 3 Days",
+    desc: "These manholes show high clog risk under rainfall conditions and must be cleaned to prevent overflow or local flooding."
   };
+const highRiskManholes = [
+    "MH0621-01-410",
+    "MH0621-01-210",
+    "MH0621-01-210",
+    "MH0621-01-210",
+    "MH0621-01-210",
+    "MH0621-03-245",
+    "MH0621-03-110",
+    "MH0621-03-251"
+  ];
+  // 2. Docket / Pipeline Data
+  const docketData = [
+    {
+      id: "0621-02",
+      specs: "150 mm pipe",
+      issue: "High rainfall stress; frequent surcharges during storms.",
+      action: "Upgrade to 300–450 mm recommended."
+    },
+    {
+      id: "0621-04",
+      specs: "200 mm pipe",
+      issue: "Nearing capacity; rain increases overload risk.",
+      action: "Upgrade to 300 mm advised."
+    }
+  ];
 
-  const StatGraph = () => (
-    <svg
-      viewBox="0 0 500 200"
-      className="w-full h-48"
-      aria-label="Line chart representing rainfall trend over last 7 days"
-    >
-      {/* Axes */}
-      <line x1="40" y1="10" x2="40" y2="180" stroke="#bbb" strokeWidth="1" />
-      <line x1="40" y1="180" x2="480" y2="180" stroke="#bbb" strokeWidth="1" />
-      {/* Y-axis labels */}
-      {[0, 9, 18, 27, 36].map((val) => {
-        // Map rainfall values to chart height (10 to 180 pixels y-axis)
-        const y = 180 - (val / 36) * 170;
-        return (
-          <g key={val} className="text-gray-500 text-xs">
-            <text x="5" y={y + 5} fill="#666">
-              {val}
-            </text>
-            <line
-              x1="40"
-              y1={y}
-              x2="480"
-              y2={y}
-              stroke="#eee"
-              strokeWidth="1"
-            />
-          </g>
-        );
-      })}
-      {/* X-axis labels and dots */}
-      {rainfallData.map(({ day, rainfall }, i) => {
-        const x = 40 + i * 65;
-        const y = 180 - (rainfall / 36) * 170;
-        return (
-          <g key={day}>
-            <text
-              x={x}
-              y="195"
-              fill="#666"
-              className="text-xs"
-              textAnchor="middle"
-            >
-              {day}
-            </text>
-            <circle cx={x} cy={y} r="4" fill="#38bdf8" />
-            <text
-              x={x}
-              y={y - 10}
-              fill="#0590bc"
-              fontSize="12"
-              fontWeight="600"
-              textAnchor="middle"
-            >
-              {rainfall}
-            </text>
-          </g>
-        );
-      })}
-      {/* Line path */}
-      <polyline
-        fill="none"
-        stroke="#38bdf8"
-        strokeWidth="3"
-        points={rainfallData
-          .map(({ rainfall }, i) => {
-            const x = 40 + i * 65;
-            const y = 180 - (rainfall / 36) * 170;
-            return `${x},${y}`;
-          })
-          .join(" ")}
-      />
-    </svg>
-  );
+  // 3. Zone Risk Data
+  const zoneRisk = "Ward zones 3 and 5 likely to overflow under higher flow conditions.";
+
+  // Shared Styles
+  const cardBase = "bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden";
+  const cardPad = "p-5";
 
   return (
-    <div className="predict-comp w-full max-w-[600px] p-5 space-y-6 bg-white rounded-lg shadow-md mx-auto">
-      {/* Box-1 Clog Risk */}
-      <div className="flex-1 shadow shadow-gray-300 bg-white border border-gray-200 rounded-xl p-4 text-left">
-        <h2 className="font-semibold text-xl mb-1">Clog Risk Prediction</h2>
-        <p className="text-gray-600 mb-3 text-sm font-semibold">
-          See risks before they surge.
-        </p>
-        {riskData.map(({ ward, code, riskPercent }) => (
-          <div
-            key={code}
-            className="mb-3 p-3 border-1 border-gray-300 rounded-xl flex items-center space-x-4"
-          >
-            <div className="bg-[#1A8BA8] text-white rounded-xl px-5 py-[10px] text-xs font-semibold">
-              {ward}
+    <div className="w-full max-w-[600px] mx-auto mt-8 font-sans bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+      
+      {/* 1. WEATHER ALERT HEADER */}
+      <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl flex justify-between items-center mb-4 shadow-sm">
+         <div>
+            <div className="flex items-center gap-2 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">{weatherAlert.location}</span>
             </div>
-            <div className="flex-1">
-              <div className="text-sky-600 font-medium">{code}</div>
-              <div className="w-full bg-gray-300 h-2 rounded-full mt-1">
-                <div
-                  className="bg-[#0380FC] h-2 rounded-full"
-                  style={{ width: `${riskPercent}%` }}
-                ></div>
-              </div>
+            <h2 className="text-lg font-bold text-blue-900 leading-tight">{weatherAlert.forecast}</h2>
+         </div>
+         <span className="bg-white text-blue-800 px-3 py-1 rounded-lg text-sm font-bold shadow-sm border border-blue-100 text-center leading-tight">
+           {weatherAlert.timeline}
+         </span>
+      </div>
+
+      {/* 2. IMAGE SECTION */}
+      <div className="w-full h-68 bg-slate-100 rounded-xl border border-slate-200 mb-4 overflow-hidden relative group">
+          {/* Replace src with your actual map image */}
+          <img 
+            src="images/rainfall_lightblue.png" 
+            alt="Map of Somajiguda high risk manholes" 
+            className="w-full h-full object-fill opacity-90 group-hover:opacity-100 transition-opacity"
+          />
+          
+      </div>
+
+    {/* 3. DESCRIPTION CONTENT WITH MANHOLES */}
+  <div className="mb-6 border-l-4 border-blue-200 pl-4 py-1">
+      <p className="text-sm font-medium text-gray-700 leading-relaxed mb-3">
+        {weatherAlert.desc}
+      </p>
+      
+      {/* 8 Manholes Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+         {highRiskManholes.map((mh, index) => (
+            <div key={index} className="bg-blue-50 border border-orange-100 text-[#000000] text-[11px] font-mono font-bold px-1 py-1.5 rounded text-center">
+               {mh}
             </div>
-            <div className="w-12 text-right font-semibold">{riskPercent}%</div>
+         ))}
+      </div>
+  </div>
+ 
+    {/* 4. PIPELINE STRESS / DOCKET DATA (Consolidated Card) */}
+      <div className={`${cardBase} bg-white`}>
+        <div className="p-5">
+            {/* Main Heading */}
+            <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                <h3 className="text-lg font-bold text-gray-800">Pipeline Stress Forecast</h3>
+            </div>
+
+            {/* Sub-Cards Container */}
+            <div className="space-y-4">
+                {docketData.map((docket) => (
+                    <div key={docket.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                        <div className="flex justify-between items-start mb-2">
+                            <div>
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Docket No</span>
+                                <h4 className="text-md font-bold text-gray-800">{docket.id}</h4>
+                            </div>
+                            <span className="text-[10px] font-bold bg-white border border-gray-200 text-gray-600 px-2 py-1 rounded shadow-sm">
+                                {docket.specs}
+                            </span>
+                        </div>
+                        
+                        {/* Issues */}
+                        <div className="mb-3">
+                            <p className="text-xs font-medium text-gray-600 leading-snug">
+                                <span className="text-red-500 font-bold mr-1">Issue:</span> 
+                                {docket.issue}
+                            </p>
+                        </div>
+
+                        {/* Recommendation */}
+                        <div className="bg-white p-2.5 rounded-lg border border-gray-200 flex gap-2 items-start shadow-sm">
+                            <div className="bg-green-100 p-1 rounded-full text-green-600 mt-0.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <p className="text-xs font-bold text-gray-700 leading-tight">
+                                {docket.action}
+                            </p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+      </div>
+
+      {/* 5. WARD ZONES ALERT (Footer) */}
+      <div className="bg-blue-50 border border-red-100 rounded-xl p-4 flex items-start gap-3 mt-2">
+          
+          <div>
+              <h5 className="text-sm font-bold text-gray-800 uppercase mb-1">Overflow Warning</h5>
+              <p className="text-sm font-medium text-gray-700 leading-snug">
+                  {zoneRisk}
+              </p>  
           </div>
-        ))}
       </div>
 
-      {/* Box-2 Rainfall Trend*/}
-      <div className="flex-1 w-full shadow shadow-gray-300 bg-white borde border-gray-200 rounded-xl">
-        {/* <h3 className="font-semibold mb-3">Rainfall Trend — Last 7 Days</h3> */}
-        {/* <StatGraph /> */}
-        <img
-          src="/images/cure-bargraph.png"
-          className="w-full max-w-3xl m-auto object-contain"
-          alt="Cure RainFall Trend Stats Graph"
-        />
-      </div>
-
-      {/* Box-3 Sewer Flow */}
-      <div className="flex-1 shadow shadow-gray-300 bg-white border border-gray-200 rounded-xl p-4 text-left">
-        <h3 className="font-semibold mb-3">Sewer Flow ForeCast</h3>
-        <div className="flex justify-between align-middle gap-1">
-          {sewerFlowZones.map(({ zone, status }) => (
-            <div
-              key={zone}
-              className="bg-gray-50 px-4 py-2 rounded border-1 border-gray-200 shadow hover:shadow-gray-400 font-semibold text-sm text-gray-800 cursor-default"
-            >
-              {zone} - {status}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Box-4 Gas Risk */}
-      <div className="flex-1 shadow shadow-gray-300 bg-white border border-gray-200 rounded-xl p-4 text-left">
-        <h3 className="font-semibold mb-3">Gas Risk Zones</h3>
-        <div
-          // className="inline-block bg-gray-50 p-2 rounded text-gray-700 font-medium"
-          className="bg-gray-50 inline-block px-4 py-2 rounded border-1 border-gray-200 shadow hover:shadow-gray-400 font-semibold text-sm text-gray-800 cursor-default"
-        >
-          {gasRiskZones.location} {gasRiskZones.gas}: {gasRiskZones.riskLevel} -{" "}
-          <span className="text-red-600 font-semibold">
-            Risk: {gasRiskZones.riskDesc}
-          </span>
-        </div>
-      </div>
     </div>
   );
 };
