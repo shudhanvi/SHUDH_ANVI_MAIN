@@ -1,187 +1,198 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import React from 'react';
 
 const PreventComp = () => {
-  const [areaNames, setAreaNames] = useState([]);
-  const [selectedArea, setSelectedArea] = useState('');
-  const [sensorReadings, setSensorReadings] = useState([]);
-  const [blockageHistory, setBlockageHistory] = useState([]);
-  const [upcomingMaintenance, setUpcomingMaintenance] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  // Data Configuration
+  const weatherAlert = {
+    title: "Heavy Rain Expected",
+    timeline: "In 3 Days",
+  };
 
-  // Use useCallback to memoize the function, preventing unnecessary re-creation
-  const fetchPreventData = useCallback(async () => {
-    if (!selectedArea) {
-      setSensorReadings([]);
-      setBlockageHistory([]);
-      setUpcomingMaintenance([]);
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const response = await axios.get(`http://localhost:3001/api/prevent_data/${selectedArea}`);
-      const data = response.data;
-      setSensorReadings(data.sensorReadings);
-      setBlockageHistory(data.blockageHistory);
-      setUpcomingMaintenance(data.upcomingMaintenance);
-    } catch (error) {
-      console.error("Error fetching prevention data:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedArea]);
+  const fleetData = {
+    overutilized: ["SB-002", "SB-042", "SB-058", "SB-009", "SB-015"],
+    underutilized: ["SB-008", "SB-034"],
+  };
 
-  // Effect to fetch all area names for the dropdown on component mount
-  useEffect(() => {
-    const fetchAreaNames = async () => {
-      try {
-        const response = await axios.get('http://localhost:3001/api/areas');
-        setAreaNames(response.data);
-      } catch (error) {
-        console.error("Error fetching area names:", error);
-      }
-    };
-    fetchAreaNames();
-  }, []);
+  const zoneData = {
+    targets: ["MH0621-06-68", "MH0621-03-117", "MH0621-04-215", "MH0621-02-352", "MH0621-05-75"]
+  };
 
-  // Effect to fetch data for the selected area whenever it changes
-  useEffect(() => {
-    fetchPreventData();
-  }, [selectedArea, fetchPreventData]);
+  const networkData = {
+    desc: "Simulation indicates blockage at MH0621-04-19 will cause backflow into residential lines within 48 hours."
+  };
 
-  
+  const inflowData = [
+    { id: "MH0621-04-108", issue: "High inflow surge detected – check top cover sealing." },
+    { id: "MH0621-04-355", issue: "Water ingress under heavy rain – inspect side wall leaks." },
+    { id: "MH0621-04-355", issue: "Repeated water entry events – verify lid settlement." },
+    { id: "MH0621-07-114", issue: "Possible ground water inflow – CCTV inspection recommended." }
+  ];
+
+  // Shared Styles
+  const cardBase = "bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden w-full h-full";
+  const cardPad = "p-5";
+
   return (
-    <div className="prevent-comp w-full max-w-[600px] p-5 space-y-6 bg-white rounded-lg shadow-md mx-auto mt-8">
-      {/* Area Selection Dropdown */}
-      <div className="flex-1 shadow shadow-gray-300 bg-white border border-gray-200 rounded-xl p-4 text-left">
-        <label htmlFor="area-select" className="block text-sm font-medium text-gray-700 mb-2">
-          Select Ward:
-        </label>
-        <select
-          id="area-select"
-          value={selectedArea}
-          onChange={(e) => setSelectedArea(e.target.value)}
-          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500"
-        >
-          <option value="" disabled>Select a ward</option>
-          {areaNames.map(area => (
-            <option key={area} value={area}>{area}</option>
-          ))}
-        </select>
-        
-      </div>
+    <div className="w-full max-w-[700px] mx-auto mt-8 font-sans bg-white px-[25px] py-[30px] rounded-2xl shadow-sm border border-gray-100">
+      
+      {/* WEATHER ALERT HEADER */}
+ 
+      <div className="flex flex-col gap-5">
 
-      {selectedArea ? (
-        isLoading ? (
-          <div className="text-center p-8">Loading data...</div>
-        ) : (
-          <>
-           
+        {/* --- TOP ROW: FLEET & ADVANCE CLEANING (Side by Side) --- */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             
-            {/* Box 2 */}
-            <div className="blockage-history mt-6 grid grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {/* blockage-history */}
-              <div className="bg-white p-3 shadow flex flex-col gap-1.5 shadow-gray-300 rounded-xl border border-gray-200 text-left">
-                <h4 className="font-semibold mb-2">Blockage History</h4>
-                {blockageHistory.map(({ code, desc }) => (
-                  <div
-                    key={code}
-                    className="bg-white border rounded-xl border-gray-300 px-3 py-2 mb-2"
-                  >
-                    <div className="font-semibold text-sm">{code}</div>
-                    <div className="text-gray-600 font-[600] text-[10px]">{desc}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Upcoming Maintenance */}
-              <div className="bg-white p-3 shadow flex flex-col gap-1.5 shadow-gray-300 rounded-xl border border-gray-200 text-left">
-                <h4 className="font-semibold mb-2">Upcoming Maintenance</h4>
-                {upcomingMaintenance.map(({ code, dueDate }) => (
-                  <div
-                    key={code}
-                    className="bg-white border rounded-xl border-gray-300 px-3 py-2 mb-2"
-                  >
-                    <div className="font-semibold text-sm">{code}</div>
-                    <div className="text-gray-600 font-[600] text-[10px]">
-                      Due By {dueDate}
+            {/* 1. FLEET REASSIGNMENT */}
+            <div className={cardBase}>
+            <div className={cardPad}>
+                <h5 className="text-md font-bold text-gray-800 mb-1">Workload Reassignment</h5>
+                <p className="text-xs text-gray-400 mb-4">  BALANCE FLEET LOAD BEFORE RAIN</p>
+                
+                <div className="space-y-4">
+                    {/* Overloaded */}
+                    <div>
+                        <p className="text-xs font-bold text-gray-600 mb-2 flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                            High Load (Reduce Usage)
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {fleetData.overutilized.slice(0, 5).map(id => (
+                            <span key={id} className="text-xs font-mono bg-white border border-gray-200 text-gray-700 px-2 py-1 rounded">
+                                {id}
+                            </span>
+                            ))}
+                        </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+
+                    {/* Deploy */}
+                    <div>
+                        <p className="text-xs font-bold text-gray-600 mb-2 flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                            Available for Deployment
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {fleetData.underutilized.map(id => (
+                            <span key={id} className="text-xs font-mono bg-white border border-gray-200 text-gray-700 px-2 py-1 rounded font-bold shadow-sm">
+                                {id}
+                            </span>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
             </div>
 
-            {/* Box 3 */}
-            <div className="bg-white shadow pt-3 flex flex-col gap-1.5 shadow-gray-300 rounded-xl border border-gray-200 text-left">
-              <h4 className="font-semibold text-md px-3">Network Analysis</h4>
-              <p className="text-gray-600 text-[12px] font-[600] mb-3 px-3">
-                How upcoming MH-034 and MH-057 can create issues in the network
-              </p>
-              <div className="aspect-w-16 aspect-h-9 h-auto relative">
-                <img
-                  src="/images/prevent-map.png"
-                  className="w-full max-w-3xl m-auto object-contain"
-                  alt="Detailed network map visualization highlighting MH-034 and MH-057 with surrounding pipeline and infrastructure"
-                  onError={(e) => (e.target.style.display = "none")}
-                />
-              </div>
-            </div>
-                {/* Live Sensor Reading */}
-            <div className="bg-white p-5 shadow shadow-gray-300 rounded-xl">
-              <h3 className="font-semibold text-md mb-1 text-left">
-                Live Sensor Reading
-              </h3>
-              <p className="text-gray-600 text-sm mb-3 text-left">
-                Act early. Reduce Downtime
-              </p>
-              <table className="w-full text-sm border-gray-300 rounded text-left">
-                <thead className="bg-gray-50 font-[600]">
-                  <tr>
-                    <th className="border-b border-gray-300 p-2">Sensor ID</th>
-                    <th className="border-b border-gray-300 p-2">CO</th>
-                    <th className="border-b border-gray-300 p-2">CH4</th>
-                    <th className="border-b border-gray-300 p-2">H2S</th>
-                    <th className="border-b border-gray-300 p-2">Linked MH</th>
-                  </tr>
-                </thead>
-                <tbody className="font-[300]">
-                  {sensorReadings.map(({ id, CO, CH4, H2S, linkedMH }) => (
-                    <tr
-                      key={id}
-                      className={CH4 > 50 || H2S > 7 ? "bg-yellow-50" : ""}
+            {/* 2. ADVANCE CLEANING */}
+            <div className={cardBase}>
+            <div className={cardPad}>
+                <div className="flex justify-between items-start mb-3">
+                <div>
+                    <h5 className="text-md font-bold text-gray-800 leading-tight">Advance Cleaning</h5>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mt-0.5">
+                    Predicted High-Risk Manholes
+                    </p>
+                </div>
+                </div>
+            
+                <div className="bg-blue-50 border border-blue-100 p-3 rounded-lg mb-4">
+                <p className="text-xs font-medium text-blue-800 italic leading-snug">
+                    Clean these manholes in advance; they are predicted to clog next.
+                </p>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                {zoneData.targets.map((target) => (
+                    <div 
+                    key={target} 
+                    className="text-[10px] font-mono px-2 py-1.5 rounded border border-gray-200 bg-white text-gray-700 font-semibold shadow-sm flex items-center gap-1"
                     >
-                      <td className="p-2 border-b border-gray-200">{id}</td>
-                      <td className="p-2 border-b border-gray-200">
-                        {CO.toFixed(1)}
-                      </td>
-                      <td
-                        className={`p-2 border-b border-gray-200 ${
-                          CH4 > 50 ? "text-red-600 font-semibold" : ""
-                        }`}
-                      >
-                        {CH4.toFixed(1)}
-                      </td>
-                      <td
-                        className={`p-2 border-b border-gray-200 ${
-                          H2S > 7 ? "text-red-600 font-semibold" : ""
-                        }`}
-                      >
-                        {H2S.toFixed(1)}
-                      </td>
-                      <td className="p-2 border-b border-gray-200">{linkedMH}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                    {target}
+                   
+                    </div>
+                ))}
+                </div>
+
+                <p className="text-[10px] text-gray-400 mt-3 font-medium flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                All approaching predicted next cleaning date
+                </p>
+            </div>
+            </div>
+        </div>
+
+
+        {/* --- BOTTOM ROW: NETWORK & INFLOW (Side by Side) --- */}
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-5">
+         
+            <div className={cardBase}>
+                 
+            {/* 3. NETWORK VULNERABILITY */}<div className="p-5 border-gray-100">
+                        <h5 className="text-md font-bold text-gray-800">Network Vulnerability</h5>
+                        <p className="text-xs text-gray-500">Predictive Flow Modeling</p>
+                    </div>
+                <div className="p-0 flex flex-col h-full">
+                    
+                    
+                    <div className="w-full h-68 bg-slate-50 relative overflow-hidden">
+                        <img 
+                            src="/images/network.jpeg" 
+                            alt="Network Map" 
+                            className="w-full h-auto object-fit" 
+                            onError={(e) => {e.target.style.display='none'}}
+                        />
+                    </div>
+
+              
+                <div className="p-5">
+                        <p className="text-xs text-gray-700 font-medium leading-relaxed">
+                            <span className="text-gray-900 font-extrabold">Insight: </span> 
+                            {networkData.desc}
+                        </p>
+                    </div>
+                      </div>
             </div>
             
-          </>
-        )
-      ) : (
-        <div className="text-center p-8 text-gray-500">
-          <p>Please select a ward for the prevent.</p>
+                    
+
+            {/* 4. MONITOR HIGH-INFLOW */}
+            <div className={cardBase}>
+            <div className={cardPad}>
+                <div className="flex justify-between items-start mb-3">
+                <div>
+                    <h5 className="text-md font-bold text-gray-800 leading-tight">Monitor High-Inflow</h5>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mt-0.5">
+                    During Rainfall
+                    </p>
+                </div>
+                <span className="bg-cyan-50 text-cyan-700 px-2 py-1 rounded text-[10px] font-bold border border-cyan-100 flex items-center gap-1">
+                    Alert
+                </span>
+                </div>
+            
+                <div className="bg-cyan-50 border border-cyan-100 p-3 rounded-lg mb-4">
+                <p className="text-xs font-medium text-cyan-900 italic leading-snug">
+                    "Check sealing and water entry in these manholes during rainfall."
+                </p>
+                </div>
+                
+                <div className="space-y-3">
+                {inflowData.map((item, index) => (
+                    <div key={index} className="flex flex-col border-b border-gray-100 pb-2 last:border-0 last:pb-0">
+                    <span className="text-xs font-mono font-bold text-cyan-700 bg-cyan-50 w-max px-1.5 py-0.5 rounded mb-1 border border-cyan-100">
+                        {item.id}
+                    </span>
+                    <p className="text-xs text-gray-600 font-medium leading-tight pl-1">
+                        {item.issue}
+                    </p>
+                    </div>
+                ))}
+                </div>
+            </div>
+            </div>
         </div>
-      )}
+
+      </div>
     </div>
   );
 };

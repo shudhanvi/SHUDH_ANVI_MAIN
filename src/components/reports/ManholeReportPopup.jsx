@@ -268,6 +268,11 @@
 
 import { X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { LocateFixed, Map, MapPin } from 'lucide-react';
+import MiniMap from "./MiniMap";
+
 
 /* --------------------- Script loader & plugin register --------------------- */
 
@@ -446,12 +451,20 @@ const KeyValueTable = ({ data = {} }) => {
 
 /* --------------------------- Main component ------------------------------- */
 
-export const ManholeReportPopup = ({ reportData, onClose }) => {
+export const ManholeReportPopup = ({ reportData, onClose,manholeloc }) => {
   const printableRef = useRef(null);
   const [libsLoaded, setLibsLoaded] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-
   const d = reportData || {};
+  const location = {
+  lat: parseFloat(d.Latitude),
+  lon: parseFloat(d.Longitude)
+};
+console.log("Location:", location);
+
+const multiplelocations = manholeloc || [];
+
+
 
   const isSingle = Boolean(d["Manhole ID"]);
   const isAggregate = Boolean(d["Total Manholes"]);
@@ -547,7 +560,7 @@ export const ManholeReportPopup = ({ reportData, onClose }) => {
         </div>
 
         {/* CONTENT */}
-        <div ref={printableRef} className="p-6 max-h-[75vh] overflow-y-auto bg-gray-50 text-gray-800">
+        <div ref={printableRef} className="p-6 max-h-[85vh] overflow-y-auto bg-gray-50 text-gray-800">
 
           {/* ----------------- SINGLE MANHOLE UI (ONLY SINGLE FIELDS) ----------------- */}
           {isSingle && (
@@ -576,6 +589,10 @@ export const ManholeReportPopup = ({ reportData, onClose }) => {
                   value={singleMonthlyFreq.length ? singleMonthlyFreq[singleMonthlyFreq.length - 1][1] : "N/A"}
                 />
               </div>
+
+<div className="w-full flex justify-center mb-[20px]">
+<MiniMap locations={[location]} height="250px" width="50%" />
+</div>
 
               {/* Charts: only time series charts for single */}
               <ChartRow>
@@ -664,6 +681,11 @@ export const ManholeReportPopup = ({ reportData, onClose }) => {
                 <InfoCard title="Total Operations" value={d["Total Operations"]} />
                 <InfoCard title="Average Operation Time (min)" value={d["Average Operation Time (min)"]} />
               </div>
+
+
+<div className="w-full flex justify-center mb-[20px]">
+  <MiniMap locations={multiplelocations} height="350px" width="100%" />
+</div>
 
               {/* Charts for aggregate time-series */}
               <ChartRow>
@@ -758,7 +780,7 @@ export const ManholeReportPopup = ({ reportData, onClose }) => {
         </div>
 
         {/* FOOTER */}
-        <div className="p-4 border-t border-gray-300 flex justify-end bg-gray-100">
+        {/* <div className="p-4 border-t border-gray-300 flex justify-end bg-gray-100">
           <button
             onClick={handleDownloadPDF}
             className="px-6 py-2 text-white rounded-lg"
@@ -767,7 +789,7 @@ export const ManholeReportPopup = ({ reportData, onClose }) => {
           >
             {isGeneratingPDF ? "Generating..." : "Download PDF"}
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
