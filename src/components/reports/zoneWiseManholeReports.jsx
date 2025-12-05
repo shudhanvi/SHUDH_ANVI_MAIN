@@ -120,10 +120,20 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
     }
   };
 
+  const selectedManholeLocations = sortedData
+  .filter(m => selectedManholes.includes(m.sw_mh_id))
+  .map(m => ({
+    id: m.sw_mh_id,
+    lat: parseFloat(m.latitude || m.lat || m.Latitude),
+    lon: parseFloat(m.longitude || m.lon || m.Longitude),
+  }));
+  console.log("Selected Manhole Locations:", selectedManholeLocations);
+
+
   return (
     <>
       {showPopup && reportData && (
-        <ManholeReportPopup reportData={reportData} onClose={() => setShowPopup(false)} />
+        <ManholeReportPopup reportData={reportData} manholeloc={selectedManholeLocations} onClose={() => setShowPopup(false)} />
       )}
 
       {/* Date pickers */}
