@@ -147,8 +147,8 @@ const getManholeStatus = useCallback((operationdates) => {
     const diffTime = today - lastCleaned;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays >= 20) return "danger"; 
-    if (diffDays >= 10) return "warning";
+    if (diffDays >= 25) return "danger"; 
+    if (diffDays >= 15) return "warning";
     return "safe";
   }, []);
 
@@ -727,7 +727,7 @@ const handleClosePopup = useCallback(() => {
           </div>        </div>
       </div>
       {/* --- Right section --- */}
-      <div className="db-popup-container ml-4 h-[633px] shadow-gray-300 shadow-md border border-gray-200 w-full max-w-[30%] overflow-y-auto overflow-x-hidden bg-white rounded-xl ">
+      <div className="db-popup-container ml-4 h-[633px] shadow-gray-300 shadow-md border border-gray-200 w-full max-w-[30%]  overflow-y-auto overflow-x-hidden bg-white rounded-xl ">
         {selectedManholeLocation ? (
           <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
             <ManholePopUp selectedLocation={selectedManholeLocation} onClose={handleClosePopup} onGenerateReport={handleGenerateReport} onAssignBot={handleAssignBot} />
