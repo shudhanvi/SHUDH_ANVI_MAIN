@@ -530,7 +530,7 @@ const handleClosePopup = useCallback(() => {
     setFilteredManholeGeoJSON(generateManholeGeoJSON(filtered, latestRobotCleanings));
   }, [selectedDivision, selectedAreaName, selectedZone, allManholeData, generateManholeGeoJSON, latestRobotCleanings]);
 useEffect(() => {
-    fetch("public/datafiles/CSVs/buildings_updated_somajiguda.geojson")
+    fetch("/datafiles/CSVs/buildings_updated_somajiguda.geojson")
       .then(res => res.json())
       .then(data => setBuildingData(data)) // Updates the state defined in Step 1
       .catch(err => console.error("Error loading buildings:", err));
