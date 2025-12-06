@@ -460,7 +460,7 @@ export const ManholeReportPopup = ({ reportData, onClose,manholeloc }) => {
   lat: parseFloat(d.Latitude),
   lon: parseFloat(d.Longitude)
 };
-console.log("Location:", location);
+// console.log("Location:", location);
 
 const multiplelocations = manholeloc || [];
 

@@ -32,7 +32,7 @@ const CureComp = () => {
       <li className={cardClass}>
         <div className={innerClass}>
           <div className="w-full">
-            <h5 className="text-lg font-[600] text-gray-800 mb-3">Fleet Availability</h5>
+            <h5 className="text-lg font-[600] text-gray-800 mb-3">Robots Availability</h5>
             
             {/* New Fleet Layout */}
             <div className="flex items-end gap-3 mb-2">
