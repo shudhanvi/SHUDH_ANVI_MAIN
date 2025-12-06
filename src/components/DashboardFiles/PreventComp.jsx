@@ -45,7 +45,7 @@ const PreventComp = () => {
             <div className={cardBase}>
             <div className={cardPad}>
                 <h5 className="text-md font-bold text-gray-800 mb-1">Workload Reassignment</h5>
-                <p className="text-xs text-gray-400 mb-4">  BALANCE FLEET LOAD BEFORE RAIN</p>
+                <p className="text-xs text-gray-400 mb-4">  BALANCE ROBOT LOAD BEFORE RAIN</p>
                 
                 <div className="space-y-4">
                     {/* Overloaded */}
@@ -134,7 +134,7 @@ const PreventComp = () => {
                 <div className="p-0 flex flex-col h-full">
                     
                     
-                    <div className="w-full h-68 bg-slate-50 relative overflow-hidden">
+                    <div className="w-full h-[450px] bg-slate-50 relative overflow-hidden">
                         <img 
                             src="/images/network.jpeg" 
                             alt="Network Map" 

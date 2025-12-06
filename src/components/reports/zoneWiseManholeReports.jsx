@@ -110,7 +110,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
 
       const data = await response.json();
       setReportData(data);
-      console.log("Backend response:", data);
+      // console.log("Backend response:", data);
       setShowPopup(true);
     } catch (error) {
       console.error("Error:", error);
@@ -127,7 +127,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
     lat: parseFloat(m.latitude || m.lat || m.Latitude),
     lon: parseFloat(m.longitude || m.lon || m.Longitude),
   }));
-  console.log("Selected Manhole Locations:", selectedManholeLocations);
+  // console.log("Selected Manhole Locations:", selectedManholeLocations);
 
 
   return (
