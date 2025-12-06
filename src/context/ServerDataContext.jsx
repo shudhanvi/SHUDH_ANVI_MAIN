@@ -149,7 +149,7 @@ export const ServerDataProvider = ({ children }) => {
 };
 
 
-  console.log(backendApi.weatherdata);
+  // console.log(backendApi.weatherdata);
   // ----------------------------------------------------------
   // Load all datasets
   // ----------------------------------------------------------
@@ -178,7 +178,7 @@ export const ServerDataProvider = ({ children }) => {
     loadAllData();
   }, []);
 
-  console.log("Server Data Context:", data);
+  // console.log("Server Data Context:", data);
 
   return (
     <ServerDataContext.Provider

@@ -71,7 +71,7 @@ export const Dashboard = () => {
           {DashboardCardsContent.map((i) => (
             <li
               key={i.label}
-              className="w-full max-md:w-max max-md:self-center text-gray-900 place-content-center rounded-xl hover:scale-103 shadow-sm shadow-gray-300 hover:shadow-md hover:shadow-gray-500 hover:-translate-y-1 transition-all duration-200"
+              className="w-full max-md:w-max max-md:self-center text-gray-900 place-content-center rounded-xl hover:scale-100 shadow-sm shadow-gray-300 hover:shadow hover:shadow-gray-400 hover:-translate-y-1 transition-all duration-200"
               style={{ backgroundColor: i.bgColor }}
             >
               <button

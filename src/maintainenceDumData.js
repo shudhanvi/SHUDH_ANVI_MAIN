@@ -2,7 +2,7 @@ const maintenanceTasks = [
   {
     id: 1,
     title: "Manhole Inspection",
-    location: "Secunderabad – MH-0015",
+    location: "SOMAJIGUDA – MH-0015",
     dateTime: "Tomorrow, 10:00 AM",
     priority: "Medium",
     priorityColor: "orange",
@@ -14,7 +14,7 @@ const maintenanceTasks = [
   {
     id: 2,
     title: "Routine Cleaning",
-    location: "Kukatpally – MH-0023",
+    location: "SOMAJIGUDA – MH-0023",
     dateTime: "Aug 8, 9:00 AM",
     priority: "Low",
     priorityColor: "green",
@@ -26,7 +26,7 @@ const maintenanceTasks = [
   {
     id: 3,
     title: "Pump Maintenance",
-    location: "Miyapur – MH-0047",
+    location: "SR NAGAR – MH-0047",
     dateTime: "Aug 7, 8:00 AM",
     priority: "High",
     priorityColor: "red",
@@ -38,7 +38,7 @@ const maintenanceTasks = [
   {
     id: 4,
     title: "Filter Replacement",
-    location: "Hitech City – MH-0099",
+    location: "SOMAJIGUDA – MH-0099",
     dateTime: "Aug 6, 2:00 PM",
     priority: "Medium",
     priorityColor: "orange",
@@ -50,7 +50,7 @@ const maintenanceTasks = [
   {
     id: 5,
     title: "Valve Inspection",
-    location: "Mehdipatnam – MH-0033",
+    location: "SR NAGAR – MH-0033",
     dateTime: "Aug 10, 11:00 AM",
     priority: "Low",
     priorityColor: "green",
@@ -62,7 +62,7 @@ const maintenanceTasks = [
   {
     id: 6,
     title: "Emergency Leak Repair",
-    location: "Begumpet – MH-0055",
+    location: "SR NAGAR – MH-0055",
     dateTime: "Today, 4:00 PM",
     priority: "High",
     priorityColor: "red",
@@ -74,7 +74,7 @@ const maintenanceTasks = [
   {
     id: 7,
     title: "Pipe Replacement",
-    location: "Gachibowli – MH-0077",
+    location: "SOMAJIGUDA – MH-0077",
     dateTime: "Aug 9, 3:00 PM",
     priority: "Medium",
     priorityColor: "orange",

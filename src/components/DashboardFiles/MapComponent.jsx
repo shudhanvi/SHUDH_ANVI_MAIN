@@ -6,6 +6,7 @@ import { useServerData } from "../../context/ServerDataContext";
 import MapboxCore from "./MapboxCore";
 import ManholePopUp from "./ManholePopUp";
 import WardDetailsPopUp from "./WardDetailsPopUp";
+ 
 
 const mapStyles = [
   { url: "mapbox://styles/shubhamgv/cmiofroih003501sm90m2hn06", img: "/images/street.png", name: "Street" },
@@ -36,8 +37,8 @@ const MapComponent = () => {
   const [selectedManholeLocation, setSelectedManholeLocation] = useState(null);
   const { data, loading, message: error } = useServerData();
   const [latestRobotCleanings, setLatestRobotCleanings] = useState({});
-// 👇 ADD THIS LINE 👇
-  const [searchId, setSearchId] = useState("");
+  const [buildingData, setBuildingData] = useState(null);
+   const [searchId, setSearchId] = useState("");
   // --- Refs ---
   const centerToRestoreRef = useRef(null);
   const zoomToRestoreRef = useRef(null);
@@ -107,7 +108,7 @@ const handleSearchManhole = () => {
 
 
 
-
+ 
 
 
   const getDisplayName = (rawName) => {
@@ -528,6 +529,12 @@ const handleClosePopup = useCallback(() => {
     });
     setFilteredManholeGeoJSON(generateManholeGeoJSON(filtered, latestRobotCleanings));
   }, [selectedDivision, selectedAreaName, selectedZone, allManholeData, generateManholeGeoJSON, latestRobotCleanings]);
+useEffect(() => {
+    fetch("/datafiles/CSVs/buildings_updated_somajiguda.geojson")
+      .then(res => res.json())
+      .then(data => setBuildingData(data)) // Updates the state defined in Step 1
+      .catch(err => console.error("Error loading buildings:", err));
+  }, []);
 
   // --- WARD ZOOM EFFECT ---
   useEffect(() => {
@@ -711,6 +718,8 @@ const handleClosePopup = useCallback(() => {
             getManholeDateById={getManholeDateById}
             onManholeClick={handleManholeClick}
             onManholeDeselect={handleManholeDeselect}
+ buildingGeoJSON={buildingData}
+ 
           />
           {loading && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">Loading map...</div>}
           {error && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10 "> {error}</div>}
@@ -727,19 +736,36 @@ const handleClosePopup = useCallback(() => {
           </div>        </div>
       </div>
       {/* --- Right section --- */}
-      <div className="db-popup-container ml-4 h-[633px] shadow-gray-300 shadow-md border border-gray-200 w-full max-w-[30%]  overflow-y-auto overflow-x-hidden bg-white rounded-xl ">
-        {selectedManholeLocation ? (
-          <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
-            <ManholePopUp selectedLocation={selectedManholeLocation} onClose={handleClosePopup} onGenerateReport={handleGenerateReport} onAssignBot={handleAssignBot} />
-          </div>
-        ) : selectedWardForPopup ? (
-          <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
-            <WardDetailsPopUp wardData={selectedWardForPopup} alertData={alertData} onManholeSelect={handleAlertManholeClick} onClose={() => setSelectedAreaName("All")} setSelectedWard={setSelectedAreaName} />
-          </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center place-items-center text-gray-400 p-4 text-center"> <p className="flex flex-col items-center justify-center"> <MapPin className=" w-18 h-18 mb-2 text-gray-300 " /> Select a Manhole on the map to view details. </p> </div>
-        )}
-      </div>
+     <div className="db-popup-container ml-4 h-[633px] shadow-gray-300 shadow-md border border-gray-200 w-full max-w-[30%] overflow-y-auto overflow-x-hidden bg-white rounded-xl ">
+  {selectedManholeLocation ? (
+    <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
+      <ManholePopUp 
+        selectedLocation={selectedManholeLocation} 
+        onClose={handleClosePopup} 
+        onGenerateReport={handleGenerateReport} 
+        onAssignBot={handleAssignBot} 
+      />
+    </div>
+ 
+  ) : selectedWardForPopup ? (
+    <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
+      <WardDetailsPopUp 
+        wardData={selectedWardForPopup} 
+        alertData={alertData} 
+        onManholeSelect={handleAlertManholeClick} 
+        onClose={() => setSelectedAreaName("All")} 
+        setSelectedWard={setSelectedAreaName} 
+      />
+    </div>
+  ) : (
+    <div className="w-full h-full flex items-center justify-center place-items-center text-gray-400 p-4 text-center">
+      <p className="flex flex-col items-center justify-center">
+        <MapPin className=" w-18 h-18 mb-2 text-gray-300 " />
+        Select a Manhole or Building on the map to view details.
+      </p>
+    </div>
+  )}
+</div>
     </div>
   );
 };
