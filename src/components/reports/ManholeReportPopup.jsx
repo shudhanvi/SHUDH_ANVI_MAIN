@@ -363,7 +363,7 @@ const ChartCanvas = ({ type = "bar", getData, getOptions, deps = [] }) => {
 };
 
 const ChartBlock = ({ title, children }) => (
-  <div className="w-full md:w-1/2 p-2">
+  <div className="w-full h-[30%] md:w-1/2 p-2">
     <div className="bg-white border border-gray-300 rounded p-3">
       <h3 className="text-sm font-semibold mb-2">{title}</h3>
       {children}
@@ -383,7 +383,7 @@ const ArrayTable = ({ columns = [], rows = [] }) => {
       ? Object.keys(rows[0]).map((k) => ({ key: k, label: k }))
       : [];
   return (
-    <table className="w-full border border-gray-300 text-left bg-white mb-4">
+    <table className="w-full border border-gray-300 text-left bg-white mb-4 table-fixed">
       <thead className="bg-gray-200 text-gray-800">
         <tr>
           {finalColumns.map((c) => (
@@ -424,7 +424,7 @@ const KeyValueTable = ({ data = {} }) => {
   const entries = Object.entries(data);
   if (!entries.length) return <p className="text-gray-600">No records</p>;
   return (
-    <table className="w-full border border-gray-300 text-left bg-white mb-4">
+    <table className="w-full border border-gray-300 text-left bg-white mb-4 table-fixed">
       <thead className="bg-gray-200 text-gray-800">
         <tr>
           <th className="p-2 border">Key</th>
@@ -523,6 +523,7 @@ const multiplelocations = manholeloc || [];
   const singleAnomalies = Array.isArray(d["Operation Time-Based Anomalies(last 30 days)"])
     ? d["Operation Time-Based Anomalies(last 30 days)"]
     : [];
+  const singleMonthlyAvg = sortedMonthEntries(d["Monthly Average Operation Time (min)"] || {});
 
   // AGGREGATE
   const aggMonthlyFreq = sortedMonthEntries(d["Monthly Operation Frequency"] || {});
@@ -620,7 +621,7 @@ const multiplelocations = manholeloc || [];
                   </ChartBlock>
                 )}
 
-                {singleAnomalies.length > 0 && (
+                {/* {singleAnomalies.length > 0 && (
                   <ChartBlock title="Anomaly Differences (visual)">
                     <ChartCanvas
                       type="scatter"
@@ -644,7 +645,32 @@ const multiplelocations = manholeloc || [];
                       })}
                     />
                   </ChartBlock>
-                )}
+                )} */}
+
+                {singleMonthlyAvg.length > 0 && (
+  <ChartBlock title="Monthly Average Operation Time (min)">
+    <ChartCanvas
+      type="bar"
+      deps={[singleMonthlyAvg, libsLoaded]}
+      getData={() => ({
+        labels: singleMonthlyAvg.map(([m]) => m),
+        datasets: [
+          {
+            label: "Avg Time (min)",
+            data: singleMonthlyAvg.map(([, v]) => safeNumber(v)),
+            borderWidth: 1,
+          },
+        ],
+      })}
+      getOptions={() => ({
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } },
+      })}
+    />
+  </ChartBlock>
+)}
+
               </ChartRow>
 
               {/* Tables: record-based data for single (no duplication of charted monthly data) */}
@@ -663,7 +689,7 @@ const multiplelocations = manholeloc || [];
               <ArrayTable
                 columns={[
                   { key: "date", label: "Date" },
-                  { key: "operation_time", label: "Operation Time" },
+                  { key: "operation_time", label: "Operation Time (min)" },
                   { key: "avg_time", label: "Average Time" },
                   { key: "difference", label: "Difference" },
                   // { key: "robot_id", label: "Robot ID" },
@@ -716,7 +742,7 @@ const multiplelocations = manholeloc || [];
                 {aggMonthlyAvg.length > 0 && (
                   <ChartBlock title="Monthly Average Operation Time (min)">
                     <ChartCanvas
-                      type="line"
+                      type="bar"
                       deps={[aggMonthlyAvg, libsLoaded]}
                       getData={() => ({
                         labels: aggMonthlyAvg.map(([m]) => m),
@@ -724,9 +750,8 @@ const multiplelocations = manholeloc || [];
                           {
                             label: "Avg Time (min)",
                             data: aggMonthlyAvg.map(([, v]) => safeNumber(v)),
-                            borderWidth: 2,
-                            tension: 0.25,
-                            pointRadius: 3,
+                            borderWidth: 1,
+                            
                           },
                         ],
                       })}
@@ -767,8 +792,8 @@ const multiplelocations = manholeloc || [];
                   columns={[
                     { key: "Date", label: "Date" },
                     { key: "Manhole ID", label: "Manhole ID" },
-                    { key: "Robot ID", label: "Robot ID" },
-                    { key: "Actual Time", label: "Actual Time" },
+                    // { key: "Robot ID", label: "Robot ID" },
+                    { key: "Actual Time", label: "Operation Time" },
                     { key: "Average Time", label: "Average Time" },
                     { key: "Difference", label: "Difference" },
                   ]}
