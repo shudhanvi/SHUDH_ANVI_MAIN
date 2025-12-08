@@ -835,13 +835,13 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                 {/* Info cards grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
                   <InfoCard title="Robot ID" value={data["Robot ID"]} />
-                  <InfoCard title="Total Operations" value={data["Total Operations"] ?? 0} />
-                  <InfoCard title="Total Operations Today" value={data["Total Operations Today"] ?? 0} />
-                  <InfoCard title="Total Operation Time (min)" value={data["Total Operation Time (min)"] ?? 0} />
+                   <InfoCard title="Total Operations" value={data["Total Operations"] ?? 0} />
+                  {/* <InfoCard title="Total Operations Today" value={data["Total Operations Today"] ?? 0} /> */}
+                  {/* <InfoCard title="Total Operation Time (min)" value={data["Total Operation Time (min)"] ?? 0} />  */}
                   <InfoCard title="Average Operation Time (min)" value={data["Average Operation Time (min)"] ?? "N/A"} />
-                  <InfoCard title="Average Operation Time Today" value={data["Average Operation Time Today"] ?? 0} />
-                  <InfoCard title="Highest Operation Time Today" value={data["Highest Operation Time Today"] ?? 0} />
-                  <InfoCard title="Idle Time Today (min)" value={data["Idle Time Today (min)"] ?? 0} />
+                  {/* <InfoCard title="Average Operation Time Today" value={data["Average Operation Time Today"] ?? 0} />
+                  <InfoCard title="Highest Operation Time Today" value={data["Highest Operation Time Today"] ?? 0} /> */}
+                  {/* <InfoCard title="Idle Time Today (min)" value={data["Idle Time Today (min)"] ?? 0} /> */}
                   <InfoCard title="Last Manhole Handled" value={data["Last Manhole Handled"] ?? "N/A"} />
                   <InfoCard title="Last Operation Date" value={data["Last Operation Date"] ?? "N/A"} />
                   <InfoCard title="Last Operation Time (min)" value={data["Last Operation Time (min)"] ?? 0} />
@@ -886,13 +886,37 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                     )}
                   </ChartBlock>
 
-                  {/* placeholder to keep grid tidy */}
+                  {/* placeholder to keep grid tidy
                   <div className="w-full md:w-1/2 p-2">
                     <div style={{ height: `${CHART_HEIGHT_PX}px` }} className="bg-white border border-gray-200 rounded p-3" />
-                  </div>
+                  </div> */}
                 </ChartRow>
 
                 {/* Tables / lists */}
+                {/* ----------- Today's Operation Summary Table ----------- */}
+<Section title="Today's Operational Metrics">
+  <ArrayTable
+    columns={[
+      { key: "Total Operations Today", label: "Total Operations Today" },
+      { key: "Average Operation Time Today", label: "Average Operation Time Today" },
+      { key: "Highest Operation Time Today", label: "Highest Operation Time Today" },
+      { key: "Idle Time Today (min)", label: "Idle Time Today (min)" },
+    ]}
+    rows={[
+      {
+        "Total Operations Today": data["Total Operations Today"] ?? "N/A",
+        "Average Operation Time Today": data["Average Operation Time Today"] ?? "N/A",
+        "Highest Operation Time Today": data["Highest Operation Time Today"] ?? "N/A",
+        "Idle Time Today (min)": data["Idle Time Today (min)"] ?? "N/A",
+      }
+    ]}
+  />
+</Section>
+
+
+
+
+
                 <Section title="Last 10 Operations">
                   <ArrayTable
                     columns={[
@@ -979,7 +1003,10 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                           labels: aggMonthlyUtil.map(([m]) => m),
                           datasets: [{ label: "Util %", data: aggMonthlyUtil.map(([, v]) => safeNumber(v)) }],
                         })}
-                        getOptions={() => ({ plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } })}
+                        getOptions={() => ({ plugins: { legend: { display: false } }, scales: { x: {
+      offset: true,      // <-- pushes x-axis labels away from the Y-axis
+      grid: { display: false }
+    }, y: { beginAtZero: true } } })}
                       />
                     ) : (
                       <ChartPlaceholder message={aggMonthlyUtil.length === 0 ? "No chart data available" : "No chart data available"} />
@@ -995,7 +1022,10 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                           labels: aggAvgTrend.map((r) => r.month),
                           datasets: [{ label: "Avg Time", data: aggAvgTrend.map((r) => safeNumber(r["Avg Operation Time"])) }],
                         })}
-                        getOptions={() => ({ plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } })}
+                        getOptions={() => ({ plugins: { legend: { display: false } }, scales: { x: {
+      offset: true,      // <-- pushes x-axis labels away from the Y-axis
+      grid: { display: false }
+    }, y: { beginAtZero: true } } })}
                       />
                     ) : (
                       <ChartPlaceholder message={aggAvgTrend.length === 0 ? "No chart data available" : "No chart data available"} />
@@ -1013,7 +1043,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
 
                 <Section title="Performance Order of Selected Robots">
                   <ArrayTable
-                    columns={[{ key: "Robot ID", label: "Robot ID" }, { key: "Efficiency (ops/day)", label: "Efficiency (ops/day)" }]}
+                    columns={[{ key: "Robot ID", label: "Robot ID" }, { key: "Efficiency (ops/day)", label: "Efficiency (operations per day)" }]}
                     rows={aggPerformanceOrder}
                     emptyMessage={aggPerformanceOrder.length === 0 ? "No records found" : "No records found"}
                   />
