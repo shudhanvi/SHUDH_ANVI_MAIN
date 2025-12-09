@@ -178,7 +178,7 @@ export const ServerDataProvider = ({ children }) => {
     loadAllData();
   }, []);
 
-  console.log("Server Data Context:", data);
+  // console.log("Server Data Context:", data);
 
   return (
     <ServerDataContext.Provider
