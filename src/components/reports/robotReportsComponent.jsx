@@ -165,7 +165,7 @@ export const RobotReportsComponent = ({ division, section, city }) => {
 
       const data = await response.json();
       setReportData(data);
-      // console.log("Received Report Data:", data);
+      console.log("Received Report Data:", data);
       setShowPopup(true);
     } catch (err) {
       alert(err.message || "Failed to fetch report");

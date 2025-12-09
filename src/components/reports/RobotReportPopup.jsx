@@ -672,11 +672,12 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
         : [];
       if (weeklyTrend.length > 0) {
         createCanvasChart(
-          "singleWeeklyTrend",
-          "line",
-          weeklyTrend.map((t) => t.week ?? t.label ?? ""),
-          weeklyTrend.map((t) => safeNumber(t["Avg Operation Time"] ?? t.value))
-        );
+  "singleWeeklyTrend",
+  "line",
+  weeklyTrend.map((t) => t["Week Number"]),   // correct label
+  weeklyTrend.map((t) => safeNumber(t["Avg Time"])) // correct value
+);
+
       } else {
         destroyCanvasChart("singleWeeklyTrend");
       }
@@ -939,7 +940,10 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                 </Section>
 
                 <Section title="Manholes Handled Today">
-                  <ArrayTable rows={singleManholesToday} emptyMessage={singleManholesToday.length === 0 ? "No activity today" : "No records found"} />
+<ArrayTable
+  rows={singleManholesToday.map(id => ({ Manhole: id }))}
+  emptyMessage={singleManholesToday.length === 0 ? "No activity today" : "No records found"}
+/>
                 </Section>
 
                 <Section title="Timeline Today">
