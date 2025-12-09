@@ -110,7 +110,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
 
       const data = await response.json();
       setReportData(data);
-      console.log("Backend response:", data);
+      // console.log("Backend response:", data);
       setShowPopup(true);
     } catch (error) {
       console.error("Error:", error);

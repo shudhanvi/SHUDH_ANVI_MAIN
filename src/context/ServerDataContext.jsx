@@ -124,22 +124,22 @@ export const ServerDataProvider = ({ children }) => {
     let tableData = json?.table_data || [];
 
     // Unique filter ONLY for manhole data
-    if (key === "ManholeData") {
-      const seen = new Set();
-      const uniqueRows = [];
+    // if (key === "ManholeData") {
+    //   const seen = new Set();
+    //   const uniqueRows = [];
 
-      for (const row of tableData) {
-        const id = row?.sw_mh_id != null ? String(row.sw_mh_id).trim() : null;
-        if (!id) continue;
+    //   for (const row of tableData) {
+    //     const id = row?.sw_mh_id != null ? String(row.sw_mh_id).trim() : null;
+    //     if (!id) continue;
 
-        if (!seen.has(id)) {
-          seen.add(id);
-          uniqueRows.push(row);
-        }
-      }
+    //     if (!seen.has(id)) {
+    //       seen.add(id);
+    //       uniqueRows.push(row);
+    //     }
+    //   }
 
-      tableData = uniqueRows;
-    }
+    //   tableData = uniqueRows;
+    // }
 
     setData(prev => ({ ...prev, [key]: tableData }));
 
