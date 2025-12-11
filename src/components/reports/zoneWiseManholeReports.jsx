@@ -5,6 +5,7 @@ import { usePagination } from '../../hooks/usePagination';
 import { Pagination } from './Pagination';
 import DatePicker from 'react-datepicker';
 import { backendApi } from '../../utils/backendApi';
+import axios from "axios";
 
 // Helper to format date range
 const formatDateRange = (dateRange) => {
@@ -99,34 +100,69 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
       command: "generate_manhole_report",
     };
     // console.log("sending Payload:", payload);
+    // try {
+    //   const response = await fetch(backendApi.manholesReportUrl, {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(payload),
+    //   });
+
+    //   if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+    //   const data = await response.json();
+    //   setReportData(data);
+    //   console.log("Backend response:", data);
+    //   setShowPopup(true);
+    // } catch (error) {
+    //   console.error("Error:", error);
+    //   alert(error.message);
+    // } finally {
+    //   setIsLoading(false);
+    // }
     try {
-      const response = await fetch(backendApi.manholesReportUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await axios.post(
+        backendApi.manholesReportUrl,
+        payload, // axios handles JSON.stringify internally
+        {
+          headers: {
+            "Content-Type": "application/json",
+          }
+        }
+      );
 
-      if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-      const data = await response.json();
+      const data = response.data; // axios auto-parses JSON
       setReportData(data);
-      console.log("Backend response:", data);
+      // console.log("Backend response:", data);
       setShowPopup(true);
+
     } catch (error) {
       console.error("Error:", error);
-      alert(error.message);
+
+      // axios error handling is different:
+      if (error.response) {
+        // Server responded with 4xx or 5xx
+        alert(`Server error: ${error.response.status}`);
+      } else if (error.request) {
+        // No response
+        alert("No response from server");
+      } else {
+        // Something else
+        alert(error.message);
+      }
+
     } finally {
       setIsLoading(false);
     }
+
   };
 
   const selectedManholeLocations = sortedData
-  .filter(m => selectedManholes.includes(m.sw_mh_id))
-  .map(m => ({
-    id: m.sw_mh_id,
-    lat: parseFloat(m.latitude || m.lat || m.Latitude),
-    lon: parseFloat(m.longitude || m.lon || m.Longitude),
-  }));
+    .filter(m => selectedManholes.includes(m.sw_mh_id))
+    .map(m => ({
+      id: m.sw_mh_id,
+      lat: parseFloat(m.latitude || m.lat || m.Latitude),
+      lon: parseFloat(m.longitude || m.lon || m.Longitude),
+    }));
   // console.log("Selected Manhole Locations:", selectedManholeLocations);
 
 

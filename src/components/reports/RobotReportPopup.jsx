@@ -411,7 +411,7 @@ const ChartCanvas = ({ type = "bar", getData, getOptions, deps = [] }) => {
     if (chartRef.current) {
       try {
         chartRef.current.destroy();
-      } catch {}
+      } catch { }
       chartRef.current = null;
     }
 
@@ -420,7 +420,7 @@ const ChartCanvas = ({ type = "bar", getData, getOptions, deps = [] }) => {
     return () => {
       try {
         chartRef.current?.destroy();
-      } catch {}
+      } catch { }
       chartRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -451,8 +451,8 @@ const ArrayTable = ({ columns = [], rows = [], emptyMessage = "No records found"
     columns.length > 0
       ? columns
       : rows[0]
-      ? Object.keys(rows[0]).map((k) => ({ key: k, label: k }))
-      : [];
+        ? Object.keys(rows[0]).map((k) => ({ key: k, label: k }))
+        : [];
 
   return (
     <table className="w-full border border-gray-300 text-left bg-white mb-4 table-fixed">
@@ -577,7 +577,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
         if (window.Chart && window.ChartDataLabels) {
           try {
             window.Chart.register(window.ChartDataLabels);
-          } catch {}
+          } catch { }
         }
         // populate initial canvas-based charts after libs load
         initCanvasCharts();
@@ -594,7 +594,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
         el.chartInstance.destroy();
         el.chartInstance = null;
       }
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const createCanvasChart = (id, type, labels = [], values = [], options = {}) => {
@@ -605,7 +605,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
         el.chartInstance.destroy();
         el.chartInstance = null;
       }
-    } catch (e) {}
+    } catch (e) { }
     try {
       el.chartInstance = new window.Chart(el, {
         type,
@@ -653,6 +653,29 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
         destroyCanvasChart("singleMonthlyFreq");
       }
 
+      // Operation Time Per Manhole (Today)
+      if (isPlainObject(singleOpTimePerManholeToday) && Object.keys(singleOpTimePerManholeToday).length > 0) {
+        const labels = Object.keys(singleOpTimePerManholeToday);
+        const values = Object.values(singleOpTimePerManholeToday).map((v) => safeNumber(v));
+
+        createCanvasChart(
+          "opTimePerManholeToday",
+          "bar",
+          labels,
+          values,
+          {
+            scales: {
+              x: {
+                ticks: { autoSkip: false },
+              },
+              y: { beginAtZero: true },
+            },
+          }
+        );
+      } else {
+        destroyCanvasChart("opTimePerManholeToday");
+      }
+
       // Robot vs Fleet Avg
       const comp = data["Robot Avg Op Time vs Fleet Avg"];
       if (comp && (comp["Robot Avg"] !== undefined || comp["Fleet Avg"] !== undefined)) {
@@ -672,11 +695,11 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
         : [];
       if (weeklyTrend.length > 0) {
         createCanvasChart(
-  "singleWeeklyTrend",
-  "line",
-  weeklyTrend.map((t) => t["Week Number"]),   // correct label
-  weeklyTrend.map((t) => safeNumber(t["Avg Time"])) // correct value
-);
+          "singleWeeklyTrend",
+          "line",
+          weeklyTrend.map((t) => t["Week Number"]),   // correct label
+          weeklyTrend.map((t) => safeNumber(t["Avg Time"])) // correct value
+        );
 
       } else {
         destroyCanvasChart("singleWeeklyTrend");
@@ -836,7 +859,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                 {/* Info cards grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
                   <InfoCard title="Robot ID" value={data["Robot ID"]} />
-                   <InfoCard title="Total Operations" value={data["Total Operations"] ?? 0} />
+                  <InfoCard title="Total Operations" value={data["Total Operations"] ?? 0} />
                   {/* <InfoCard title="Total Operations Today" value={data["Total Operations Today"] ?? 0} /> */}
                   {/* <InfoCard title="Total Operation Time (min)" value={data["Total Operation Time (min)"] ?? 0} />  */}
                   <InfoCard title="Average Operation Time (min)" value={data["Average Operation Time (min)"] ?? "N/A"} />
@@ -894,25 +917,6 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                 </ChartRow>
 
                 {/* Tables / lists */}
-                {/* ----------- Today's Operation Summary Table ----------- */}
-<Section title="Today's Operational Metrics">
-  <ArrayTable
-    columns={[
-      { key: "Total Operations Today", label: "Total Operations Today" },
-      { key: "Average Operation Time Today", label: "Average Operation Time Today" },
-      { key: "Highest Operation Time Today", label: "Highest Operation Time Today" },
-      { key: "Idle Time Today (min)", label: "Idle Time Today (min)" },
-    ]}
-    rows={[
-      {
-        "Total Operations Today": data["Total Operations Today"] ?? "N/A",
-        "Average Operation Time Today": data["Average Operation Time Today"] ?? "N/A",
-        "Highest Operation Time Today": data["Highest Operation Time Today"] ?? "N/A",
-        "Idle Time Today (min)": data["Idle Time Today (min)"] ?? "N/A",
-      }
-    ]}
-  />
-</Section>
 
 
 
@@ -939,20 +943,45 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                   />
                 </Section>
 
-                <Section title="Manholes Handled Today">
-<ArrayTable
-  rows={singleManholesToday.map(id => ({ Manhole: id }))}
-  emptyMessage={singleManholesToday.length === 0 ? "No activity today" : "No records found"}
-/>
+                {/* ----------- Today's Operation Summary Table ----------- */}
+                <Section title="Today's Operational Metrics">
+                  <ArrayTable
+                    columns={[
+                      { key: "Total Operations Today", label: "Total Operations Today" },
+                      { key: "Average Operation Time Today", label: "Average Operation Time Today" },
+                      { key: "Highest Operation Time Today", label: "Highest Operation Time Today" },
+                      { key: "Idle Time Today (min)", label: "Idle Time Today (min)" },
+                    ]}
+                    rows={[
+                      {
+                        "Total Operations Today": data["Total Operations Today"] ?? "N/A",
+                        "Average Operation Time Today": data["Average Operation Time Today"] ?? "N/A",
+                        "Highest Operation Time Today": data["Highest Operation Time Today"] ?? "N/A",
+                        "Idle Time Today (min)": data["Idle Time Today (min)"] ?? "N/A",
+                      }
+                    ]}
+                  />
                 </Section>
+
 
                 <Section title="Timeline Today">
                   <ArrayTable rows={singleTimelineToday} emptyMessage={singleTimelineToday.length === 0 ? "No activity today" : "No records found"} />
                 </Section>
 
                 <Section title="Operation Time Per Manhole (Today)">
-                  <KeyValueTable data={singleOpTimePerManholeToday} emptyMessage={Object.keys(singleOpTimePerManholeToday).length === 0 ? "No activity today" : "No records found"} />
+                  {Object.keys(singleOpTimePerManholeToday).length === 0 ? (
+                    <ChartPlaceholder message="No activity today" />
+                  ) : (
+                    <div className="w-full h-64">
+                      <canvas
+                        id="opTimePerManholeToday"
+                        ref={(el) => (chartRefs.current.opTimePerManholeToday = el)}
+                        className="w-full h-full"
+                      ></canvas>
+                    </div>
+                  )}
                 </Section>
+
               </>
             )}
 
@@ -1007,10 +1036,14 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                           labels: aggMonthlyUtil.map(([m]) => m),
                           datasets: [{ label: "Util %", data: aggMonthlyUtil.map(([, v]) => safeNumber(v)) }],
                         })}
-                        getOptions={() => ({ plugins: { legend: { display: false } }, scales: { x: {
-      offset: true,      // <-- pushes x-axis labels away from the Y-axis
-      grid: { display: false }
-    }, y: { beginAtZero: true } } })}
+                        getOptions={() => ({
+                          plugins: { legend: { display: false } }, scales: {
+                            x: {
+                              offset: true,      // <-- pushes x-axis labels away from the Y-axis
+                              grid: { display: false }
+                            }, y: { beginAtZero: true }
+                          }
+                        })}
                       />
                     ) : (
                       <ChartPlaceholder message={aggMonthlyUtil.length === 0 ? "No chart data available" : "No chart data available"} />
@@ -1026,10 +1059,14 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                           labels: aggAvgTrend.map((r) => r.month),
                           datasets: [{ label: "Avg Time", data: aggAvgTrend.map((r) => safeNumber(r["Avg Operation Time"])) }],
                         })}
-                        getOptions={() => ({ plugins: { legend: { display: false } }, scales: { x: {
-      offset: true,      // <-- pushes x-axis labels away from the Y-axis
-      grid: { display: false }
-    }, y: { beginAtZero: true } } })}
+                        getOptions={() => ({
+                          plugins: { legend: { display: false } }, scales: {
+                            x: {
+                              offset: true,      // <-- pushes x-axis labels away from the Y-axis
+                              grid: { display: false }
+                            }, y: { beginAtZero: true }
+                          }
+                        })}
                       />
                     ) : (
                       <ChartPlaceholder message={aggAvgTrend.length === 0 ? "No chart data available" : "No chart data available"} />
