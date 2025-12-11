@@ -13,7 +13,7 @@ const MaintainenceCard = (props) => {
       </div>
       <div className="p-3 flex flex-col justify-start align-middle gap-3">
         <span className="w-full text-left flex items-center justify-between align-middle gap-1">
-          <h5 className="font-[500] text-md">{each.title}</h5>
+          <h5 className="font-[500px] text-md">{each.title}</h5>
           <span
             className="rounded-lg p-4 py-1.5 text-white text-sm h-auto self-center"
             style={{ backgroundColor: each.priorityColor }}
