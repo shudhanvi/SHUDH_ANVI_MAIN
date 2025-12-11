@@ -173,7 +173,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
                   <span className="flex flex-col ml-2">
                     Ending Time
                     <span className="text-[#21232C] text-[16px]">
-                      {formatTime(currentRecord.timestamp)}
+                      {formatTime(currentRecord.endtime)}
                     </span>
                   </span>
                 </span>
@@ -203,7 +203,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
 
                   </span>
                 </span>
-                
+
                 <span>
                   <MapPin className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   {currentRecord.area}
@@ -214,11 +214,11 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
               <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
                 <div className="flex flex-row justify-between">
                   <h1 className="pb-1 text-start">
-  {currentRecord?.latitude && currentRecord?.longitude
-    ? `${Number(currentRecord.latitude).toFixed(5)}, ${Number(currentRecord.longitude).toFixed(5)}`
-    : "-"
-  }
-</h1>
+                    {currentRecord?.latitude && currentRecord?.longitude
+                      ? `${Number(currentRecord.latitude).toFixed(5)}, ${Number(currentRecord.longitude).toFixed(5)}`
+                      : "-"
+                    }
+                  </h1>
 
                   <h1>Manhole ID : {currentRecord?.manhole_id}</h1>
                 </div>

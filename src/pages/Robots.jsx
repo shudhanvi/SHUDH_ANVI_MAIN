@@ -32,27 +32,27 @@ export const Robots = () => {
  * - "SR nagar (6)" -> "SR nagar"
  * - "kukatpally (9)" -> "kukatpally"
  */
-const getDisplayName = (rawName) => {
-  if (typeof rawName !== 'string') return rawName;
+  const getDisplayName = (rawName) => {
+    if (typeof rawName !== 'string') return rawName;
 
-  const match = rawName.match(/\(([^)]+)\)/); // Find text in ( )
+    const match = rawName.match(/\(([^)]+)\)/); // Find text in ( )
 
-  if (match && match[1]) {
-    const textInside = match[1];
-    
-    // Check if the text inside parentheses contains letters
-    if (/[a-zA-Z]/.test(textInside)) {
-      // Use text inside: "Division 15(durgam cheruvu )" -> "durgam cheruvu"
-      return textInside.trim();
-    } else {
-      // Use text outside: "SR nagar (6)" -> "SR nagar"
-      return rawName.split('(')[0].trim();
+    if (match && match[1]) {
+      const textInside = match[1];
+
+      // Check if the text inside parentheses contains letters
+      if (/[a-zA-Z]/.test(textInside)) {
+        // Use text inside: "Division 15(durgam cheruvu )" -> "durgam cheruvu"
+        return textInside.trim();
+      } else {
+        // Use text outside: "SR nagar (6)" -> "SR nagar"
+        return rawName.split('(')[0].trim();
+      }
     }
-  }
 
-  // No parentheses, just return the name trimmed
-  return rawName.trim();
-};
+    // No parentheses, just return the name trimmed
+    return rawName.trim();
+  };
 
   // ✅ Combine & normalize both RobotsData + OperationsData
   const structingData = (dataObj) => {
@@ -229,13 +229,13 @@ const getDisplayName = (rawName) => {
     const minutes = String(date.getMinutes()).padStart(2, "0");
     return `${hours}:${minutes}`;
   };
-const sortedBots = useMemo(() => {
-  return [...uniqueBots].sort((a, b) => {
-    const idA = String(a.device_id).toLowerCase();
-    const idB = String(b.device_id).toLowerCase();
-    return idA.localeCompare(idB);
-  });
-}, [uniqueBots]);
+  const sortedBots = useMemo(() => {
+    return [...uniqueBots].sort((a, b) => {
+      const idA = String(a.device_id).toLowerCase();
+      const idB = String(b.device_id).toLowerCase();
+      return idA.localeCompare(idB);
+    });
+  }, [uniqueBots]);
 
 
   // console.log("MainData:", MainData);
@@ -349,7 +349,7 @@ const sortedBots = useMemo(() => {
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-0">
-                
+
                 {sortedBots.map((item, idx) => (
                   <div
                     key={idx}

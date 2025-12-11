@@ -26,28 +26,28 @@ export const Reports = () => {
  * - "SR nagar (6)" -> "SR nagar"
  * - "kukatpally (9)" -> "kukatpally"
  */
-const getDisplayName = (rawName) => {
-  if (typeof rawName !== 'string') return rawName;
+  const getDisplayName = (rawName) => {
+    if (typeof rawName !== 'string') return rawName;
 
-  const match = rawName.match(/\(([^)]+)\)/); // Find text in ( )
+    const match = rawName.match(/\(([^)]+)\)/); // Find text in ( )
 
-  if (match && match[1]) {
-    const textInside = match[1];
-    
-    // Check if the text inside parentheses contains letters
-    if (/[a-zA-Z]/.test(textInside)) {
-      // Use text inside: "Division 15(durgam cheruvu )" -> "durgam cheruvu"
-      return textInside.trim();
-    } else {
-      // Use text outside: "SR nagar (6)" -> "SR nagar"
-      return rawName.split('(')[0].trim();
+    if (match && match[1]) {
+      const textInside = match[1];
+
+      // Check if the text inside parentheses contains letters
+      if (/[a-zA-Z]/.test(textInside)) {
+        // Use text inside: "Division 15(durgam cheruvu )" -> "durgam cheruvu"
+        return textInside.trim();
+      } else {
+        // Use text outside: "SR nagar (6)" -> "SR nagar"
+        return rawName.split('(')[0].trim();
+      }
     }
-  }
 
-  // No parentheses, just return the name trimmed
-  return rawName.trim();
-};
-// console.log("Manhole Data:", manholeData)
+    // No parentheses, just return the name trimmed
+    return rawName.trim();
+  };
+  // console.log("Manhole Data:", manholeData)
   useEffect(() => {
     if (!data?.ManholeData?.length) return;
 
@@ -207,67 +207,66 @@ const getDisplayName = (rawName) => {
             <span>{IconsData.search}</span>View Reports
           </button>
         </div>
-{/* Loading message below filters */}
-{loading ? (
-  <div className="text-center py-4 text-gray-600">
-    <p>{message || "Loading data..."}</p>
-  </div>
-) : !viewClicked ? (
-  <div className="text-center py-10 px-6">
-    <img
-      src="/images/Report.png"
-      alt="Report Placeholder"
-      className="mx-auto h-48 w-48 object-contain"
-    />
-    <p className="mt-4 text-[#65758B]" style={{fontStyle:"italic"}}>
-      "No reports to display yet. Please select a Division and Section to generate reports."
-    </p>
-  </div>
-) : (
-  <div className="mt-6">
-    {/* Tabs */}
-    <div className="flex gap-2">
-      {["Manhole Reports", "Robot Reports", "Ward Reports"].map((type) => (
-        <button
-          key={type}
-          onClick={() => setActiveReportType(type)}
-          className={`px-[16px] py-[12px] text-sm rounded-[8px] font-medium border transition-colors cursor-pointer ${
-            activeReportType === type
-              ? "bg-[#1A8BA8] text-white"
-              : "border-[#1A8BA8]"
-          }`}
-        >
-          {type}
-        </button>
-      ))}
-    </div>
+        {/* Loading message below filters */}
+        {loading ? (
+          <div className="text-center py-4 text-gray-600">
+            <p>{message || "Loading data..."}</p>
+          </div>
+        ) : !viewClicked ? (
+          <div className="text-center py-10 px-6">
+            <img
+              src="/images/Report.png"
+              alt="Report Placeholder"
+              className="mx-auto h-48 w-48 object-contain"
+            />
+            <p className="mt-4 text-[#65758B]" style={{ fontStyle: "italic" }}>
+              "No reports to display yet. Please select a Division and Section to generate reports."
+            </p>
+          </div>
+        ) : (
+          <div className="mt-6">
+            {/* Tabs */}
+            <div className="flex gap-2">
+              {["Manhole Reports", "Robot Reports", "Ward Reports"].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setActiveReportType(type)}
+                  className={`px-[16px] py-[12px] text-sm rounded-[8px] font-medium border transition-colors cursor-pointer ${activeReportType === type
+                      ? "bg-[#1A8BA8] text-white"
+                      : "border-[#1A8BA8]"
+                    }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
 
-    {/* Report Components */}
-    <div className="mt-4">
-      {activeReportType === "Manhole Reports" && (
-        <ManholeReportsComponent
-          city={confirmedInputs.city}
-          division={confirmedInputs.division}
-          section={confirmedInputs.section}
-        />
-      )}
-      {activeReportType === "Robot Reports" && (
-        <RobotReportsComponent
-          city={confirmedInputs.city}
-          division={confirmedInputs.division}
-          section={confirmedInputs.section}
-        />
-      )}
-      {activeReportType === "Ward Reports" && (
-        <WardReportsComponent
-          city={confirmedInputs.city}
-          division={confirmedInputs.division}
-          section={confirmedInputs.section}
-        />
-      )}
-    </div>
-  </div>
-)}
+            {/* Report Components */}
+            <div className="mt-4">
+              {activeReportType === "Manhole Reports" && (
+                <ManholeReportsComponent
+                  city={confirmedInputs.city}
+                  division={confirmedInputs.division}
+                  section={confirmedInputs.section}
+                />
+              )}
+              {activeReportType === "Robot Reports" && (
+                <RobotReportsComponent
+                  city={confirmedInputs.city}
+                  division={confirmedInputs.division}
+                  section={confirmedInputs.section}
+                />
+              )}
+              {activeReportType === "Ward Reports" && (
+                <WardReportsComponent
+                  city={confirmedInputs.city}
+                  division={confirmedInputs.division}
+                  section={confirmedInputs.section}
+                />
+              )}
+            </div>
+          </div>
+        )}
 
       </section>
     </section>

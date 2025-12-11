@@ -41,7 +41,7 @@ const MaintainenceComp = () => {
     <div className="maintainence-container bg-amer-900 w-full min-h-[50vh]  shadow-gray-300 shadow-md   p-6 mb-4 rounded-xl bg-white">
       {/* Top Box */}
       <div className="flex justify-between p-5 place-items-center align-middle gap-5">
-        <h3 className="text-xl font-[500]">Maintainence Scheduler</h3>
+        <h3 className="text-xl font-[500px]">Maintainence Scheduler</h3>
         <ul className="filter-box flex justify-center align-middle gap-3">
           {filterBtnsList.map((each) => (
             <li key={each.label} className="">

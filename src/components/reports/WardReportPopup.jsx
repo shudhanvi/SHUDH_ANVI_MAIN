@@ -60,7 +60,7 @@ const createOrUpdateChart = (chartRefs, id, configFactory) => {
 
   try {
     if (el.chartInstance) el.chartInstance.destroy();
-  } catch {}
+  } catch { }
 
   const cfg = configFactory();
   if (!cfg) return;
@@ -192,7 +192,7 @@ export const WardReportPopup = ({ reportData, onClose }) => {
         if (window.Chart && window.ChartDataLabels) {
           try {
             window.Chart.register(window.ChartDataLabels);
-          } catch {}
+          } catch { }
         }
 
         initChartsSafe();
@@ -204,7 +204,7 @@ export const WardReportPopup = ({ reportData, onClose }) => {
       Object.values(chartRefs.current).forEach((c) => {
         try {
           if (c?.chartInstance) c.chartInstance.destroy();
-        } catch {}
+        } catch { }
       });
     };
   }, [reportData, weather7]);
@@ -397,58 +397,58 @@ export const WardReportPopup = ({ reportData, onClose }) => {
               />
             </div>
 
-           <Section title="Robot Requirement Analysis">
-  {(() => {
-    const raw = data["Robot Requirement Analysis"] || {};
-    
-    // Remove Total Manholes
-    const cleaned = Object.fromEntries(
-      Object.entries(raw).filter(([k]) => k.toLowerCase() !== "total manholes")
-    );
+            <Section title="Robot Requirement Analysis">
+              {(() => {
+                const raw = data["Robot Requirement Analysis"] || {};
 
-    const keys = Object.keys(cleaned);
+                // Remove Total Manholes
+                const cleaned = Object.fromEntries(
+                  Object.entries(raw).filter(([k]) => k.toLowerCase() !== "total manholes")
+                );
 
-    // Round only "Required Robots"
-    const values = Object.entries(cleaned).map(([k, v]) => {
-      if (k.toLowerCase().includes("required robot")) {
-        return Math.round(safeNumber(v)); 
-      }
-      return v;
-    });
+                const keys = Object.keys(cleaned);
 
-    if (keys.length === 0)
-      return <div className="text-gray-500">No records found</div>;
+                // Round only "Required Robots"
+                const values = Object.entries(cleaned).map(([k, v]) => {
+                  if (k.toLowerCase().includes("required robot")) {
+                    return Math.round(safeNumber(v));
+                  }
+                  return v;
+                });
 
-    return (
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse bg-white table-fixed">
-          <thead className="bg-gray-100">
-            <tr>
-              {keys.map((h) => (
-                <th key={h} className="p-2 border text-left">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              {values.map((v, i) => (
-                <td key={i} className="p-2 border">
-                  {isPlainObject(v) || Array.isArray(v) ? (
-                    <pre className="whitespace-pre-wrap text-xs">
-                      {JSON.stringify(v, null, 2)}
-                    </pre>
-                  ) : (
-                    String(v ?? "N/A")
-                  )}
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    );
-  })()}
-</Section>
+                if (keys.length === 0)
+                  return <div className="text-gray-500">No records found</div>;
+
+                return (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse bg-white table-fixed">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          {keys.map((h) => (
+                            <th key={h} className="p-2 border text-left">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          {values.map((v, i) => (
+                            <td key={i} className="p-2 border">
+                              {isPlainObject(v) || Array.isArray(v) ? (
+                                <pre className="whitespace-pre-wrap text-xs">
+                                  {JSON.stringify(v, null, 2)}
+                                </pre>
+                              ) : (
+                                String(v ?? "N/A")
+                              )}
+                            </td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()}
+            </Section>
 
 
             {/* Images */}
@@ -497,21 +497,21 @@ export const WardReportPopup = ({ reportData, onClose }) => {
               </div> */}
 
               <div className="bg-white  border rounded-lg shadow p-3 h-full mb-6">
-              <h4 className="text-sm font-semibold text-center mb-2">
-                7-Day Avg Weather Forecast
-              </h4>
-              {weather7.length === 0 ? (
-                <ChartPlaceholder message="Weather data not available" />
-              ) : (
-                <div className="flex justify-center" style={{ height: `${CHART_HEIGHT_PX}px` }}>
-                  <canvas ref={(el) => (chartRefs.current.weatherHumidity = el)} />
-                </div>
-              )}
-            </div>
+                <h4 className="text-sm font-semibold text-center mb-2">
+                  7-Day Avg Weather Forecast
+                </h4>
+                {weather7.length === 0 ? (
+                  <ChartPlaceholder message="Weather data not available" />
+                ) : (
+                  <div className="flex justify-center" style={{ height: `${CHART_HEIGHT_PX}px` }}>
+                    <canvas ref={(el) => (chartRefs.current.weatherHumidity = el)} />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* ⭐ NEW HUMIDITY CHART — EXACTLY WHERE YOU REQUESTED */}
-            
+
 
             {/* -----------------------------------------
                BELOW HERE: EVERYTHING IS UNCHANGED
