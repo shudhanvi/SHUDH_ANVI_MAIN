@@ -29,7 +29,7 @@ export const ManholeReportsComponent = ({ city, division, section }) => {
     try {
       const filtered = ManholeData.filter((item) => {
         const itemCity = normalize(item.City || item.city);
-        const itemDivision = normalize(item.Division || item.division|| item.sw_mh_division_no);
+        const itemDivision = normalize(item.Division || item.division || item.sw_mh_division_no);
         const itemSection = normalize(item.Section || item.section || item.area || item.section_name);
 
         return (
@@ -51,13 +51,13 @@ export const ManholeReportsComponent = ({ city, division, section }) => {
   // 🔹 Group by Zone
   const zoneWiseReports = useMemo(() => {
     const grouped = reportData.reduce((acc, item) => {
-const rawZone =
-  item.Zone ??
-  item.zone ??
-  item.sw_mh_docket_no ??
-  "";
+      const rawZone =
+        item.Zone ??
+        item.zone ??
+        item.sw_mh_docket_no ??
+        "";
 
-const zone = String(rawZone).trim();
+      const zone = String(rawZone).trim();
       if (zone) {
         if (!acc[zone]) acc[zone] = { name: zone, count: 0 };
         acc[zone].count += 1;
@@ -114,17 +114,17 @@ const zone = String(rawZone).trim();
                     zone: report.name,
                     manholes: report.count,
                     filteredData: reportData.filter(
-                     (item) => {
-  const raw =
-    item.Zone ??
-    item.zone ??
-    item.sw_mh_docket_no ??
-    "";
+                      (item) => {
+                        const raw =
+                          item.Zone ??
+                          item.zone ??
+                          item.sw_mh_docket_no ??
+                          "";
 
-  const zone = String(raw).trim();   // ← handles numbers safely
+                        const zone = String(raw).trim();   // ← handles numbers safely
 
-  return zone === report.name;
-}
+                        return zone === report.name;
+                      }
 
                     ),
                     userInputs: { city, division, section },

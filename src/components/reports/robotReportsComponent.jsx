@@ -5,6 +5,7 @@ import { Pagination } from "./Pagination";
 import DatePicker from "react-datepicker";
 import { backendApi } from "../../utils/backendApi";
 import { useServerData } from "../../context/ServerDataContext";
+import axios from "axios";
 
 export const RobotReportsComponent = ({ division, section, city }) => {
   const { data } = useServerData();
@@ -152,26 +153,59 @@ export const RobotReportsComponent = ({ division, section, city }) => {
     };
     // console.log("Sending Payload:", payload);
 
+    // try {
+    //   const response = await fetch(backendApi.robotsReportUrl, {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(payload),
+    //   });
+    //   // console.log("Response Status:", response);
+    //   if (!response.ok) {
+    //     throw new Error(`Server error: ${response.status}`);
+    //   }
+
+    //   const data = await response.json();
+    //   setReportData(data);
+    //   console.log("Received Report Data:", data);
+    //   setShowPopup(true);
+    // } catch (err) {
+    //   alert(err.message || "Failed to fetch report");
+    // } finally {
+    //   setIsLoading(false);
+    // }
     try {
-      const response = await fetch(backendApi.robotsReportUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      // console.log("Response Status:", response);
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
+      const response = await axios.post(
+        backendApi.robotsReportUrl,
+        payload, // axios handles JSON.stringify automatically
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = response.data; // auto-parsed JSON
+      setReportData(data);
+      // console.log("Received Report Data:", data);
+      setShowPopup(true);
+
+    } catch (err) {
+      if (err.response) {
+        // Server returned an error status (4xx / 5xx)
+        alert(`Server error: ${err.response.status}`);
+      } else if (err.request) {
+        // No response from server
+        alert("No response from server");
+      } else {
+        // Other error
+        alert(err.message || "Failed to fetch report");
       }
 
-      const data = await response.json();
-      setReportData(data);
-      console.log("Received Report Data:", data);
-      setShowPopup(true);
-    } catch (err) {
-      alert(err.message || "Failed to fetch report");
     } finally {
       setIsLoading(false);
     }
+
+
   };
 
   return (

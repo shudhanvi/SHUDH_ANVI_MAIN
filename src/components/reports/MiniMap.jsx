@@ -20,7 +20,7 @@ const MiniMap = ({ locations = [], height = "300px", width = "50%" }) => {
 
     // Cleanup previous map
     if (mapRef.current) {
-      try { mapRef.current.remove(); } catch {}
+      try { mapRef.current.remove(); } catch { }
       mapRef.current = null;
     }
 
@@ -55,23 +55,23 @@ const MiniMap = ({ locations = [], height = "300px", width = "50%" }) => {
         }
       });
 
-     if (locations.length > 1) {
-  map.fitBounds(bounds, { padding: 40 });
-} else {
-  // For single marker — force re-render
-  map.setCenter(initialCenterRef.current);
-  map.setZoom(initialZoomRef.current);
+      if (locations.length > 1) {
+        map.fitBounds(bounds, { padding: 40 });
+      } else {
+        // For single marker — force re-render
+        map.setCenter(initialCenterRef.current);
+        map.setZoom(initialZoomRef.current);
 
-  setTimeout(() => {
-    map.resize();
-  }, 50);
-}
+        setTimeout(() => {
+          map.resize();
+        }, 50);
+      }
 
     });
 
     return () => {
       if (mapRef.current) {
-        try { mapRef.current.remove(); } catch {}
+        try { mapRef.current.remove(); } catch { }
         mapRef.current = null;
       }
     };

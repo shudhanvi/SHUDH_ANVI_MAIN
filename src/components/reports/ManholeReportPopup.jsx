@@ -339,7 +339,7 @@ const ChartCanvas = ({ type = "bar", getData, getOptions, deps = [] }) => {
     if (chartRef.current) {
       try {
         chartRef.current.destroy();
-      } catch {}
+      } catch { }
     }
 
     chartRef.current = new window.Chart(ctx, config);
@@ -347,7 +347,7 @@ const ChartCanvas = ({ type = "bar", getData, getOptions, deps = [] }) => {
     return () => {
       try {
         chartRef.current?.destroy();
-      } catch {}
+      } catch { }
       chartRef.current = null;
     };
     // eslint-disable-next-line
@@ -380,8 +380,8 @@ const ArrayTable = ({ columns = [], rows = [] }) => {
     columns.length > 0
       ? columns
       : rows[0]
-      ? Object.keys(rows[0]).map((k) => ({ key: k, label: k }))
-      : [];
+        ? Object.keys(rows[0]).map((k) => ({ key: k, label: k }))
+        : [];
   return (
     <table className="w-full border border-gray-300 text-left bg-white mb-4 table-fixed">
       <thead className="bg-gray-200 text-gray-800">
@@ -451,18 +451,18 @@ const KeyValueTable = ({ data = {} }) => {
 
 /* --------------------------- Main component ------------------------------- */
 
-export const ManholeReportPopup = ({ reportData, onClose,manholeloc }) => {
+export const ManholeReportPopup = ({ reportData, onClose, manholeloc }) => {
   const printableRef = useRef(null);
   const [libsLoaded, setLibsLoaded] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const d = reportData || {};
   const location = {
-  lat: parseFloat(d.Latitude),
-  lon: parseFloat(d.Longitude)
-};
-// console.log("Location:", location);
+    lat: parseFloat(d.Latitude),
+    lon: parseFloat(d.Longitude)
+  };
+  // console.log("Location:", location);
 
-const multiplelocations = manholeloc || [];
+  const multiplelocations = manholeloc || [];
 
 
 
@@ -591,9 +591,9 @@ const multiplelocations = manholeloc || [];
                 />
               </div>
 
-<div className="w-full flex justify-center mb-[20px]">
-<MiniMap locations={[location]} height="250px" width="50%" />
-</div>
+              <div className="w-full flex justify-center mb-[20px]">
+                <MiniMap locations={[location]} height="250px" width="50%" />
+              </div>
 
               {/* Charts: only time series charts for single */}
               <ChartRow>
@@ -648,28 +648,28 @@ const multiplelocations = manholeloc || [];
                 )} */}
 
                 {singleMonthlyAvg.length > 0 && (
-  <ChartBlock title="Monthly Average Operation Time (min)">
-    <ChartCanvas
-      type="bar"
-      deps={[singleMonthlyAvg, libsLoaded]}
-      getData={() => ({
-        labels: singleMonthlyAvg.map(([m]) => m),
-        datasets: [
-          {
-            label: "Avg Time (min)",
-            data: singleMonthlyAvg.map(([, v]) => safeNumber(v)),
-            borderWidth: 1,
-          },
-        ],
-      })}
-      getOptions={() => ({
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } },
-      })}
-    />
-  </ChartBlock>
-)}
+                  <ChartBlock title="Monthly Average Operation Time (min)">
+                    <ChartCanvas
+                      type="bar"
+                      deps={[singleMonthlyAvg, libsLoaded]}
+                      getData={() => ({
+                        labels: singleMonthlyAvg.map(([m]) => m),
+                        datasets: [
+                          {
+                            label: "Avg Time (min)",
+                            data: singleMonthlyAvg.map(([, v]) => safeNumber(v)),
+                            borderWidth: 1,
+                          },
+                        ],
+                      })}
+                      getOptions={() => ({
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } },
+                      })}
+                    />
+                  </ChartBlock>
+                )}
 
               </ChartRow>
 
@@ -709,9 +709,9 @@ const multiplelocations = manholeloc || [];
               </div>
 
 
-<div className="w-full flex justify-center mb-[20px]">
-  <MiniMap locations={multiplelocations} height="350px" width="100%" />
-</div>
+              <div className="w-full flex justify-center mb-[20px]">
+                <MiniMap locations={multiplelocations} height="350px" width="100%" />
+              </div>
 
               {/* Charts for aggregate time-series */}
               <ChartRow>
@@ -751,7 +751,7 @@ const multiplelocations = manholeloc || [];
                             label: "Avg Time (min)",
                             data: aggMonthlyAvg.map(([, v]) => safeNumber(v)),
                             borderWidth: 1,
-                            
+
                           },
                         ],
                       })}
@@ -787,7 +787,7 @@ const multiplelocations = manholeloc || [];
                 />
               </Section>
 
-              <Section title="Top 10 Operation-Time Anomalies (Last 30 Days)">
+              <Section title="Operation-Time Anomalies (Last 30 Days)">
                 <ArrayTable
                   columns={[
                     { key: "Date", label: "Date" },
