@@ -1,24 +1,22 @@
+
 import { useEffect, useState } from "react";
-import { Clock, TriangleAlert, User, CircleCheckBig } from "lucide-react";
+import Papa from "papaparse";
+import { Clock, TriangleAlert, User, CircleCheckBig } from 'lucide-react';
 
 export const Highlights = () => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch(`/datafiles/CSVs/Highlights_data.csv?nocache=${Date.now()}`)
-      .then((res) => res.text())
-      .then((text) => {
-        const [headerLine, firstRow] = text.trim().split("\n");
-        const headers = headerLine.split(",");
-        const values = firstRow.split(",");
-
-        const obj = Object.fromEntries(
-          headers.map((h, i) => [h.trim(), values[i]?.trim()])
-        );
-
-        setData(obj);
-      })
-      .catch(console.error);
+    Papa.parse(`/datafiles/CSVs/Highlights_data.csv?nocache=${Date.now()}`, {
+      download: true,
+      header: true,
+      complete: (result) => {
+        if (result.data && result.data.length > 0) {
+          // console.log(result.data);
+          setData(result.data[0]); // first row for this section
+        }
+      },
+    });
   }, []);
 
   if (!data) {
@@ -27,14 +25,12 @@ export const Highlights = () => {
 
   return (
     <>
-      <div className="w-full">
-        {" "}
-        <section className="section1 border-b-[1.5px] border-[#E1E7EF] py-[10px] px-[30px] bg-white ">
-          <h1 className="text-[24px] font-bold">Highlights</h1>
-          <p className="text-[14px] text-[#65758B]">
-            Achievements and notable operations
-          </p>
-        </section>
+      <div className="w-full">     <section className="section1 border-b-[1.5px] border-[#E1E7EF] py-[10px] px-[30px] bg-white ">
+        <h1 className="text-[24px] font-bold">Highlights</h1>
+        <p className="text-[14px] text-[#65758B]">Achievements and notable operations
+        </p>
+      </section>
+
         <section className="max-w-full">
           <div className="flex justify-evenly px-5 mt-8">
             {/* Robot Section */}
@@ -57,7 +53,9 @@ export const Highlights = () => {
                 </p>
                 <p className="text-gray-600 text-start pb-3 mt-3">
                   <span>
-                    <User className="inline-block w-5 h-auto mr-2 mb-1" />
+                    <User
+                      className="inline-block w-5 h-auto mr-2 mb-1"
+                    />
                   </span>
                   Operator Name:
                   <span className=" text-black"> {data.operator_name}</span>
@@ -135,7 +133,7 @@ export const Highlights = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mt-8 w-full px-10">
           <div className="bg-[#ffffff] rounded-lg p-4 pt-5 border border-gray-300">
             <p className="text-3xl font-bold text-[#1A8BA8]">
-              {data.total_waste_kg || "1245kgs"}
+              {data.total_waste_kg || "1,245kgs"}
             </p>
             <p className="text-gray-500 text-md pt-2">Total waste collected</p>
           </div>
@@ -158,6 +156,7 @@ export const Highlights = () => {
             <p className="text-gray-500 text-md pt-2">Avg operation time</p>
           </div>
         </div>
+
         <section className="mt-8 px-10 max-w-full">
           <div className="bg-[#ffffff] rounded-xl  p-6  mx-auto mt-12 h-auto">
             <h2 className="text-3xl  text-center mb-2">
@@ -174,7 +173,9 @@ export const Highlights = () => {
             <div className="w-full flex flex-nowrap shrink-1 items-center justify-center gap-0 text-center mb-8 mt-10 px-auto">
               <div className="flex flex-row">
                 <div className="bg-red-50 h-11 w-11 flex items-center rounded-3xl m-auto shadow-xl shadow-gray-200">
-                  <TriangleAlert className="w-[25px] h-auto m-auto text-red-600" />
+                  < TriangleAlert
+                    className="w-[25px] h-auto m-auto text-red-600"
+                  />
                 </div>
                 <div className="w-35 p-2 ml-2 pr-0">
                   <p className="text-md font-medium pt-2 text-start">
@@ -190,7 +191,9 @@ export const Highlights = () => {
               </div>
               <div className="flex flex-row  ">
                 <div className="bg-blue-50 h-11 w-11 flex items-center rounded-3xl m-auto shadow-xl shadow-gray-200">
-                  <Clock className="w-[25px] h-auto m-auto text-blue-500" />
+                  <Clock
+                    className="w-[25px] h-auto m-auto text-blue-500"
+                  />
                 </div>
                 <div className="w-35 p-2 ml-2">
                   <p className="text-md font-medium pt-2 text-start">
@@ -206,7 +209,9 @@ export const Highlights = () => {
               </div>
               <div className="flex flex-row">
                 <div className="bg-yellow-50 h-11 w-11 flex items-center rounded-3xl m-auto shadow-xl shadow-gray-200">
-                  <TriangleAlert className="w-[25px] h-auto m-auto text-yellow-400" />
+                  <TriangleAlert
+                    className="w-[25px] h-auto m-auto text-yellow-400"
+                  />
                 </div>
                 <div className="w-35 p-2 ml-2">
                   <p className="text-md font-medium pt-2 text-start">
@@ -222,7 +227,9 @@ export const Highlights = () => {
               </div>
               <div className="flex flex-row">
                 <div className="bg-green-50 h-11 w-11 flex items-center rounded-3xl m-auto shadow-xl shadow-gray-200">
-                  <CircleCheckBig className="w-[25px] h-auto m-auto text-green-500" />
+                  <CircleCheckBig
+                    className="w-[25px] h-auto m-auto text-green-500"
+                  />
                 </div>
                 <div className="w-35 p-2 ml-2">
                   <p className="text-md font-medium pt-2 text-start">
@@ -285,4 +292,3 @@ export const Highlights = () => {
     </>
   );
 };
-
