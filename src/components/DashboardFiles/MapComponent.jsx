@@ -6,7 +6,7 @@ import { useServerData } from "../../context/ServerDataContext";
 import MapboxCore from "./MapboxCore";
 import ManholePopUp from "./ManholePopUp";
 import WardDetailsPopUp from "./WardDetailsPopUp";
- 
+
 
 const mapStyles = [
   { url: "mapbox://styles/shubhamgv/cmiofroih003501sm90m2hn06", img: "/images/street.png", name: "Street" },
@@ -38,7 +38,7 @@ const MapComponent = () => {
   const { data, loading, message: error } = useServerData();
   const [latestRobotCleanings, setLatestRobotCleanings] = useState({});
   const [buildingData, setBuildingData] = useState(null);
-   const [searchId, setSearchId] = useState("");
+  const [searchId, setSearchId] = useState("");
   // --- Refs ---
   const centerToRestoreRef = useRef(null);
   const zoomToRestoreRef = useRef(null);
@@ -51,28 +51,28 @@ const MapComponent = () => {
   };
 
 
-// ... inside MapComponent component ...
+  // ... inside MapComponent component ...
 
   // --- Add this new State ---
- 
+
 
   // --- Add this Search Handler ---
- // 👇 ADD THIS FUNCTION 👇
-const handleSearchManhole = () => {
+  // 👇 ADD THIS FUNCTION 👇
+  const handleSearchManhole = () => {
     if (!searchId.trim()) return;
     const targetId = searchId.trim().toLowerCase();
 
     // 1. Find the Manhole in the data
     const foundManhole = allManholeData.find((mh) => {
-        const id1 = String(mh.id || "").toLowerCase();
-        const id2 = String(mh.sw_mh_id || "").toLowerCase();
-        const id3 = String(mh.manhole_id || "").toLowerCase();
-        return id1.includes(targetId) || id2.includes(targetId) || id3.includes(targetId);
+      const id1 = String(mh.id || "").toLowerCase();
+      const id2 = String(mh.sw_mh_id || "").toLowerCase();
+      const id3 = String(mh.manhole_id || "").toLowerCase();
+      return id1.includes(targetId) || id2.includes(targetId) || id3.includes(targetId);
     });
 
     if (foundManhole) {
       const date = getManholeDateById(foundManhole.id);
-      
+
       // 2. ISOLATE THE DOT (Crucial Step)
       // We generate a GeoJSON containing ONLY this specific manhole.
       // This hides all other dots on the map.
@@ -108,7 +108,7 @@ const handleSearchManhole = () => {
 
 
 
- 
+
 
 
   const getDisplayName = (rawName) => {
@@ -125,19 +125,19 @@ const handleSearchManhole = () => {
     return rawName.trim();
   };
 
-const getManholeStatus = useCallback((operationdates) => {
+  const getManholeStatus = useCallback((operationdates) => {
     if (!operationdates) return "safe"; // Default to Safe (Green) if no date
-    
+
     let lastCleaned;
     if (typeof operationdates === "string") {
-         if (operationdates.includes("T")) {
-            lastCleaned = new Date(operationdates);
-         } else {
-            const cleanedDateString = operationdates.replace(' ', 'T');
-            lastCleaned = new Date(cleanedDateString);
-         }
+      if (operationdates.includes("T")) {
+        lastCleaned = new Date(operationdates);
+      } else {
+        const cleanedDateString = operationdates.replace(' ', 'T');
+        lastCleaned = new Date(cleanedDateString);
+      }
     } else if (typeof operationdates === "number") {
-         lastCleaned = excelDateToJSDate(operationdates);
+      lastCleaned = excelDateToJSDate(operationdates);
     }
 
     if (!lastCleaned || isNaN(lastCleaned.getTime())) return "safe";
@@ -148,30 +148,30 @@ const getManholeStatus = useCallback((operationdates) => {
     const diffTime = today - lastCleaned;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays >= 25) return "danger"; 
+    if (diffDays >= 25) return "danger";
     if (diffDays >= 15) return "warning";
     return "safe";
   }, []);
 
-const formatExcelDate = useCallback((value) => {
+  const formatExcelDate = useCallback((value) => {
     if (!value) return "N/A";
     let date_info;
-    
+
     // Handle "2025-10-28T15:32:17" (ISO String from your data)
     if (typeof value === "string") {
       if (value.includes("T")) {
-         date_info = new Date(value);
+        date_info = new Date(value);
       } else {
-         // Fallback for Excel strings
-         const cleanedDateString = value.replace(' ', 'T').replace(/\.\d+/, '').replace(/\+.*$/, '');
-         date_info = new Date(cleanedDateString);
-         if (isNaN(date_info.getTime())) {
-             const datePart = value.split(' ')[0];
-             const parts = datePart.split(/[\/-]/);
-             if (parts.length === 3) {
-                 date_info = new Date(parts[2], parts[1] - 1, parts[0]);
-             }
-         }
+        // Fallback for Excel strings
+        const cleanedDateString = value.replace(' ', 'T').replace(/\.\d+/, '').replace(/\+.*$/, '');
+        date_info = new Date(cleanedDateString);
+        if (isNaN(date_info.getTime())) {
+          const datePart = value.split(' ')[0];
+          const parts = datePart.split(/[-]/);
+          if (parts.length === 3) {
+            date_info = new Date(parts[2], parts[1] - 1, parts[0]);
+          }
+        }
       }
     } else if (typeof value === "number") {
       date_info = excelDateToJSDate(value);
@@ -212,7 +212,7 @@ const formatExcelDate = useCallback((value) => {
             section: sectionRaw ? String(sectionRaw).trim() : null,
             zone: zoneRaw ? String(zoneRaw).trim() : null,
             last_operation_date: lastOpDateRaw ?? null,
- 
+
             id: String(idRaw).trim(),
             latitude: Number(latRaw),
             longitude: Number(lonRaw),
@@ -222,8 +222,8 @@ const formatExcelDate = useCallback((value) => {
         setAllManholeData(processedManholes);
         let uniqueDivisions = [...new Set(processedManholes.map((row) => row.division))].filter(Boolean).sort();
         if (uniqueDivisions.length > 0) {
-           const first = uniqueDivisions.shift();
-           if(first) uniqueDivisions.push(first);
+          const first = uniqueDivisions.shift();
+          if (first) uniqueDivisions.push(first);
         }
         setDivisionList(["All", ...uniqueDivisions]);
       } else {
@@ -270,15 +270,15 @@ const formatExcelDate = useCallback((value) => {
     }
   }, [loading, data]);
 
- 
-// --- ROBOT DATA PROCESSING (Direct Match: manhole_id === sw_mh_id) ---
-// --- ROBOT DATA PROCESSING (Final "Universal" Matcher) ---
+
+  // --- ROBOT DATA PROCESSING (Direct Match: manhole_id === sw_mh_id) ---
+  // --- ROBOT DATA PROCESSING (Final "Universal" Matcher) ---
   useEffect(() => {
     const rawRobotList = data?.table_data || data?.somajiguda_operations || data?.RobotsData || data?.RobotData;
 
     if (Array.isArray(rawRobotList) && allManholeData.length > 0) {
- 
-      
+
+
       // 1. Prepare Map Index (Store both IDs and Location)
       const mapManholeIndex = allManholeData.map(mh => ({
         // Try to get the string ID from any likely field
@@ -292,13 +292,13 @@ const formatExcelDate = useCallback((value) => {
       const findMapIdByCoordinates = (robotLat, robotLon) => {
         let nearestId = null;
         let minDistance = Infinity;
-        
+
         mapManholeIndex.forEach(mh => {
-           const distSq = Math.pow(mh.lat - robotLat, 2) + Math.pow(mh.lon - robotLon, 2);
-           if (distSq < minDistance) {
-               minDistance = distSq;
-               nearestId = mh.rawId;
-           }
+          const distSq = Math.pow(mh.lat - robotLat, 2) + Math.pow(mh.lon - robotLon, 2);
+          if (distSq < minDistance) {
+            minDistance = distSq;
+            nearestId = mh.rawId;
+          }
         });
         // 0.0005 is approx 55 meters
         return minDistance < 0.0005 ? nearestId : null;
@@ -306,51 +306,51 @@ const formatExcelDate = useCallback((value) => {
 
       // 3. Process Robot Data
       const processedMap = rawRobotList.reduce((acc, row) => {
-          const timeStamp = row.timestamp; 
-          if (!timeStamp) return acc;
+        const timeStamp = row.timestamp;
+        if (!timeStamp) return acc;
 
-          const rLat = Number(row.latitude);
-          const rLon = Number(row.longitude);
-          const rId = String(row.manhole_id || "").trim().toLowerCase(); 
+        const rLat = Number(row.latitude);
+        const rLon = Number(row.longitude);
+        const rId = String(row.manhole_id || "").trim().toLowerCase();
 
-          let targetMapId = null;
+        let targetMapId = null;
 
-          // STRATEGY A: ID Match
-          const idMatch = mapManholeIndex.find(m => m.id === rId);
-          if (idMatch) {
-              targetMapId = idMatch.rawId;
-          } 
-          // STRATEGY B: Location Match (Fallback)
-          else if (!isNaN(rLat) && !isNaN(rLon)) {
-              targetMapId = findMapIdByCoordinates(rLat, rLon);
+        // STRATEGY A: ID Match
+        const idMatch = mapManholeIndex.find(m => m.id === rId);
+        if (idMatch) {
+          targetMapId = idMatch.rawId;
+        }
+        // STRATEGY B: Location Match (Fallback)
+        else if (!isNaN(rLat) && !isNaN(rLon)) {
+          targetMapId = findMapIdByCoordinates(rLat, rLon);
+        }
+
+        if (targetMapId) {
+          const existing = acc[targetMapId];
+          if (!existing || new Date(timeStamp) > new Date(existing.raw)) {
+            acc[targetMapId] = { raw: timeStamp };
           }
-
-          if (targetMapId) {
-             const existing = acc[targetMapId];
-             if (!existing || new Date(timeStamp) > new Date(existing.raw)) {
-                 acc[targetMapId] = { raw: timeStamp };
-             }
-          }
-          return acc;
+        }
+        return acc;
       }, {});
 
- 
+
       setLatestRobotCleanings(processedMap);
     }
   }, [data, loading, allManholeData]);
   // --- SAFE ID LOOKUP ---
-const getManholeDateById = useCallback((manholeId) => {
+  const getManholeDateById = useCallback((manholeId) => {
     if (!manholeId) return null;
-    
+
     // Normalize inputs
     const cleanId = String(manholeId).trim();
 
     // 1. Check Robot Map
     const robotEntry = latestRobotCleanings[cleanId];
     if (robotEntry && robotEntry.raw) {
-        return robotEntry.raw;
+      return robotEntry.raw;
     }
-    
+
     // 2. Fallback to Map Data
     const baseData = allManholeData.find(mh => mh.id === cleanId);
     return baseData ? (baseData.timestamp || baseData.start_time) : null;
@@ -361,7 +361,7 @@ const getManholeDateById = useCallback((manholeId) => {
       features: data.map((row) => {
         const stringId = String(row.id);
         let dateForStatus = row.timestamp || row.start_time || null;
-        
+
         // Override with Robot Data
         const robotEntry = latestRobotCleaningsMap[stringId];
         if (robotEntry && robotEntry.raw) {
@@ -385,22 +385,22 @@ const getManholeDateById = useCallback((manholeId) => {
 
   // --- HANDLERS (Same as before) ---
   const clearManholeSelection = useCallback(() => { setSelectedManholeLocation(null); }, []);
-const handleClosePopup = useCallback(() => {
-      // 1. Always close the popup
-      setSelectedManholeLocation(null);
-      
-      // 2. Always clear the search text
-      setSearchId("");
+  const handleClosePopup = useCallback(() => {
+    // 1. Always close the popup
+    setSelectedManholeLocation(null);
 
-      // 3. CONDITIONAL MAP CLEAR:
-      // Only clear the map points if the user has NOT selected a Division/Ward.
-      // (This implies they were looking at a temporary Search Result).
-      if (selectedDivision === "All" || selectedAreaName === "All") {
-          setFilteredManholeGeoJSON(emptyGeoJSON);
-      }
-      
-      // If Division/Ward ARE selected, we do nothing here. 
-      // The map will continue to show the manholes for that Ward.
+    // 2. Always clear the search text
+    setSearchId("");
+
+    // 3. CONDITIONAL MAP CLEAR:
+    // Only clear the map points if the user has NOT selected a Division/Ward.
+    // (This implies they were looking at a temporary Search Result).
+    if (selectedDivision === "All" || selectedAreaName === "All") {
+      setFilteredManholeGeoJSON(emptyGeoJSON);
+    }
+
+    // If Division/Ward ARE selected, we do nothing here. 
+    // The map will continue to show the manholes for that Ward.
   }, [selectedDivision, selectedAreaName]); const handleGenerateReport = () => { console.log("Report generation triggered"); clearManholeSelection(); };
   const handleAssignBot = () => { console.log("Assign bot triggered"); clearManholeSelection(); };
 
@@ -480,10 +480,10 @@ const handleClosePopup = useCallback(() => {
   const handleManholeClick = useCallback((feature) => {
     const manholeId = String(feature.properties.id);
     let latestCleanedDate = getManholeDateById(manholeId);
-    
+
     // Fallback: Use property embedded in GeoJSON if live lookup fails
     if (!latestCleanedDate) {
-        latestCleanedDate = feature.properties.date_for_status;
+      latestCleanedDate = feature.properties.date_for_status;
     }
 
     const manholeStatus = getManholeStatus(latestCleanedDate);
@@ -505,7 +505,7 @@ const handleClosePopup = useCallback(() => {
       // Logic: If it's in the alert list, we rely on the base data or re-calculate status
       const latestDate = getManholeDateById(stringId) || manholeData.timestamp;
       const manholeStatus = getManholeStatus(latestDate);
-      
+
       setSelectedManholeLocation({
         ...manholeData,
         lastCleaned: latestDate,
@@ -522,14 +522,14 @@ const handleClosePopup = useCallback(() => {
     if (allManholeData.length === 0) { setFilteredManholeGeoJSON(emptyGeoJSON); return; }
     if (selectedDivision === "All" || selectedAreaName === "All") { setFilteredManholeGeoJSON(emptyGeoJSON); return; }
     let filtered = allManholeData.filter((row) => {
-      const matchesHierarchy = (row.division === selectedDivision && row.section === selectedAreaName); 
+      const matchesHierarchy = (row.division === selectedDivision && row.section === selectedAreaName);
       if (!matchesHierarchy) return false;
       if (selectedZone !== "All" && row.zone !== selectedZone) { return false; }
       return true;
     });
     setFilteredManholeGeoJSON(generateManholeGeoJSON(filtered, latestRobotCleanings));
   }, [selectedDivision, selectedAreaName, selectedZone, allManholeData, generateManholeGeoJSON, latestRobotCleanings]);
-useEffect(() => {
+  useEffect(() => {
     fetch("/datafiles/CSVs/buildings_updated_somajiguda.geojson")
       .then(res => res.json())
       .then(data => setBuildingData(data)) // Updates the state defined in Step 1
@@ -566,8 +566,8 @@ useEffect(() => {
             if (Array.isArray(c) && c.length === 2) { bounds.extend(c); valid = true; }
           });
           if (valid) {
-             if (filteredManholeGeoJSON.features.length === 1) setFlyToLocation({ center: filteredManholeGeoJSON.features[0].geometry.coordinates, zoom: 18 });
-             else setFlyToLocation({ bounds: bounds, padding: 40 });
+            if (filteredManholeGeoJSON.features.length === 1) setFlyToLocation({ center: filteredManholeGeoJSON.features[0].geometry.coordinates, zoom: 18 });
+            else setFlyToLocation({ bounds: bounds, padding: 40 });
           }
         } catch (e) { console.error(e); }
       }
@@ -580,10 +580,10 @@ useEffect(() => {
     const wardManholes = allManholeData.filter((mh) => mh?.section === selectedAreaName && mh.division === selectedDivision);
     // Note: Alert logic re-checks the status based on current data
     const dangerManholes = wardManholes.filter((mh) => {
-        const date = getManholeDateById(String(mh.id)) || mh.last_operation_date;
-        return getManholeStatus(date) === 'danger';
+      const date = getManholeDateById(String(mh.id)) || mh.last_operation_date;
+      return getManholeStatus(date) === 'danger';
     });
-    
+
     const groupedByZone = dangerManholes.reduce((acc, mh) => {
       const zone = mh.zone || 'Unknown Zone';
       if (!acc[zone]) { acc[zone] = []; }
@@ -598,7 +598,7 @@ useEffect(() => {
     if (!normalized || Object.keys(wardPolygons).length === 0 || Object.keys(wardDetailsMap).length === 0) return null;
     const finalMatchKey = Object.keys(wardPolygons).find(k => k.trim().toLowerCase() === normalized);
     return finalMatchKey ? wardDetailsMap[finalMatchKey] : null;
-  },[selectedAreaName, wardPolygons, wardDetailsMap]);
+  }, [selectedAreaName, wardPolygons, wardDetailsMap]);
   // --- RENDER ---
   return (
     <div className=" w-full flex flex-row max-w-[2400px] gap-1">
@@ -618,66 +618,66 @@ useEffect(() => {
             <input type="number" placeholder="Latitude.." value={latInput} onChange={(e) => setLatInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]" />
             <input type="number" placeholder="Longitude.." value={lonInput} onChange={(e) => setLonInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]" />
             <button onClick={handleJumpToLocation} className="btn-blue btn-hover text-sm ml-3" style={{ paddingBlock: "6px", borderRadius: "8px" }}>Go</button>
-          {/* --- NEW SEARCH SECTION START --- */}
-  <div className="flex items-center gap-2   pl-4 border-gray-300">
-    <input
-      type="text"
-      placeholder="MH0621-01-321.."
-      value={searchId}
-      onChange={(e) => setSearchId(e.target.value)}
-      onKeyDown={(e) => e.key === 'Enter' && handleSearchManhole()} // Allow Enter key
-      className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[160px]"
-    />
-    <button
-      onClick={handleSearchManhole}
-      className="btn-blue btn-hover text-sm"
-      style={{ paddingBlock: "6px", borderRadius: "8px" }}
-    >
-      Search
-    </button>
-  </div>
-  {/* --- NEW SEARCH SECTION END --- */}
-          
-           <select 
-    value={selectedDivision} 
-    onChange={(event) => handleDivisionChange(event.target.value)} 
-    className="hover:shadow-md border cursor-pointer border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]"
-  >
-    <option value="All">Select Division</option>
-    {divisionList.filter(d => d !== "All").map((division, idx) => (
-      <option key={idx} value={division}>
-        {getDisplayName(division)} {/* <-- CHANGED THIS LINE */}
-      </option>
-    ))}
-  </select>
-  
-  <select 
-    value={selectedAreaName} 
-    onChange={(event) => handleAreaNameChange(event.target.value)} 
-    disabled={selectedDivision === "All"} 
-    className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]"
-  >
-    <option value="All">Select Ward</option>
-    {areaNameList.filter(a => a !== "All").map((area, idx) => (
-      <option key={idx} value={area}>
-        {getDisplayName(area)} {/* <-- APPLIED SAME LOGIC HERE */}
-      </option>
-    ))}
-  </select>
-  
-  <select 
-    value={selectedZone} 
-    onChange={(event) => handleZoneChange(event.target.value)} 
-    disabled={selectedAreaName === "All"} 
-    className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[160px]"
-  >
-    <option value="All">Select Zone</option>
-    {zoneList.filter(z => z !== "All").map((zone, idx) => (
-      <option key={idx} value={zone}>
-        {getDisplayName(zone)} {/* <-- APPLIED SAME LOGIC HERE */}
-      </option>
-    ))}
-  </select></div>
+            {/* --- NEW SEARCH SECTION START --- */}
+            <div className="flex items-center gap-2   pl-4 border-gray-300">
+              <input
+                type="text"
+                placeholder="MH0621-01-321.."
+                value={searchId}
+                onChange={(e) => setSearchId(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearchManhole()} // Allow Enter key
+                className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[160px]"
+              />
+              <button
+                onClick={handleSearchManhole}
+                className="btn-blue btn-hover text-sm"
+                style={{ paddingBlock: "6px", borderRadius: "8px" }}
+              >
+                Search
+              </button>
+            </div>
+            {/* --- NEW SEARCH SECTION END --- */}
+
+            <select
+              value={selectedDivision}
+              onChange={(event) => handleDivisionChange(event.target.value)}
+              className="hover:shadow-md border cursor-pointer border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]"
+            >
+              <option value="All">Select Division</option>
+              {divisionList.filter(d => d !== "All").map((division, idx) => (
+                <option key={idx} value={division}>
+                  {getDisplayName(division)} {/* <-- CHANGED THIS LINE */}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedAreaName}
+              onChange={(event) => handleAreaNameChange(event.target.value)}
+              disabled={selectedDivision === "All"}
+              className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]"
+            >
+              <option value="All">Select Ward</option>
+              {areaNameList.filter(a => a !== "All").map((area, idx) => (
+                <option key={idx} value={area}>
+                  {getDisplayName(area)} {/* <-- APPLIED SAME LOGIC HERE */}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedZone}
+              onChange={(event) => handleZoneChange(event.target.value)}
+              disabled={selectedAreaName === "All"}
+              className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[160px]"
+            >
+              <option value="All">Select Zone</option>
+              {zoneList.filter(z => z !== "All").map((zone, idx) => (
+                <option key={idx} value={zone}>
+                  {getDisplayName(zone)} {/* <-- APPLIED SAME LOGIC HERE */}
+                </option>
+              ))}
+            </select></div>
         </div>
         {/* --- Map Container --- */}
         <div className="map-box relative rounded-lg overflow-hidden border border-gray-300" style={{ height: "445.52px", opacity: 1 }}>
@@ -686,21 +686,20 @@ useEffect(() => {
             <button className=" bg-[#eee] font-extralight  border cursor-pointer border-gray-300 shadow-md rounded-md w-12 h-7 mr-2 flex items-center justify-center hover:bg-[#fff] transition duration-300 opacity-80"> <Map /> </button>
             <div className="absolute top-full mt-1 left--4 grid grid-rows-3 gap-1 w-13.5 rounded-md overflow-hidden transform scale-y-0 opacity-0 origin-top transition-all duration-200 group-hover:scale-y-100 group-hover:opacity-100">
               {mapStyles.map((style) => (<button
-      key={style.url}
-      onClick={() => handleStyleChange(style.url)}
-      className={`flex flex-col items-center w-12 border-2 bg-white rounded-md overflow-hidden transition-all duration-150 cursor-pointer ${
-        mapStyle === style.url
-          ? "border-blue-500"
-          : "border-transparent hover:border-gray-400"
-      }`}
-    >
-      <img
-        src={style.img}
-        alt={style.name}
-        className="w-16 h-10 object-cover"
-      />
-      <span className="text-[10px] text-gray-700 mt-0">{style.name}</span>
-    </button>))}
+                key={style.url}
+                onClick={() => handleStyleChange(style.url)}
+                className={`flex flex-col items-center w-12 border-2 bg-white rounded-md overflow-hidden transition-all duration-150 cursor-pointer ${mapStyle === style.url
+                    ? "border-blue-500"
+                    : "border-transparent hover:border-gray-400"
+                  }`}
+              >
+                <img
+                  src={style.img}
+                  alt={style.name}
+                  className="w-16 h-10 object-cover"
+                />
+                <span className="text-[10px] text-gray-700 mt-0">{style.name}</span>
+              </button>))}
             </div>
           </div>
           {/* --- CORE MAP COMPONENT --- */}
@@ -718,8 +717,8 @@ useEffect(() => {
             getManholeDateById={getManholeDateById}
             onManholeClick={handleManholeClick}
             onManholeDeselect={handleManholeDeselect}
- buildingGeoJSON={buildingData}
- 
+            buildingGeoJSON={buildingData}
+
           />
           {loading && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">Loading map...</div>}
           {error && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10 "> {error}</div>}
@@ -736,36 +735,36 @@ useEffect(() => {
           </div>        </div>
       </div>
       {/* --- Right section --- */}
-     <div className="db-popup-container ml-4 h-[633px] shadow-gray-300 shadow-md border border-gray-200 w-full max-w-[30%] overflow-y-auto overflow-x-hidden bg-white rounded-xl ">
-  {selectedManholeLocation ? (
-    <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
-      <ManholePopUp 
-        selectedLocation={selectedManholeLocation} 
-        onClose={handleClosePopup} 
-        onGenerateReport={handleGenerateReport} 
-        onAssignBot={handleAssignBot} 
-      />
-    </div>
- 
-  ) : selectedWardForPopup ? (
-    <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
-      <WardDetailsPopUp 
-        wardData={selectedWardForPopup} 
-        alertData={alertData} 
-        onManholeSelect={handleAlertManholeClick} 
-        onClose={() => setSelectedAreaName("All")} 
-        setSelectedWard={setSelectedAreaName} 
-      />
-    </div>
-  ) : (
-    <div className="w-full h-full flex items-center justify-center place-items-center text-gray-400 p-4 text-center">
-      <p className="flex flex-col items-center justify-center">
-        <MapPin className=" w-18 h-18 mb-2 text-gray-300 " />
-        Select a Manhole or Building on the map to view details.
-      </p>
-    </div>
-  )}
-</div>
+      <div className="db-popup-container ml-4 h-[633px] shadow-gray-300 shadow-md border border-gray-200 w-full max-w-[30%] overflow-y-auto overflow-x-hidden bg-white rounded-xl ">
+        {selectedManholeLocation ? (
+          <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
+            <ManholePopUp
+              selectedLocation={selectedManholeLocation}
+              onClose={handleClosePopup}
+              onGenerateReport={handleGenerateReport}
+              onAssignBot={handleAssignBot}
+            />
+          </div>
+
+        ) : selectedWardForPopup ? (
+          <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
+            <WardDetailsPopUp
+              wardData={selectedWardForPopup}
+              alertData={alertData}
+              onManholeSelect={handleAlertManholeClick}
+              onClose={() => setSelectedAreaName("All")}
+              setSelectedWard={setSelectedAreaName}
+            />
+          </div>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center place-items-center text-gray-400 p-4 text-center">
+            <p className="flex flex-col items-center justify-center">
+              <MapPin className=" w-18 h-18 mb-2 text-gray-300 " />
+              Select a Manhole or Building on the map to view details.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

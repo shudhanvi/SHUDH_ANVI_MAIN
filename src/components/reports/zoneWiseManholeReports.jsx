@@ -8,12 +8,12 @@ import { backendApi } from '../../utils/backendApi';
 import axios from "axios";
 
 // Helper to format date range
-const formatDateRange = (dateRange) => {
-  if (!dateRange || (!dateRange.from && !dateRange.to)) return 'N/A';
-  const from = dateRange.from ? new Date(dateRange.from).toLocaleDateString('en-GB') : '...';
-  const to = dateRange.to ? new Date(dateRange.to).toLocaleDateString('en-GB') : '...';
-  return `${from} - ${to}`;
-};
+// const formatDateRange = (dateRange) => {
+//   if (!dateRange || (!dateRange.from && !dateRange.to)) return 'N/A';
+//   const from = dateRange.from ? new Date(dateRange.from).toLocaleDateString('en-GB') : '...';
+//   const to = dateRange.to ? new Date(dateRange.to).toLocaleDateString('en-GB') : '...';
+//   return `${from} - ${to}`;
+// };
 
 export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack }) => {
   const [selectedManholes, setSelectedManholes] = useState([]);

@@ -4,35 +4,35 @@ import MaintainenceComp from "../components/DashboardFiles/MaintainenceComp";
 import MapComponent from "../components/DashboardFiles/MapComponent";
 import PredictComp from "../components/DashboardFiles/PredictComp";
 import PreventComp from "../components/DashboardFiles/PreventComp";
- import { ChartLine, CircleCheckBig, ShieldCheck, X } from "lucide-react";
- 
+import { ChartLine, CircleCheckBig, ShieldCheck, X } from "lucide-react";
+
 export const Dashboard = () => {
 
   const [activeCard, setActiveCard] = useState("");
   const DashboardCardsContent = [
-  {
-    label: "Predict",
-    bgColor: "#EFF2F9",
-    icon: <ChartLine size={25} color="#0380FC" />,
-    iconBg: "#0380FC21",
-    desc: "Forecasting Risk",
-  },
-  {
-    label: "Prevent",
-    bgColor: "#F4EBF4",
-    icon: <ShieldCheck size={30} color="#FF8FFF" />,
-    iconBg: "#FF8FFF1A",
-    desc: "Schedule Mantenance",
-  },
-  {
-    label: "Cure",
-    bgColor: "#EFF8F3",
-    icon: <CircleCheckBig size={25} color="#61CB7E" />,
-    iconBg: "#61CB7E33",
-    desc: "Resolve Issues",
-  },
-];
- 
+    {
+      label: "Predict",
+      bgColor: "#EFF2F9",
+      icon: <ChartLine size={25} color="#0380FC" />,
+      iconBg: "#0380FC21",
+      desc: "Forecasting Risk",
+    },
+    {
+      label: "Prevent",
+      bgColor: "#F4EBF4",
+      icon: <ShieldCheck size={30} color="#FF8FFF" />,
+      iconBg: "#FF8FFF1A",
+      desc: "Schedule Mantenance",
+    },
+    {
+      label: "Cure",
+      bgColor: "#EFF8F3",
+      icon: <CircleCheckBig size={25} color="#61CB7E" />,
+      iconBg: "#61CB7E33",
+      desc: "Resolve Issues",
+    },
+  ];
+
 
 
   const updateActiveCard = (cardName) => {
@@ -48,25 +48,25 @@ export const Dashboard = () => {
   const renderPopups = () => {
     switch (activeCard) {
       case "Predict":
-        return <PredictComp/>;
+        return <PredictComp />;
       case "Prevent":
-        return <PreventComp/>;
+        return <PreventComp />;
       case "Cure":
-        return <CureComp/>;
+        return <CureComp />;
       default:
         return null;
     }
   };
 
   return (
- <>
- 
+    <>
+
       <section className="section1 border-b-[1.5px] border-[#E1E7EF] py-[10px] px-[30px] w-full bg-white ">
-      <h1 className="text-[24px] font-bold">Dashboard</h1>
-      <p className="text-[14px] text-[#65758B]">Smart Manhole Management System</p>
-      </section> 
- 
-    <section className="p-2 w-full max-w-[1000px] mt-10 mb-5 mx-auto place-items-center">
+        <h1 className="text-[24px] font-bold">Dashboard</h1>
+        <p className="text-[14px] text-[#65758B]">Smart Manhole Management System</p>
+      </section>
+
+      <section className="p-2 w-full max-w-[1000px] mt-10 mb-5 mx-auto place-items-center">
         <ul className="w-full max-w-[1200px] m-0 p-0 flex max-md:flex-wrap max-md:flex-col justify-center align-middle gap-8 place-content-center">
           {DashboardCardsContent.map((i) => (
             <li
@@ -99,17 +99,17 @@ export const Dashboard = () => {
           ))}
         </ul>
       </section>
-<section className="section2 tabs-container  p-4 w-full h-auto flex flex-col gap-5 ">
-      <div className="w-full tabs-content my-3 rounded-xl">
-        
- <MapComponent/>
-       
-      <div className="w-full tabs-content my-3 rounded-xl">
-        <MaintainenceComp/>
-      </div>
-      </div>
-</section>
-  {activeCard !== "" && (
+      <section className="section2 tabs-container  p-4 w-full h-auto flex flex-col gap-5 ">
+        <div className="w-full tabs-content my-3 rounded-xl">
+
+          <MapComponent />
+
+          <div className="w-full tabs-content my-3 rounded-xl">
+            <MaintainenceComp />
+          </div>
+        </div>
+      </section>
+      {activeCard !== "" && (
         <section className="bg-[#00000099] w-[101%] absolute top-0 z-1300">
           <div className="popup-container h-screen relative">
             <div className="fixed bg-[#000] opacity-50 w-full h-screen -z-1"></div>
@@ -125,7 +125,6 @@ export const Dashboard = () => {
           </div>
         </section>
       )}
- </>
+    </>
   );
 }
- 

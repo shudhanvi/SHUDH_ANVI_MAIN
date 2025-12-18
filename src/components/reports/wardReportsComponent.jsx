@@ -92,7 +92,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
       }
 
       const data = response.data;
-      // console.log("Backend response :", data)
+      console.log("Backend response :", data)
       setReportData(data);
       setShowPopup(true);
 
@@ -107,7 +107,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
 
   };
 
-  const isButtonDisabled = isLoading || !section;
+  // const isButtonDisabled = isLoading || !section;
 
   return (
     <>

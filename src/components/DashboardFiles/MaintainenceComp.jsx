@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import MaintainenceCard from "./MaintainenceCard";
-import  maintenanceTasks from "../../maintainenceDumData";
+import maintenanceTasks from "../../maintainenceDumData";
 
 const filterBtnsList = [
   { label: "All Tasks", value: "all" },
@@ -26,12 +26,12 @@ const MaintainenceComp = () => {
   const filteredMtData = (val) => {
     // console.log('activeTab : ', val)
     const updatedMtData = maintenanceTasks.filter(i => {
-        if (val === 'all') return i
-        else {
-            if (i.category === val) {
-                return i
-            }
+      if (val === 'all') return i
+      else {
+        if (i.category === val) {
+          return i
         }
+      }
     })
     setMaintainenceD(updatedMtData);
     // console.log(updatedMtData)
@@ -41,14 +41,13 @@ const MaintainenceComp = () => {
     <div className="maintainence-container bg-amer-900 w-full min-h-[50vh]  shadow-gray-300 shadow-md   p-6 mb-4 rounded-xl bg-white">
       {/* Top Box */}
       <div className="flex justify-between p-5 place-items-center align-middle gap-5">
-        <h3 className="text-xl font-[500]">Maintainence Scheduler</h3>
+        <h3 className="text-xl font-[500px]">Maintainence Scheduler</h3>
         <ul className="filter-box flex justify-center align-middle gap-3">
           {filterBtnsList.map((each) => (
             <li key={each.label} className="">
               <button
-                className={`${
-                  activeTab === each.value ? "btn-blue" : "btn-blue-outline"
-                } btn-hover py-2 text-sm`}
+                className={`${activeTab === each.value ? "btn-blue" : "btn-blue-outline"
+                  } btn-hover py-2 text-sm`}
                 onClick={() => updateTab(each.value)}
               >
                 {each.label}
@@ -63,7 +62,7 @@ const MaintainenceComp = () => {
         <h4 className="text-left text-lg mb-5 w-auto self-start border-b-2 border-blue-400">
           {filterBtnsList.find((e) => e.value === activeTab).label}
         </h4>
-        <ul className="p-0 m-0 w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-[20px] place-items-center">
+        <ul className="p-0 m-0 w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 place-items-center">
           {maintainenceD.map((each) => (
             <MaintainenceCard key={each.id} MaintainenceInfo={each} />
           ))}

@@ -9,7 +9,7 @@ import { Header } from "./components/Header";
 function App() {
   return (
     <Router>
-      <Header/>
+      <Header />
       {/* Routes */}
       <main className=" w-full max-w-[2400px] m-auto min-h-screen font-[inter]  place-items-center mb-2    ">
         <Routes>
