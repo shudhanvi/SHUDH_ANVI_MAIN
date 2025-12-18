@@ -102,30 +102,30 @@ const ChartPlaceholder = ({ message }) => (
   </div>
 );
 
-const KeyValueTable = ({ obj }) => {
-  if (!obj || Object.keys(obj).length === 0)
-    return <div className="text-gray-500">No records found</div>;
-  return (
-    <table className="w-full border border-gray-300 bg-white mb-4 table-fixed">
-      <tbody>
-        {Object.entries(obj).map(([k, v]) => (
-          <tr key={k} className="border-b last:border-b-0">
-            <td className="p-2 font-medium border-r w-1/3">{k}</td>
-            <td className="p-2">
-              {isPlainObject(v) || Array.isArray(v) ? (
-                <pre className="whitespace-pre-wrap text-xs">
-                  {JSON.stringify(v, null, 2)}
-                </pre>
-              ) : (
-                String(v ?? "N/A")
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
+// const KeyValueTable = ({ obj }) => {
+//   if (!obj || Object.keys(obj).length === 0)
+//     return <div className="text-gray-500">No records found</div>;
+//   return (
+//     <table className="w-full border border-gray-300 bg-white mb-4 table-fixed">
+//       <tbody>
+//         {Object.entries(obj).map(([k, v]) => (
+//           <tr key={k} className="border-b last:border-b-0">
+//             <td className="p-2 font-medium border-r w-1/3">{k}</td>
+//             <td className="p-2">
+//               {isPlainObject(v) || Array.isArray(v) ? (
+//                 <pre className="whitespace-pre-wrap text-xs">
+//                   {JSON.stringify(v, null, 2)}
+//                 </pre>
+//               ) : (
+//                 String(v ?? "N/A")
+//               )}
+//             </td>
+//           </tr>
+//         ))}
+//       </tbody>
+//     </table>
+//   );
+// };
 
 const DataTable = ({ rows }) => {
   if (!rows || rows.length === 0)
@@ -179,7 +179,6 @@ export const WardReportPopup = ({ reportData, onClose }) => {
   const weather7 = weather?.datewise_7d ?? [];
 
   const data = reportData || {};
-
   /* ------------------ Load libs ------------------ */
   useEffect(() => {
     let cancelled = false;
@@ -343,10 +342,10 @@ export const WardReportPopup = ({ reportData, onClose }) => {
     generate();
   }, [isGeneratingPDF]);
 
-  const handleDownloadPDF = () => {
-    if (!libsLoaded) return alert("PDF libraries not loaded");
-    setIsGeneratingPDF(true);
-  };
+  // const handleDownloadPDF = () => {
+  //   if (!libsLoaded) return alert("PDF libraries not loaded");
+  //   setIsGeneratingPDF(true);
+  // };
 
   /* ------------------ Static Images ------------------ */
 

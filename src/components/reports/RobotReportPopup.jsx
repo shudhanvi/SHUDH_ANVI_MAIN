@@ -809,10 +809,10 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
     generatePdf();
   }, [isGeneratingPDF, data]);
 
-  const handleDownloadPDF = () => {
-    if (!libsLoaded) return alert("Libraries not ready");
-    setIsGeneratingPDF(true);
-  };
+  // const handleDownloadPDF = () => {
+  //   if (!libsLoaded) return alert("Libraries not ready");
+  //   setIsGeneratingPDF(true);
+  // };
 
   /* ---------------------------- Data snippets ------------------------------ */
 
@@ -821,7 +821,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
   const singleLast10 = Array.isArray(data["Last 10 Operations"]) ? data["Last 10 Operations"] : [];
   const singleTop5 = Array.isArray(data["Top 5 Manholes Handled"]) ? data["Top 5 Manholes Handled"] : [];
   const singleTimelineToday = Array.isArray(data["Timeline Today"]) ? data["Timeline Today"] : [];
-  const singleManholesToday = Array.isArray(data["Manholes Handled Today"]) ? data["Manholes Handled Today"] : [];
+  // const singleManholesToday = Array.isArray(data["Manholes Handled Today"]) ? data["Manholes Handled Today"] : [];
   const singleOpTimePerManholeToday = isPlainObject(data["Operation Time Per Manhole (Today)"])
     ? data["Operation Time Per Manhole (Today)"]
     : {};

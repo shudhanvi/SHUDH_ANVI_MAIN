@@ -107,7 +107,7 @@ export const WardReportsComponent = ({ city, division, section }) => {
 
   };
 
-  const isButtonDisabled = isLoading || !section;
+  // const isButtonDisabled = isLoading || !section;
 
   return (
     <>

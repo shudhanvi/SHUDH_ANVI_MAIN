@@ -82,9 +82,8 @@ export default function DashAccordian() {
               <div className="bg-[#FEF9E6] w-full flex items-center justify-between px-4 py-2 ">
                 <span className="text-md">{eachAcd.heading}</span>
                 <svg
-                  className={`w-3 h-3 transform transition-transform duration-200 ${
-                    eachAcd.isOpen ? "" : "rotate-180"
-                  }`}
+                  className={`w-3 h-3 transform transition-transform duration-200 ${eachAcd.isOpen ? "" : "rotate-180"
+                    }`}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 10 6"

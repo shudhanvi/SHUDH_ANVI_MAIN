@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup as LeafletPopup, useMap } from "react-leaflet";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+// import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import "leaflet/dist/leaflet.css";
 import DatePicker from "react-datepicker";
@@ -95,8 +95,8 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
 
 
 
-  let lat = currentRecord?.latitude;
-  let lng = currentRecord?.longitude;
+  // let lat = currentRecord?.latitude;
+  // let lng = currentRecord?.longitude;
   const RecenterMap = ({ lat, lng }) => {
     const map = useMap();
     useEffect(() => {

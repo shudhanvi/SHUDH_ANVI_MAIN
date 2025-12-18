@@ -4,8 +4,8 @@ import App from './App.jsx'
 import { ServerDataProvider } from './context/ServerDataContext'
 
 createRoot(document.getElementById('root')).render(
-    <ServerDataProvider>
+  <ServerDataProvider>
     <App />
-    </ServerDataProvider>
+  </ServerDataProvider>
   ,
 )

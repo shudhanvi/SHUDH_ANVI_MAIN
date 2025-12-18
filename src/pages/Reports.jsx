@@ -172,7 +172,7 @@ export const Reports = () => {
             <select
               value={userInputs.division}
               onChange={(e) => handleInput("division", e.target.value)}
-              disabled={!userInputs.city}
+              // disabled={!userInputs.city}
               className="w-full h-10 px-3 border rounded-md border-gray-300 disabled:bg-gray-100"
             >
               <option value="">Select Division</option>
@@ -189,7 +189,7 @@ export const Reports = () => {
             <select
               value={userInputs.section}
               onChange={(e) => handleInput("section", e.target.value)}
-              disabled={!userInputs.division}
+              // disabled={!userInputs.division}
               className="w-full h-10 px-3 border rounded-md border-gray-300 disabled:bg-gray-100"
             >
               <option value="">Select Section</option>
@@ -232,8 +232,8 @@ export const Reports = () => {
                   key={type}
                   onClick={() => setActiveReportType(type)}
                   className={`px-[16px] py-[12px] text-sm rounded-[8px] font-medium border transition-colors cursor-pointer ${activeReportType === type
-                      ? "bg-[#1A8BA8] text-white"
-                      : "border-[#1A8BA8]"
+                    ? "bg-[#1A8BA8] text-white"
+                    : "border-[#1A8BA8]"
                     }`}
                 >
                   {type}
