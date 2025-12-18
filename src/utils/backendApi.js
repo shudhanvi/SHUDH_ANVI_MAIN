@@ -1,10 +1,10 @@
 // Main BaseUrl
 export const backendApi = {
     // baseUrl: "http://127.0.0.1:8000",
-    // baseUrl: "http://192.168.1.38:8000"
+    baseUrl: "http://192.168.1.38:8000"
     
-    baseUrl: "https://shudh-all-backend.onrender.com",
-    baseUrl: "https://shudh-all-backend-docker-295884782547.asia-south1.run.app",
+    // baseUrl: "https://shudh-all-backend.onrender.com",
+    // baseUrl: "https://shudh-all-backend-docker-295884782547.asia-south1.run.app",
 };
  
 // ===================== Data Route Urls ==========================================================
