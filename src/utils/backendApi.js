@@ -4,6 +4,8 @@ export const backendApi = {
     // baseUrl: "http://192.168.1.38:8000"
     
     // baseUrl: "https://shudh-all-backend.onrender.com",
+ 
+    // baseUrl: "https://shudh-all-backend.onrender.com",
     baseUrl: "https://shudh-all-backend-docker-295884782547.asia-south1.run.app",
 };
  
