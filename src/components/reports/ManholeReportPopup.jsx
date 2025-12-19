@@ -268,7 +268,7 @@
 
 import { X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import mapboxgl from "mapbox-gl";
+// import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { LocateFixed, Map, MapPin } from 'lucide-react';
 import MiniMap from "./MiniMap";
@@ -510,10 +510,10 @@ export const ManholeReportPopup = ({ reportData, onClose, manholeloc }) => {
     generate();
   }, [isGeneratingPDF, d]);
 
-  const handleDownloadPDF = () => {
-    if (!libsLoaded) return alert("Libraries still loading or failed");
-    setIsGeneratingPDF(true);
-  };
+  // const handleDownloadPDF = () => {
+  //   if (!libsLoaded) return alert("Libraries still loading or failed");
+  //   setIsGeneratingPDF(true);
+  // };
 
   /* ----------------------------- Prepare data ------------------------------ */
 

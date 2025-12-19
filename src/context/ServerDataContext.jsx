@@ -95,8 +95,7 @@ export const ServerDataProvider = ({ children }) => {
     ManholeData: [],
     RobotsData: [],
     WardData: [],
-    OperationsData: [],
-    WeatherData: [],
+    OperationsData: []
   });
 
   const [loading, setLoading] = useState(true);
@@ -106,12 +105,6 @@ export const ServerDataProvider = ({ children }) => {
     try {
       const res = await axios.get(endpoint);
       const resp_data = res.data;
-
-      // SPECIAL CASE → Weather API structure is different
-      if (key === "WeatherData") {
-        setData(prev => ({ ...prev, WeatherData: resp_data }));
-        return;
-      }
 
       // DEFAULT CASE → APIs returning table_data
       let tableData = resp_data?.table_data || [];
@@ -149,7 +142,6 @@ export const ServerDataProvider = ({ children }) => {
       fetchData(backendApi.robotData, "RobotsData"),
       fetchData(backendApi.warddata, "WardData"),
       fetchData(backendApi.operationsdata, "OperationsData"),
-      fetchData(backendApi.weatherdata, "WeatherData"),
     ]);
 
     setMessage(null);

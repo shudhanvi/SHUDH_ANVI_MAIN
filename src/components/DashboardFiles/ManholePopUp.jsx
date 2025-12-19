@@ -1,12 +1,11 @@
- 
+
 import { useState, useEffect, useMemo, useRef } from 'react'; // Import React hooks
 import DashAccordian from './DashAccordian'; // Assuming this component exists
 
 const ManholePopUp = ({
   selectedLocation,
   onClose,
-  onGenerateReport,
-  onAssignBot,
+
 }) => {
   // --- State for Blynk Data ---
   const [blynkWaterLevel, setBlynkWaterLevel] = useState(null); // Store fetched level
@@ -122,19 +121,19 @@ const ManholePopUp = ({
   const { depth_manhole_m: depth } = selectedLocation;
 
   // Calculate Risk using useMemo for efficiency
-  const risk = useMemo(() => {
-    const currentWaterLevel = (blynkWaterLevel !== null && !blynkError)
-                                 ? blynkWaterLevel
-                                 : null; // Fallback to null if error or no data
-    return riskLevel(parseFloat(depth), currentWaterLevel);
-  }, [depth, blynkWaterLevel, blynkError]);
+  // const risk = useMemo(() => {
+  //   const currentWaterLevel = (blynkWaterLevel !== null && !blynkError)
+  //                                ? blynkWaterLevel
+  //                                : null; // Fallback to null if error or no data
+  //   return riskLevel(parseFloat(depth), currentWaterLevel);
+  // }, [depth, blynkWaterLevel, blynkError]);
 
   // Helper to display Blynk Water Level state
   const displayBlynkWaterLevel = () => {
-      if (isBlynkLoading) return <span className="text-gray-500 italic">Loading...</span>;
-      if (blynkError) return <span className="text-red-500 italic">Error</span>;
-      if (blynkWaterLevel !== null) return `${blynkWaterLevel.toFixed(2)} Inch`;
-      return 'N/A';
+    if (isBlynkLoading) return <span className="text-gray-500 italic">Loading...</span>;
+    if (blynkError) return <span className="text-red-500 italic">Error</span>;
+    if (blynkWaterLevel !== null) return `${blynkWaterLevel.toFixed(2)} Inch`;
+    return 'N/A';
   };
 
   // --- Render JSX ---
@@ -169,14 +168,14 @@ const ManholePopUp = ({
             <h4 className="font-[400] grid grid-cols-2">
               Ward :{" "}
               <span className="font-[400] text-right text-[#0A0A0A]">
-                {selectedLocation?.area_name ||selectedLocation.section ||"N/A"}
+                {selectedLocation?.area_name || selectedLocation.section || "N/A"}
               </span>{" "}
             </h4>
             {/* Division */}
             <h4 className="font-[400] grid grid-cols-2">
               Division :{" "}
               <span className="font-[400] text-right text-[#0A0A0A]">
-                {selectedLocation?.division  || "N/A"}
+                {selectedLocation?.division || "N/A"}
               </span>{" "}
             </h4>
             {/* Location */}
@@ -188,26 +187,26 @@ const ManholePopUp = ({
               </span>{" "}
             </h4>
             {/* Live Water Level */}
-            
+
           </div>
         </div>
 
         {/* Separated Water Level Display Box (Optional) */}
         <div className="px-2 py-2 m-2 rounded-md border flex place-content-center gap-5 grid-col-2">
-              <h4 className="font-[400] grid grid-cols-2 ">
-                 Water Level:{" "}
-                 <span className="font-[500] text-right text-[#0A0A0A]  items-end">
-                    {displayBlynkWaterLevel()}
-                 </span>{" "}
-             </h4>
-{/*             
+          <h4 className="font-[400] grid grid-cols-2 ">
+            Water Level:{" "}
+            <span className="font-[500] text-right text-[#0A0A0A]  items-end">
+              {displayBlynkWaterLevel()}
+            </span>{" "}
+          </h4>
+          {/*             
               <h4 className="font-[400] grid grid-cols-2">
                  Risk Level:{" "}
                  <span className="font-[500] text-right text-[#0A0A0A]">
                     {risk}%
                  </span>{" "}
              </h4> */}
-         </div> 
+        </div>
         {/* Accordion */}
         <div className="mb-4">
           <DashAccordian />

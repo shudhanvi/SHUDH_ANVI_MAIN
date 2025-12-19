@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import Papa from "papaparse";
 import { Clock, TriangleAlert, User, CircleCheckBig } from 'lucide-react';
@@ -291,4 +292,3 @@ export const Highlights = () => {
     </>
   );
 };
-

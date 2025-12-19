@@ -83,7 +83,7 @@ const maintenanceTasks = [
     imageUrl: "/images/Gas Retesting.png", // related to pipeline inspection/testing
     category: "pending",
   },
- 
+
 ];
 
 export default maintenanceTasks;

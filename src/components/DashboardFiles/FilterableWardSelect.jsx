@@ -53,7 +53,7 @@ const FilterableWardSelect = ({ wardData, selectedWard, setSelectedWard, setSele
         }}
         placeholder="Select Ward"
         className="w-full text-[16px] hover:shadow-md cursor-pointer hover:shadow-gray-100 py-2 border-0.5 border-gray-500 outline-1 rounded-sm bg-white hover:bg-gray-50 px-3 max-w-[180px]"
-        // className="text-sm py-2 px-3 w-full border border-gray-500 rounded-sm outline-none hover:shadow-md hover:bg-gray-50"
+      // className="text-sm py-2 px-3 w-full border border-gray-500 rounded-sm outline-none hover:shadow-md hover:bg-gray-50"
       />
 
       {showDropdown && (
@@ -63,9 +63,8 @@ const FilterableWardSelect = ({ wardData, selectedWard, setSelectedWard, setSele
               <li
                 key={option + i}
                 onMouseDown={() => handleOptionSelect(option)}
-                className={`px-3 py-2 cursor-pointer hover:bg-blue-100 ${
-                  selectedWard === option ? "bg-gray-100" : ""
-                }`}
+                className={`px-3 py-2 cursor-pointer hover:bg-blue-100 ${selectedWard === option ? "bg-gray-100" : ""
+                  }`}
               >
                 {option}
               </li>
