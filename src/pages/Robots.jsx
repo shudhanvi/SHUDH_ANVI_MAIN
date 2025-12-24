@@ -61,6 +61,7 @@ export const Robots = () => {
       return {
         id: item?.id || "-",
         operation_id: item?.operation_id || "-",
+        operation_type: item?.operation_type || "pipe_inspection",
         device_id: item?.device_id || item?.deviceId || item?.robot_id || "-",
         before_path: item?.before_path || item.before_image_url || "-",
         after_path: item?.after_path || item.after_image_url || "-",
@@ -77,6 +78,11 @@ export const Robots = () => {
         operation_time_minutes: item?.operation_time_minutes || item?.duration_seconds || "-",
         manhole_id: item?.manhole_id || "Unknown",
         waste_collected_kg: item?.waste_collected_kg || item?.wasteCollectedKg || "-",
+        video_url: item?.video_url || "-",
+        pipe_inspection_starttime: item?.pipe_inspection_starttime || "-",
+        pipe_inspection_endtime: item?.pipe_inspection_endtime || "-",
+        pipe_inspection_operationtime: item?.pipe_inspection_operationtime || "-",
+
       };
     });
   };
