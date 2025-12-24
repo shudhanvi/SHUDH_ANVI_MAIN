@@ -61,7 +61,7 @@ export const Robots = () => {
       return {
         id: item?.id || "-",
         operation_id: item?.operation_id || "-",
-        operation_type: item?.operation_type || "pipe_inspection",
+        operation_type: item?.operation_type || "manhole_cleaning",
         device_id: item?.device_id || item?.deviceId || item?.robot_id || "-",
         before_path: item?.before_path || item.before_image_url || "-",
         after_path: item?.after_path || item.after_image_url || "-",
