@@ -3,8 +3,8 @@ export const backendApi = {
     // baseUrl: "http://127.0.0.1:8080",
     // baseUrl: "http://192.168.1.8:8080",
     
-    // baseUrl: "https://shudh-all-backend-p0pj.onrender.com",
-    baseUrl: "https://shudh-all-backend-docker-295884782547.asia-south1.run.app",
+    baseUrl: "https://shudh-all-backend-p0pj.onrender.com",
+    // baseUrl: "https://shudh-all-backend-docker-295884782547.asia-south1.run.app",
 };
  
 // ===================== Data Route Urls ==========================================================
