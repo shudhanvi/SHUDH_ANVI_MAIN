@@ -195,7 +195,7 @@ const MapComponent = () => {
 
   // --- DATA PROCESSING EFFECT ---
   useEffect(() => {
-    if (!loading && data) {
+    if (  data) {
       if (data.ManholeData && Array.isArray(data.ManholeData)) {
         const processedManholes = data.ManholeData.map(row => {
           const divisionRaw = extractValue(row, "division", "sw_mh_division_no");
