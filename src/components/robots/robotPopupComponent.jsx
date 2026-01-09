@@ -36,7 +36,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
   const [selectedHistory, setSelectedHistory] = useState(null);
   const [showOperationPopup, setShowOperationPopup] = useState(false);
  
- console.log(">>>>>>>>>>>>>>>>>>>>>>>.",activeRecord)
+//  console.log(">>>>>>>>>>>>>>>>>>>>>>>.",activeRecord)
   // ✅ Consistent Date & Time formatting (DD/MM/YYYY and 24-hour HH:mm:ss)
   const formatDate = (timestamp) => {
     if (!timestamp) return "-";
@@ -56,7 +56,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
     return `${hours}:${minutes}:${seconds}`;
   };
 
-console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",activeRecord)
+// console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",activeRecord)
 
   useEffect(() => {
     // Disable background scroll
