@@ -35,10 +35,11 @@ const MapComponent = () => {
   const [filteredManholeGeoJSON, setFilteredManholeGeoJSON] = useState(emptyGeoJSON);
   const [activeWardGeoJSON, setActiveWardGeoJSON] = useState(null);
   const [selectedManholeLocation, setSelectedManholeLocation] = useState(null);
-  const { data, loading, message: error } = useServerData();
+  const { data, message: error } = useServerData();
   const [latestRobotCleanings, setLatestRobotCleanings] = useState({});
   const [buildingData, setBuildingData] = useState(null);
   const [searchId, setSearchId] = useState("");
+  // const [dropdown, setdropdown] = useState({});
   // --- Refs ---
   const centerToRestoreRef = useRef(null);
   const zoomToRestoreRef = useRef(null);
@@ -148,8 +149,8 @@ const MapComponent = () => {
     const diffTime = today - lastCleaned;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays >= 25) return "danger";
-    if (diffDays >= 15) return "warning";
+    if (diffDays >= 40) return "danger";
+    if (diffDays >= 40) return "warning";
     return "safe";
   }, []);
 
@@ -195,7 +196,7 @@ const MapComponent = () => {
 
   // --- DATA PROCESSING EFFECT ---
   useEffect(() => {
-    if (  data) {
+    if (data) {
       if (data.ManholeData && Array.isArray(data.ManholeData)) {
         const processedManholes = data.ManholeData.map(row => {
           const divisionRaw = extractValue(row, "division", "sw_mh_division_no");
@@ -268,7 +269,7 @@ const MapComponent = () => {
         setWardPolygons({}); setWardDetailsMap({});
       }
     }
-  }, [loading, data]);
+  }, [data]);
 
 
   // --- ROBOT DATA PROCESSING (Direct Match: manhole_id === sw_mh_id) ---
@@ -337,7 +338,7 @@ const MapComponent = () => {
 
       setLatestRobotCleanings(processedMap);
     }
-  }, [data, loading, allManholeData]);
+  }, [data, allManholeData]);
   // --- SAFE ID LOOKUP ---
   const getManholeDateById = useCallback((manholeId) => {
     if (!manholeId) return null;
@@ -599,110 +600,92 @@ const MapComponent = () => {
     const finalMatchKey = Object.keys(wardPolygons).find(k => k.trim().toLowerCase() === normalized);
     return finalMatchKey ? wardDetailsMap[finalMatchKey] : null;
   }, [selectedAreaName, wardPolygons, wardDetailsMap]);
-  // --- RENDER ---
+ // --- RENDER ---
   return (
-    <div className=" w-full flex flex-row max-w-[2400px] gap-1">
-      {/* --- Left section --- */}
-      <div className="shadow-md shadow-gray-300 p-6 mb-4 rounded-xl bg-white w-full max-w-[70%]">
+    // 1. PARENT: Fixed height (e.g., h-[85vh]) ensures both sides are always equal height
+    <div className="w-full flex flex-row max-w-[2400px] gap-4 h-[85vh] p-2">
+      
+      {/* --- Left section (Map + Controls) --- */}
+      <div className="shadow-md shadow-gray-300 p-4 rounded-xl bg-white w-[70%] flex flex-col h-full">
+        
         {/* Top Controls */}
-        <div className="flex justify-between items-center flex-wrap gap-2">
+        <div className="flex justify-between items-center flex-wrap gap-2 mb-2">
           <p className="font-semibold text-md">Interactive Hotspot Manhole Map</p>
           <div className="flex justify-center items-center gap-4 ml-auto">
-            {["all", "safe", "warning", "danger"].map((f) => (<button key={f} onClick={() => setFilter(f)} style={{ paddingBlock: "5px", borderRadius: "5px" }} className={`${filter === f ? "btn-blue" : "btn-blue-outline"} text-sm rounded-md hover:scale-105 hover:shadow-md hover:shadow-gray-300 duration-150`}> {f === "all" ? "All Locations" : f.charAt(0).toUpperCase() + f.slice(1)} </button>))}
-          </div>
-        </div>
-        {/* Bottom Controls */}
-        <div className="mt-4 flex flex-col justify-start gap-4 pb-3">
-          <div className="flex items-center gap-5 text-sm"> <span className="flex items-center gap-1 space-x-1"><span className="w-3 h-3 rounded-full bg-green-500"></span>Safe</span> <span className="flex items-center gap-1 space-x-1"><span className="w-3 h-3 rounded-full bg-yellow-500"></span>Warning</span> <span className="flex items-center gap-1 space-x-1"><span className="w-3 h-3 rounded-full bg-red-500"></span>Danger</span> </div>
-          <div className="flex gap-3 justify-start items-center flex-wrap">
-            <input type="number" placeholder="Latitude.." value={latInput} onChange={(e) => setLatInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]" />
-            <input type="number" placeholder="Longitude.." value={lonInput} onChange={(e) => setLonInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]" />
-            <button onClick={handleJumpToLocation} className="btn-blue btn-hover text-sm ml-3" style={{ paddingBlock: "6px", borderRadius: "8px" }}>Go</button>
-            {/* --- NEW SEARCH SECTION START --- */}
-            <div className="flex items-center gap-2   pl-4 border-gray-300">
-              <input
-                type="text"
-                placeholder="MH0621-01-321.."
-                value={searchId}
-                onChange={(e) => setSearchId(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearchManhole()} // Allow Enter key
-                className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[160px]"
-              />
+            {["all", "safe", "warning", "danger"].map((f) => (
               <button
-                onClick={handleSearchManhole}
-                className="btn-blue btn-hover text-sm"
-                style={{ paddingBlock: "6px", borderRadius: "8px" }}
+                key={f}
+                onClick={() => setFilter(f)}
+                style={{ paddingBlock: "5px", borderRadius: "5px" }}
+                className={`${
+                  filter === f ? "btn-blue" : "btn-blue-outline"
+                } text-sm rounded-md hover:scale-105 hover:shadow-md hover:shadow-gray-300 duration-150`}
               >
-                Search
+                {f === "all" ? "All Locations" : f.charAt(0).toUpperCase() + f.slice(1)}
               </button>
-            </div>
-            {/* --- NEW SEARCH SECTION END --- */}
-
-            <select
-              value={selectedDivision}
-              onChange={(event) => handleDivisionChange(event.target.value)}
-              className="hover:shadow-md border cursor-pointer border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]"
-            >
-              <option value="All">Select Division</option>
-              {divisionList.filter(d => d !== "All").map((division, idx) => (
-                <option key={idx} value={division}>
-                  {getDisplayName(division)} {/* <-- CHANGED THIS LINE */}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={selectedAreaName}
-              onChange={(event) => handleAreaNameChange(event.target.value)}
-              disabled={selectedDivision === "All"}
-              className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]"
-            >
-              <option value="All">Select Ward</option>
-              {areaNameList.filter(a => a !== "All").map((area, idx) => (
-                <option key={idx} value={area}>
-                  {getDisplayName(area)} {/* <-- APPLIED SAME LOGIC HERE */}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={selectedZone}
-              onChange={(event) => handleZoneChange(event.target.value)}
-              disabled={selectedAreaName === "All"}
-              className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[160px]"
-            >
-              <option value="All">Select Zone</option>
-              {zoneList.filter(z => z !== "All").map((zone, idx) => (
-                <option key={idx} value={zone}>
-                  {getDisplayName(zone)} {/* <-- APPLIED SAME LOGIC HERE */}
-                </option>
-              ))}
-            </select></div>
-        </div>
-        {/* --- Map Container --- */}
-        <div className="map-box relative rounded-lg overflow-hidden border border-gray-300" style={{ height: "445.52px", opacity: 1 }}>
-          <button onClick={handleReset} className=" bg-[#eee] font-extralight  border  absolute right-4 top-2 z-[500] rounded-md px-1.5 py-1 text-xs h-8 hover:bg-[#fff] border-gray-300 cursor-pointer  "> <LocateFixed className="font-extralight w-8.5 opacity-80" /> </button>
-          <div className="absolute right-2 top-10 z-[500] group mt-3">
-            <button className=" bg-[#eee] font-extralight  border cursor-pointer border-gray-300 shadow-md rounded-md w-12 h-7 mr-2 flex items-center justify-center hover:bg-[#fff] transition duration-300 opacity-80"> <Map /> </button>
-            <div className="absolute top-full mt-1 left--4 grid grid-rows-3 gap-1 w-13.5 rounded-md overflow-hidden transform scale-y-0 opacity-0 origin-top transition-all duration-200 group-hover:scale-y-100 group-hover:opacity-100">
-              {mapStyles.map((style) => (<button
-                key={style.url}
-                onClick={() => handleStyleChange(style.url)}
-                className={`flex flex-col items-center w-12 border-2 bg-white rounded-md overflow-hidden transition-all duration-150 cursor-pointer ${mapStyle === style.url
-                    ? "border-blue-500"
-                    : "border-transparent hover:border-gray-400"
-                  }`}
-              >
-                <img
-                  src={style.img}
-                  alt={style.name}
-                  className="w-16 h-10 object-cover"
-                />
-                <span className="text-[10px] text-gray-700 mt-0">{style.name}</span>
-              </button>))}
-            </div>
+            ))}
           </div>
-          {/* --- CORE MAP COMPONENT --- */}
+        </div>
+
+        {/* Bottom Controls */}
+        <div className="flex flex-col justify-start gap-4 pb-3">
+          <div className="flex items-center gap-5 text-sm">
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded-full bg-green-500"></span>Safe
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded-full bg-yellow-500"></span>Warning
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded-full bg-red-500"></span>Danger
+            </span>
+            
+          </div>
+          <div className="flex gap-3 justify-start items-center flex-wrap">
+             {/* Inputs and Selects */}
+            <input type="number" placeholder="Lat.." value={latInput} onChange={(e) => setLatInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[100px]" />
+            <input type="number" placeholder="Lon.." value={lonInput} onChange={(e) => setLonInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[100px]" />
+            <button onClick={handleJumpToLocation} className="btn-blue btn-hover text-sm ml-1" style={{ paddingBlock: "6px", borderRadius: "8px" }}>Go</button>
+            
+            <div className="flex items-center gap-2 pl-2 border-l border-gray-300 ml-2">
+              <input type="text" placeholder="MH0621324.." value={searchId} onChange={(e) => setSearchId(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearchManhole()} className="hover:shadow-md border border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[120px]" />
+              <button onClick={handleSearchManhole} className="btn-blue btn-hover text-sm" style={{ paddingBlock: "6px", borderRadius: "8px" }}>Search</button>
+            </div>
+
+            <select value={selectedDivision} onChange={(e) => handleDivisionChange(e.target.value)} className="hover:shadow-md border cursor-pointer border-gray-300 rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]">
+              <option value="All">Select Division</option>
+              {divisionList.filter((d) => d !== "All").map((d, i) => (<option key={i} value={d}>{getDisplayName(d)}</option>))}
+            </select>
+            <select value={selectedAreaName} onChange={(e) => handleAreaNameChange(e.target.value)} disabled={selectedDivision === "All"} className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]">
+              <option value="All">Select Ward</option>
+              {areaNameList.filter((a) => a !== "All").map((a, i) => (<option key={i} value={a}>{getDisplayName(a)}</option>))}
+            </select>
+            <select value={selectedZone} onChange={(e) => handleZoneChange(e.target.value)} disabled={selectedAreaName === "All"} className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]">
+              <option value="All">Select Zone</option>
+              {zoneList.filter((z) => z !== "All").map((zone, idx) => (<option key={idx} value={zone}>{getDisplayName(zone)}</option>))}
+            </select>
+          </div>
+        </div>
+
+        {/* --- Map Container --- */}
+        {/* IMPORTANT: flex-1 ensures this fills the remaining height of the card */}
+        <div className="map-box relative rounded-lg overflow-hidden border border-gray-300 w-full flex-1 min-h-0">
+          <button onClick={handleReset} className="bg-[#eee] font-extralight border absolute right-4 top-2 z-[500] rounded-md px-1.5 py-1 text-xs h-8 hover:bg-[#fff] border-gray-300 cursor-pointer">
+            <LocateFixed className="font-extralight w-8.5 opacity-80" />
+          </button>
+          
+          <div className="absolute right-2 top-10 z-[500] group mt-3">
+             <button className="bg-[#eee] font-extralight border cursor-pointer border-gray-300 shadow-md rounded-md w-12 h-7 mr-2 flex items-center justify-center hover:bg-[#fff] transition duration-300 opacity-80"> <Map /> </button>
+             <div className="absolute top-full mt-1 left--4 grid grid-rows-3 gap-1 w-13.5 rounded-md overflow-hidden transform scale-y-0 opacity-0 origin-top transition-all duration-200 group-hover:scale-y-100 group-hover:opacity-100">
+               {mapStyles.map((style) => (
+                 <button key={style.url} onClick={() => handleStyleChange(style.url)} className={`flex flex-col items-center w-12 border-2 bg-white rounded-md overflow-hidden transition-all duration-150 cursor-pointer ${mapStyle === style.url ? "border-blue-500" : "border-transparent hover:border-gray-400"}`}>
+                   <img src={style.img} alt={style.name} className="w-16 h-10 object-cover" />
+                   <span className="text-[10px] text-gray-700 mt-0">{style.name}</span>
+                 </button>
+               ))}
+             </div>
+          </div>
+
           <MapboxCore
             mapRef={mapRef}
             centerToRestore={centerToRestoreRef}
@@ -711,59 +694,57 @@ const MapComponent = () => {
             manholeGeoJSON={filteredManholeGeoJSON}
             wardGeoJSON={activeWardGeoJSON}
             statusFilter={filter}
-            selectedManholeId={selectedManholeLocation ? selectedManholeLocation.id : null}
+            selectedManholeId={selectedManholeLocation ? (selectedManholeLocation.id || selectedManholeLocation.sw_mh_id) : null}
             flyToLocation={flyToLocation}
             formatExcelDate={formatExcelDate}
             getManholeDateById={getManholeDateById}
             onManholeClick={handleManholeClick}
             onManholeDeselect={handleManholeDeselect}
             buildingGeoJSON={buildingData}
-
           />
-          {loading && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">Loading map...</div>}
-          {error && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10 "> {error}</div>}
-          <div className="bg-[#ffffff] absolute left-2 bottom-2 z-[500] rounded-xl p-4 py-5 text-[12px] text-black flex flex-col gap-1">
-            <span className="flex items-center gap-3 space-x-1">
-              <span className="w-3 h-3 rounded-full bg-green-500"></span>Safe - Regular Maintenance
-            </span>
-            <span className="flex items-center gap-3 space-x-1">
-              <span className="w-3 h-3 rounded-full bg-yellow-500"></span>Warning - Require Attention
-            </span>
-            <span className="flex items-center gap-3 space-x-1">
-              <span className="w-3 h-3 rounded-full bg-red-500"></span>Danger - Immediate Action Needed
-            </span>
-          </div>        </div>
+          
+        {error && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10 text-gray-700 font-bold">{error}</div>}
+          
+          <div className="bg-[#ffffff] absolute left-2 bottom-2 z-500 rounded-xl p-4 py-5 text-[12px] text-black flex flex-col gap-1 shadow-md">
+            <span className="flex items-center gap-3 space-x-1"><span className="w-3 h-3 rounded-full bg-green-500"></span>Safe - Regular Maintenance</span>
+            <span className="flex items-center gap-3 space-x-1"><span className="w-3 h-3 rounded-full bg-yellow-500"></span>Warning - Require Attention</span>
+            <span className="flex items-center gap-3 space-x-1"><span className="w-3 h-3 rounded-full bg-red-500"></span>Danger - Immediate Action Needed</span>
+          </div>
+        </div>
       </div>
-      {/* --- Right section --- */}
-      <div className="db-popup-container ml-4 h-[633px] shadow-gray-300 shadow-md border border-gray-200 w-full max-w-[30%] overflow-y-auto overflow-x-hidden bg-white rounded-xl ">
-        {selectedManholeLocation ? (
-          <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
-            <ManholePopUp
-              selectedLocation={selectedManholeLocation}
-              onClose={handleClosePopup}
-              onGenerateReport={handleGenerateReport}
-              onAssignBot={handleAssignBot}
-            />
-          </div>
 
-        ) : selectedWardForPopup ? (
-          <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
-            <WardDetailsPopUp
-              wardData={selectedWardForPopup}
-              alertData={alertData}
-              onManholeSelect={handleAlertManholeClick}
-              onClose={() => setSelectedAreaName("All")}
-              setSelectedWard={setSelectedAreaName}
-            />
-          </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center place-items-center text-gray-400 p-4 text-center">
-            <p className="flex flex-col items-center justify-center">
-              <MapPin className=" w-18 h-18 mb-2 text-gray-300 " />
-              Select a Manhole or Building on the map to view details.
-            </p>
-          </div>
-        )}
+      {/* --- Right section (Popup) --- */}
+      {/* IMPORTANT: h-full ensures it matches the Left Section's height exactly */}
+      <div className="shadow-gray-300 shadow-md border border-gray-200 w-[30%] bg-white rounded-xl h-full flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+          {selectedManholeLocation ? (
+            <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
+              <ManholePopUp
+                selectedLocation={selectedManholeLocation}
+                onClose={handleClosePopup}
+                onGenerateReport={handleGenerateReport}
+                onAssignBot={handleAssignBot}
+              />
+            </div>
+          ) : selectedWardForPopup ? (
+            <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
+              <WardDetailsPopUp
+                wardData={selectedWardForPopup}
+                alertData={alertData}
+                onManholeSelect={handleAlertManholeClick}
+                onClose={() => setSelectedAreaName("All")}
+                setSelectedWard={setSelectedAreaName}
+              />
+            </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center place-items-center text-gray-400 p-4 text-center">
+              <p className="flex flex-col items-center justify-center">
+                <MapPin className=" w-18 h-18 mb-2 text-gray-300 " />
+                Select a Manhole or Building on the map to view details.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
