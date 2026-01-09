@@ -17,7 +17,7 @@ export const Reports = () => {
   const [confirmedInputs, setConfirmedInputs] = useState({ city: "", division: "", section: "" });
   const [errors, setErrors] = useState({});
   const [viewClicked, setViewClicked] = useState(false);
-  const [activeReportType, setActiveReportType] = useState("Manhole Reports");
+  const [activeReportType, setActiveReportType] = useState("Manhole Report");
 
   // ✅ Use only the Manhole data from context
   /**
@@ -227,7 +227,7 @@ export const Reports = () => {
           <div className="mt-6">
             {/* Tabs */}
             <div className="flex gap-2">
-              {["Manhole Reports", "Robot Reports", "Ward Reports"].map((type) => (
+              {["Manhole Report", "Robot Report", "Ward Report"].map((type) => (
                 <button
                   key={type}
                   onClick={() => setActiveReportType(type)}
@@ -243,21 +243,21 @@ export const Reports = () => {
 
             {/* Report Components */}
             <div className="mt-4">
-              {activeReportType === "Manhole Reports" && (
+              {activeReportType === "Manhole Report" && (
                 <ManholeReportsComponent
                   city={confirmedInputs.city}
                   division={confirmedInputs.division}
                   section={confirmedInputs.section}
                 />
               )}
-              {activeReportType === "Robot Reports" && (
+              {activeReportType === "Robot Report" && (
                 <RobotReportsComponent
                   city={confirmedInputs.city}
                   division={confirmedInputs.division}
                   section={confirmedInputs.section}
                 />
               )}
-              {activeReportType === "Ward Reports" && (
+              {activeReportType === "Ward Report" && (
                 <WardReportsComponent
                   city={confirmedInputs.city}
                   division={confirmedInputs.division}

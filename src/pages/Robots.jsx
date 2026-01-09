@@ -9,6 +9,7 @@ const userInputsObj = { division: "", section: "", fromDate: "", toDate: "" };
 const userInputsErrorObj = { division: false, section: false, fromDate: false, toDate: false };
 
 export const Robots = () => {
+    const [detailedFromDate, setDetailedFromDate] = useState(null);
   const { data, loading, message } = useServerData();  // ✅ use new context data
   const [inputError, setInputError] = useState(userInputsErrorObj);
   const [userInputs, setUserInputs] = useState(userInputsObj);
@@ -298,30 +299,59 @@ export const Robots = () => {
             </div>
 
             {/* From Date */}
-            <div className=" text-start relative w-[-webkit-fill-available]">
-              <label className="block font-semibold mb-1">From Date</label>
-              <DatePicker
-                selected={userInputs.fromDate}
-                onChange={(date) => handleInput("fromDate", date)}
-                className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
-                placeholderText="Pick a date"
-                maxDate={new Date()}
-              />
-              <Calendar className="absolute top-8 right-2 text-gray-600" />
-            </div>
+      {/* From Date */}
+<div className="text-start relative w-[-webkit-fill-available]">
+  <label className="block font-semibold mb-1">From Date</label>
+  <DatePicker
+    selected={userInputs.fromDate}
+    onChange={(date) => handleInput("fromDate", date)}
+    className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
+    placeholderText="Pick a date"
+    maxDate={new Date()}
+  />
+  
+  {/* Only show 'x' if fromDate has a value */}
+  {userInputs.fromDate && (
+    <button
+      type="button"
+      // Use handleInput to set the specific field to null
+      onClick={() => handleInput("fromDate", null)}
+      // Added right-8 to avoid overlapping the calendar icon
+      className="absolute right-8 top-9 text-gray-500 hover:text-gray-900 rounded-full w-5 h-5   flex items-center justify-center text-lg font-bold transition cursor-pointer z-10"
+    >
+      ×
+    </button>
+  )}
+  
+  <Calendar className="absolute top-9 right-2 text-gray-600 pointer-events-none" />
+</div>
 
-            {/* To Date */}
-            <div className=" text-start relative w-[-webkit-fill-available]">
-              <label className="block font-semibold mb-1">To Date</label>
-              <DatePicker
-                selected={userInputs.toDate}
-                onChange={(date) => handleInput("toDate", date)}
-                className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
-                placeholderText="Pick a date"
-                maxDate={new Date()}
-              />
-              <Calendar className="absolute top-8 right-2 text-gray-600" />
-            </div>
+{/* To Date */}
+<div className="text-start relative w-[-webkit-fill-available]">
+  <label className="block font-semibold mb-1">To Date</label>
+  <DatePicker
+    selected={userInputs.toDate}
+    onChange={(date) => handleInput("toDate", date)}
+    className="border border-gray-300 rounded-md p-2 w-full text-sm min-w-[150px]"
+    placeholderText="Pick a date"
+    maxDate={new Date()}
+  />
+
+  {/* Only show 'x' if toDate has a value */}
+  {userInputs.toDate && (
+    <button
+      type="button"
+      // Use handleInput to set the specific field to null
+      onClick={() => handleInput("toDate", null)}
+      // Added right-8 to avoid overlapping the calendar icon
+      className="absolute right-8 top-9 text-gray-500 hover:text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-lg font-bold transition cursor-pointer z-10"
+    >
+      ×
+    </button>
+  )}
+  
+  <Calendar className="absolute top-9 right-2 text-gray-600 pointer-events-none" />
+</div>
           </div>
           {/* Button */}
           <div className="">

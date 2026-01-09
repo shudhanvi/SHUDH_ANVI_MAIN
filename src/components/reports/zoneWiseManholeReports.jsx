@@ -235,7 +235,7 @@ export const ZoneWiseManholeReports = ({ zone, filteredData, userInputs, onBack 
 
             <div className='flex flex-col gap-[4px]'>
               <h3 className="text-[20px] font-semibold text-gray-800">
-                {zone} - Select Manholes
+                  Select Manholes
               </h3>
 
               <label className="inline-flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700">

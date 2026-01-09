@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState , useRef} from "react";
 import { MapContainer, TileLayer, Marker, Popup as LeafletPopup, useMap } from "react-leaflet";
 // import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
@@ -30,13 +30,14 @@ L.Icon.Default.mergeOptions({
 
 
 export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
+  const videoRef = useRef(null);
   const [detailedFromDate, setDetailedFromDate] = useState(null);
   const [detailedToDate, setDetailedToDate] = useState(null);
   const [detailedFilteredData, setDetailedFilteredData] = useState([]);
   const [selectedHistory, setSelectedHistory] = useState(null);
   const [showOperationPopup, setShowOperationPopup] = useState(false);
  
- console.log(">>>>>>>>>>>>>>>>>>>>>>>.",activeRecord)
+//  console.log(">>>>>>>>>>>>>>>>>>>>>>>.",activeRecord)
   // ✅ Consistent Date & Time formatting (DD/MM/YYYY and 24-hour HH:mm:ss)
   const formatDate = (timestamp) => {
     if (!timestamp) return "-";
@@ -56,7 +57,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
     return `${hours}:${minutes}:${seconds}`;
   };
 
-console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",activeRecord)
+// console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",activeRecord)
 
   useEffect(() => {
     // Disable background scroll
@@ -105,6 +106,13 @@ console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     }, [lat, lng, map]);
     return null;
   };
+
+  useEffect(() => {
+  if (videoRef.current) {
+    videoRef.current.playbackRate = 0.25;
+  }
+}, [currentRecord]);
+
 
 
   return (
@@ -164,7 +172,7 @@ console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                 <span className="flex flex-row">
                   <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
-                    Starting Time
+                    Start Time
                     <span className="text-[#21232C] text-[16px]">
                       {formatTime( currentRecord.operation_type === "manhole_cleaning" ? currentRecord.timestamp : currentRecord.pipe_inspection_starttime )}
                     </span>
@@ -173,7 +181,7 @@ console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                 <span className="flex flex-row">
                   <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
-                    Ending Time
+                    End Time
                     <span className="text-[#21232C] text-[16px]">
                       {formatTime( currentRecord.operation_type === "manhole_cleaning" ? currentRecord.endtime : currentRecord.pipe_inspection_endtime )}
                     </span>
@@ -186,12 +194,12 @@ console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                     {/* <span className="text-[#21232C] text-[16px]">{currentRecord?.operation_time_minutes || "-"} secs</span> */}
                     <span className="text-[#21232C] text-[16px]">
                       {(() => {
-                        const totalSecs = Number(currentRecord?.operation_type === "manhole_cleaning" ? currentRecord.operation_time_minutes : currentRecord.pipe_inspection_operationtime);
-                        if (isNaN(totalSecs) || totalSecs < 0) return "-";
+                        const totalSec = Number(currentRecord?.operation_type === "manhole_cleaning" ? currentRecord.operation_time_minutes : currentRecord.pipe_inspection_operationtime);
+                        if (isNaN(totalSec) || totalSec < 0) return "-";
 
-                        const hours = Math.floor(totalSecs / 3600);
-                        const minutes = Math.floor((totalSecs % 3600) / 60);
-                        const seconds = Math.floor(totalSecs % 60);
+                        const hours = Math.floor(totalSec / 3600);
+                        const minutes = Math.floor((totalSec % 3600) / 60);
+                        const seconds = Math.floor(totalSec % 60);
 
                         let result = "";
 
@@ -286,6 +294,7 @@ console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     <div className="h-[165px] flex items-center justify-center p-2">
       {currentRecord?.video_url ? (
         <video
+          ref={videoRef}
           src={currentRecord.video_url}
           controls
           className="w-full h-full rounded-lg object-cover bg-black"

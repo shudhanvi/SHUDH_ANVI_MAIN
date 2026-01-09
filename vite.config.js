@@ -5,7 +5,8 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
   ],
-  build: {
-    chunkSizeWarningLimit: 1000, // increases limit to 1MB
+  server: {
+    port: 5173,      // 👈 set your desired port
+    strictPort: true // ❌ don’t auto-switch if port is busy
   },
 })  
