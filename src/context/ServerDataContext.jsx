@@ -128,6 +128,7 @@ export const ServerDataProvider = ({ children }) => {
 
 
       setData(prev => ({ ...prev, [key]: tableData }));
+      console.log(`Fetched ${key}:`, ~tableData.length);
     } catch (err) {
       console.error(`Error fetching ${key}:`, err);
     }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState , useRef} from "react";
 import { MapContainer, TileLayer, Marker, Popup as LeafletPopup, useMap } from "react-leaflet";
 // import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
@@ -30,6 +30,7 @@ L.Icon.Default.mergeOptions({
 
 
 export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
+  const videoRef = useRef(null);
   const [detailedFromDate, setDetailedFromDate] = useState(null);
   const [detailedToDate, setDetailedToDate] = useState(null);
   const [detailedFilteredData, setDetailedFilteredData] = useState([]);
@@ -56,7 +57,7 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
     return `${hours}:${minutes}:${seconds}`;
   };
 
-console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",activeRecord)
+// console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",activeRecord)
 
   useEffect(() => {
     // Disable background scroll
@@ -105,6 +106,13 @@ console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     }, [lat, lng, map]);
     return null;
   };
+
+  useEffect(() => {
+  if (videoRef.current) {
+    videoRef.current.playbackRate = 0.25;
+  }
+}, [currentRecord]);
+
 
 
   return (
@@ -286,6 +294,7 @@ console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     <div className="h-[165px] flex items-center justify-center p-2">
       {currentRecord?.video_url ? (
         <video
+          ref={videoRef}
           src={currentRecord.video_url}
           controls
           className="w-full h-full rounded-lg object-cover bg-black"
