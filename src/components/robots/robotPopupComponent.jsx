@@ -164,7 +164,7 @@ console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                 <span className="flex flex-row">
                   <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
-                    Starting Time
+                    Start Time
                     <span className="text-[#21232C] text-[16px]">
                       {formatTime( currentRecord.operation_type === "manhole_cleaning" ? currentRecord.timestamp : currentRecord.pipe_inspection_starttime )}
                     </span>
@@ -173,7 +173,7 @@ console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                 <span className="flex flex-row">
                   <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
                   <span className="flex flex-col ml-2">
-                    Ending Time
+                    End Time
                     <span className="text-[#21232C] text-[16px]">
                       {formatTime( currentRecord.operation_type === "manhole_cleaning" ? currentRecord.endtime : currentRecord.pipe_inspection_endtime )}
                     </span>
@@ -186,12 +186,12 @@ console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                     {/* <span className="text-[#21232C] text-[16px]">{currentRecord?.operation_time_minutes || "-"} secs</span> */}
                     <span className="text-[#21232C] text-[16px]">
                       {(() => {
-                        const totalSecs = Number(currentRecord?.operation_type === "manhole_cleaning" ? currentRecord.operation_time_minutes : currentRecord.pipe_inspection_operationtime);
-                        if (isNaN(totalSecs) || totalSecs < 0) return "-";
+                        const totalSec = Number(currentRecord?.operation_type === "manhole_cleaning" ? currentRecord.operation_time_minutes : currentRecord.pipe_inspection_operationtime);
+                        if (isNaN(totalSec) || totalSec < 0) return "-";
 
-                        const hours = Math.floor(totalSecs / 3600);
-                        const minutes = Math.floor((totalSecs % 3600) / 60);
-                        const seconds = Math.floor(totalSecs % 60);
+                        const hours = Math.floor(totalSec / 3600);
+                        const minutes = Math.floor((totalSec % 3600) / 60);
+                        const seconds = Math.floor(totalSec % 60);
 
                         let result = "";
 

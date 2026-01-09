@@ -499,21 +499,34 @@ export const WardReportPopup = ({ reportData, onClose }) => {
               <DataTable rows={data["Most Frequently Used Robots"]} />
             </Section>
 
-            <Section title="Top 5 Robots by Utilization in This Area">
-              <DataTable rows={data["Top 5 Robots by Utilization in This Area"]} />
-            </Section>
+              {/* <Section title="Top 5 Robots by Utilization in This Area">
+                <DataTable rows={data["Top 5 Robots by Utilization in This Area"]} />
+              </Section> */}
 
             <Section title="Top 10 Manholes with Operation-Time Anomalies (Last 30 Days)">
               <DataTable rows={data["Top 10 Manholes with Operation-Time Anomalies(Last 30 Days)"]} />
             </Section>
 
             <Section title="Over Utilized Robots">
-              <DataTable rows={data["Over Utilized Robots"]} />
-            </Section>
+  {data["Over Utilized Robots"]?.length > 0 ? (
+    <DataTable rows={data["Over Utilized Robots"]} />
+  ) : (
+    <p className=" text-gray-500 py-4">
+      No Over Utilized Robots
+    </p>
+  )}
+</Section>
 
-            <Section title="Under Utilized Robots">
-              <DataTable rows={data["Under Utilized Robots"]} />
-            </Section>
+<Section title="Under Utilized Robots">
+  {data["Under Utilized Robots"]?.length > 0 ? (
+    <DataTable rows={data["Under Utilized Robots"]} />
+  ) : (
+    <p className="  text-gray-500 py-4">
+      No Under Utilized Robots
+    </p>
+  )}
+</Section>
+
           </div>
         </div>
 

@@ -682,7 +682,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
         createCanvasChart(
           "robotVsFleetCanvas",
           "bar",
-          ["Robot Avg", "Fleet Avg"],
+          ["Robot Average", "Fleet Average"],
           [safeNumber(comp["Robot Avg"]), safeNumber(comp["Fleet Avg"])]
         );
       } else {
@@ -690,8 +690,8 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
       }
 
       // Operation Time Trend (weekly)
-      const weeklyTrend = Array.isArray(data["Operation Time Trend (This Month-weekly wise)"])
-        ? data["Operation Time Trend (This Month-weekly wise)"]
+      const weeklyTrend = Array.isArray(data["Operation Time Trend (Week-Wise for This Month)"])
+        ? data["Operation Time Trend (Week-Wise for This Month)"]
         : [];
       if (weeklyTrend.length > 0) {
         createCanvasChart(
@@ -845,7 +845,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
           {/* header */}
           <div className="flex justify-between items-center p-4 border-b">
             <h2 className="text-2xl font-bold">
-              {isSingle ? `Robot Report – ${data["Robot ID"]}` : "Robot Performance Summary"}
+              {isSingle ? `Robot Report - ${data["Robot ID"]}` : "Robot Performance Summary"}
             </h2>
             <button className="text-3xl cursor-pointer" onClick={onClose}><X /></button>
           </div>
@@ -869,7 +869,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                   <InfoCard title="Last Manhole Handled" value={data["Last Manhole Handled"] ?? "N/A"} />
                   <InfoCard title="Last Operation Date" value={data["Last Operation Date"] ?? "N/A"} />
                   <InfoCard title="Last Operation Time (min)" value={data["Last Operation Time (min)"] ?? 0} />
-                  <InfoCard title="Next Expected Operation Date" value={data["Next Expected Operation Date"] ?? "N/A"} />
+                  {/* <InfoCard title="Next Expected Operation Date" value={data["Next Expected Operation Date"] ?? "N/A"} /> */}
                   <InfoCard title="Robot Utilization %" value={data["Robot Utilization %"] ?? "N/A"} />
                 </div>
 
@@ -893,7 +893,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                   </ChartBlock>
 
                   {/* robot vs fleet */}
-                  <ChartBlock title="Robot Avg vs Fleet Avg">
+                  <ChartBlock title="Robot Average vs Fleet Average">
                     {data["Robot Avg Op Time vs Fleet Avg"] && (data["Robot Avg Op Time vs Fleet Avg"]["Robot Avg"] !== undefined || data["Robot Avg Op Time vs Fleet Avg"]["Fleet Avg"] !== undefined) ? (
                       <canvas ref={(el) => (chartRefs.current.robotVsFleetCanvas = el)} id="robotVsFleetCanvas" />
                     ) : (
@@ -902,11 +902,11 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                   </ChartBlock>
 
                   {/* weekly trend */}
-                  <ChartBlock title="Operation Time Trend (This Month - weekly)">
-                    {Array.isArray(data["Operation Time Trend (This Month-weekly wise)"]) && data["Operation Time Trend (This Month-weekly wise)"].length > 0 ? (
+                  <ChartBlock title="Operation Time Trend (Week-Wise For This Month)">
+                    {Array.isArray(data["Operation Time Trend (This Month - weekly)"]) && data["Operation Time Trend (This Month - weekly)"].length > 0 ? (
                       <canvas ref={(el) => (chartRefs.current.singleWeeklyTrend = el)} id="singleWeeklyTrendCanvas" />
                     ) : (
-                      <ChartPlaceholder message={Array.isArray(data["Operation Time Trend (This Month-weekly wise)"]) ? (data["Operation Time Trend (This Month-weekly wise)"].length === 0 ? "No chart data available" : "No chart data available") : "No chart data available"} />
+                      <ChartPlaceholder message={Array.isArray(data["Operation Time Trend (This Month - weekly)"]) ? (data["Operation Time Trend (This Month - weekly)"].length === 0 ? "No chart data available" : "No chart data available") : "No chart data available"} />
                     )}
                   </ChartBlock>
 
@@ -942,7 +942,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                     emptyMessage={singleTop5.length === 0 ? "No records found" : "No records found"}
                   />
                 </Section>
-
+<div className="border p-4">
                 {/* ----------- Today's Operation Summary Table ----------- */}
                 <Section title="Today's Operational Metrics">
                   <ArrayTable
@@ -981,7 +981,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                     </div>
                   )}
                 </Section>
-
+</div>
               </>
             )}
 
@@ -1050,7 +1050,7 @@ export const RobotReportPopup = ({ reportData, onClose }) => {
                     )}
                   </ChartBlock>
 
-                  <ChartBlock title="Monthly Avg Operation Time">
+                  <ChartBlock title="Monthly Average Operation Time">
                     {aggAvgTrend.length > 0 ? (
                       <ChartCanvas
                         type="line"
