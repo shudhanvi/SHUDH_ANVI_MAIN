@@ -27,7 +27,7 @@ export const Robots = () => {
   const [activeRobot, setActiveRobot] = useState(null);
   const [appliedFilters, setAppliedFilters] = useState(userInputsObj);
 
-  const dropdownRows = data?.Dropdowndata ?? [];
+  const dropdownRows = data?.dropdowndata ?? [];
 
   const divisions = useMemo(() => {
     return Array.from(
