@@ -466,7 +466,6 @@ const alertData = useMemo(() => {
               {divisionList.filter(d => d !== "All").map((d, i) => <option key={i} value={d}>{getDisplayName(d)}</option>)}
             </select>
             <select value={selectedAreaName} onChange={(e) => handleAreaNameChange(e.target.value)} disabled={selectedDivision === "All"} className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]">
-            <select value={selectedAreaName} onChange={(e) => handleAreaNameChange(e.target.value)} disabled={selectedDivision === "All"} className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white hover:bg-gray-50 px-2 py-1 w-auto max-w-[150px]">
               <option value="All">Select Ward</option>
               {areaNameList.filter(a => a !== "All").map((a, i) => <option key={i} value={a}>{getDisplayName(a)}</option>)}
             </select>
