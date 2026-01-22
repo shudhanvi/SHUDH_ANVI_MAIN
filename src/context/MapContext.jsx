@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useCallback, useRef } from 'react';
-import { fetchManholeData} from "../api/DashboardMap";
+import { fetchManholeData } from "../components/Api/DashboardMap"; // Import your API function
+
 const MapContext = createContext();
 
 export const MapProvider = ({ children }) => {
