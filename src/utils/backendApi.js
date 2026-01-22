@@ -1,3 +1,5 @@
+import { baseApiUrl } from "mapbox-gl";
+
 // Main BaseUrl
 export const backendApi = {
     // baseUrl: "http://127.0.0.1:8080",
@@ -10,7 +12,7 @@ export const backendApi = {
     // baseUrl: "https://shudh-all-backend.onrender.com",
     // baseUrl: "https://shudh-all-backend-docker-295884782547.asia-south1.run.app",
 };
- 
+//  backendApi.dropdowndata =  `${backendApi.baseUrl}/database/table/dropdown_data`;
 // ===================== Data Route Urls ==========================================================
 backendApi.dropdowndata =  `${backendApi.baseUrl}/database/table/dropdown_data`;
 // Manholes - Somajiguda

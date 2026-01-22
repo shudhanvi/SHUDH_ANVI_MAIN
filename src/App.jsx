@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Routes, Route , Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route , Navigate } from "react-router-dom";
 import "./App.css";
 import { Dashboard } from "./pages/Dashboard";
 import { Robots } from "./pages/Robots";
 import { Reports } from "./pages/Reports";
 import { Highlights } from "./pages/Highlights";
 import { Header } from "./components/Header";
-
+ 
 function App() {
   return (
     <Router>
@@ -24,5 +25,6 @@ function App() {
     </Router>
   );
 }
-
+ 
 export default App;
+ 

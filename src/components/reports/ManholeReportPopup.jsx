@@ -535,7 +535,7 @@ export const ManholeReportPopup = ({ reportData, onClose, manholeloc }) => {
     ? d["Priority of Selected Manholes (Based on Predicted Next Cleaning Date)"]
     : [];
   const top10Anomalies = Array.isArray(d["Top 10 Operation-Time Anomalies (Last 30 Days)"])
-    ? d["Top 10 Operation-Time Anomalies (Last 30 Days)"]
+    ? d["Top 10 Operation Time-Based Anomalies (Last 30 Days)"]
     : [];
 
   /* ------------------------------- Render --------------------------------- */
@@ -781,13 +781,13 @@ export const ManholeReportPopup = ({ reportData, onClose, manholeloc }) => {
                 <ArrayTable
                   columns={[
                     { key: "Manhole ID", label: "Manhole ID" },
-                    { key: "Operations", label: "Times Cleaned" },
+                    { key: "Operations", label: "Total operation" },
                   ]}
                   rows={cleaningFreq}
                 />
               </Section>
 
-              <Section title="Operation-Time Anomalies (Last 30 Days)">
+              <Section title="Operation Time-Based Anomalies (Last 30 Days)">
                 <ArrayTable
                   columns={[
                     { key: "Date", label: "Date" },
