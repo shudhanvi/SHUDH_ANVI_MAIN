@@ -96,8 +96,8 @@
 //         ManholeData: [],
 //     RobotsData: [],
 //     WardData: [],
-//     OperationsData: []
-
+//     OperationsData: [],
+//     Dropdowndata: []
 //   });
 
 //   const [loading, setLoading] = useState(true);
@@ -130,22 +130,22 @@
 
 
 //       setData(prev => ({ ...prev, [key]: tableData }));
-//       console.log(`Fetched ${key}:`, ~tableData.length);
 //     } catch (err) {
 //       console.error(`Error fetching ${key}:`, err);
 //     }
 //   };
+
 
 //   const loadAllData = async () => {
 //     setLoading(true);
 //     // setMessage("Loading ..."); 
 
 //     await Promise.all([
-//       fetchData(backendApi.dropdowndata,"dropdowndata"),
-//       fetchData(backendApi.manholeData, "ManholeData"),
-//       fetchData(backendApi.robotData, "RobotsData"),
-//       fetchData(backendApi.warddata, "WardData"),
-//       fetchData(backendApi.operationsdata, "OperationsData"),
+//       // fetchData(backendApi.manholeData, "ManholeData"),
+//       // fetchData(backendApi.robotData, "RobotsData"),
+//       // fetchData(backendApi.warddata, "WardData"),
+//       // fetchData(backendApi.operationsdata, "OperationsData"),
+//       fetchData(backendApi.dropdowndata, "Dropdowndata")
 //     ]);
 
 //     setMessage(null);
@@ -177,15 +177,12 @@
 
 
 
-
-
-
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { backendApi } from "../utils/backendApi";
-
+ 
 const ServerDataContext = createContext();
-
+ 
 export const ServerDataProvider = ({ children }) => {
   const [data, setData] = useState({
     dropdowndata: [],
@@ -194,19 +191,19 @@ export const ServerDataProvider = ({ children }) => {
     // WardData: [],
     // OperationsData: []
   });
-
+ 
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-
+ 
   // Helper function to fetch and update state for a specific key
   const fetchData = async (endpoint, key) => {
     try {
       const res = await axios.get(endpoint);
       const resp_data = res.data;
-
+ 
       // 🔍 FIX: Handle Raw Arrays AND Wrapped Data
       let tableData = [];
-
+ 
       if (Array.isArray(resp_data)) {
         // Case A: The file is just a list [ ... ]
         tableData = resp_data;
@@ -221,7 +218,7 @@ export const ServerDataProvider = ({ children }) => {
         // console.warn("Unknown data structure", resp_data);
         tableData = [];
       }
-
+ 
       // --- Filter Unique IDs (Only for ManholeData) ---
       if (key === "ManholeData" && tableData.length > 0) {
         const seen = new Set();
@@ -230,9 +227,9 @@ export const ServerDataProvider = ({ children }) => {
           // Try multiple ID fields
           const rawId = row?.sw_mh_id || row?.id || row?.manhole_id;
           const id = rawId != null ? String(rawId).trim() : null;
-
+ 
           if (!id) continue;
-
+ 
           if (!seen.has(id)) {
             seen.add(id);
             uniqueRows.push(row);
@@ -240,40 +237,40 @@ export const ServerDataProvider = ({ children }) => {
         }
         tableData = uniqueRows;
       }
-
+ 
       // Update State
       setData(prev => ({ ...prev, [key]: tableData }));
-
+ 
       // 👇 THIS LOG IS CRITICAL. Check your Console!
       console.log(`✅ Fetched ${key}: Found ${tableData.length} items`);
-
+ 
     } catch (err) {
       console.error(`❌ Error fetching ${key}:`, err);
     }
   };
   const loadAllData = async () => {
     setLoading(true);
-
-
+ 
+ 
     await fetchData(backendApi.dropdowndata, "dropdowndata");
-
-
+ 
+ 
     setLoading(false);
-
+ 
     await Promise.all([
       // fetchData(backendApi.manholeData, "ManholeData"),
       // fetchData(backendApi.robotData, "RobotsData"),
       // fetchData(backendApi.warddata, "WardData"),
       // fetchData(backendApi.operationsdata, "OperationsData"),
     ]);
-
+ 
     setMessage(null);
   };
-
+ 
   useEffect(() => {
     loadAllData();
   }, []);
-
+ 
   return (
     <ServerDataContext.Provider
       value={{
@@ -287,5 +284,5 @@ export const ServerDataProvider = ({ children }) => {
     </ServerDataContext.Provider>
   );
 };
-
-export const useServerData = () => useContext(ServerDataContext); 
+ 
+export const useServerData = () => useContext(ServerDataContext);

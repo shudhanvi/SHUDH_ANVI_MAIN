@@ -61,7 +61,7 @@ const maintenanceTasks = [
   },
   {
     id: 6,
-    title: "Emergency Leak Repair",
+    title: "Emergency Leak ",
     location: "SR NAGAR – MH-0055",
     dateTime: "Today, 4:00 PM",
     priority: "High",
