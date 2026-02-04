@@ -48,14 +48,32 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
     return `${day}/${month}/${year}`;
   };
 
+  // const formatTime = (timestamp) => {
+  //   if (!timestamp) return "-";
+  //   const date = new Date(timestamp);
+  //   const hours = String(date.getHours()).padStart(2, "0");
+  //   const minutes = String(date.getMinutes()).padStart(2, "0");
+  //   const seconds = String(date.getSeconds()).padStart(2, "0");
+  //   return `${hours}:${minutes}:${seconds}`;
+  // };
+
   const formatTime = (timestamp) => {
-    if (!timestamp) return "-";
-    const date = new Date(timestamp);
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
-    return `${hours}:${minutes}:${seconds}`;
-  };
+  if (!timestamp) return "-";
+
+  // Convert to Date
+  const date = new Date(timestamp);
+
+  // Add 5 hours 30 minutes (330 minutes)
+ if (currentRecord.division === "Division 15 (Durgam Cheruvu)") {
+    date.setMinutes(date.getMinutes() + 330); // 5h 30m
+  }
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${hours}:${minutes}:${seconds}`;
+};
 
 // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",activeRecord)
 
@@ -226,58 +244,77 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
               </div>
 
 
-              <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
-                <div className="flex flex-row justify-between">
-                  <h1 className="pb-1 text-start">
-                    {currentRecord?.latitude && currentRecord?.longitude
-                      ? `${Number(currentRecord.latitude).toFixed(5)}, ${Number(currentRecord.longitude).toFixed(5)}`
-                      : "-"
-                    }
-                  </h1>
+             <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
 
-                  <h1>Manhole ID : {currentRecord?.manhole_id}</h1>
-                </div>
+  {(() => {
+    const lat = Number(currentRecord?.latitude);
+    const lng = Number(currentRecord?.longitude);
 
-                <div className="bd-gray">
-                  {currentRecord &&
-                    !isNaN(Number(currentRecord.latitude)) &&
-                    !isNaN(Number(currentRecord.longitude)) ? (
-                    <MapContainer
-                      center={[
-                        Number(currentRecord.latitude),
-                        Number(currentRecord.longitude),
-                      ]}
-                      zoom={15}
-                      className="h-40 rounded-lg"
-                    >
-                      <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                      />
+    // Check if valid and not 0
+    const isValidLocation =
+      !isNaN(lat) &&
+      !isNaN(lng) &&
+      lat !== 0 &&
+      lng !== 0;
 
-                      <Marker
-                        position={[
-                          Number(currentRecord.latitude),
-                          Number(currentRecord.longitude),
-                        ]}
-                      >
-                        <LeafletPopup>
-                          {currentRecord.area || currentRecord.section || "Unknown Location"}
-                        </LeafletPopup>
-                      </Marker>
+    // Default fallback location
+    const defaultLat = 17.45709;
+    const defaultLng = 78.37077;
 
-                      <RecenterMap
-                        lat={Number(currentRecord.latitude)}
-                        lng={Number(currentRecord.longitude)}
-                      />
-                    </MapContainer>
-                  ) : (
-                    <p className="text-gray-500 flex items-center justify-center h-40">
-                      No location available
-                    </p>
-                  )}
-                </div>
-              </div>
+    // Final values
+    const finalLat = isValidLocation ? lat : defaultLat;
+    const finalLng = isValidLocation ? lng : defaultLng;
+
+    return (
+      <>
+        <div className="flex flex-row justify-between">
+          <h1 className="pb-1 text-start">
+            {`${finalLat.toFixed(5)}, ${finalLng.toFixed(5)}`}
+          </h1>
+
+          <h1>Manhole ID : {currentRecord?.manhole_id}</h1>
+        </div>
+
+        <div className="bd-gray">
+
+          {currentRecord ? (
+            <MapContainer
+              center={[finalLat, finalLng]}
+              zoom={15}
+              className="h-40 rounded-lg"
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+
+              <Marker position={[finalLat, finalLng]}>
+                <LeafletPopup>
+                  {currentRecord.area ||
+                    currentRecord.section ||
+                    "Unknown Location"}
+                </LeafletPopup>
+              </Marker>
+
+              <RecenterMap
+                lat={finalLat}
+                lng={finalLng}
+              />
+
+            </MapContainer>
+          ) : (
+            <p className="text-gray-500 flex items-center justify-center h-40">
+              No location available
+            </p>
+          )}
+
+        </div>
+      </>
+    );
+  })()}
+
+</div>
+
               {/* {console.log("LatLng:", lat, lng)} */}
 
               {/* Images and Report */}

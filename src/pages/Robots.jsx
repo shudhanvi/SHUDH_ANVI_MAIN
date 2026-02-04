@@ -418,7 +418,7 @@ export const Robots = () => {
                             <Bot className="inline-block w-4 h-4 mr-1 mb-1" />
                             Device ID: {item?.device_id || "-"}
                           </p>
-                          <p className="flex items-center mb-2">
+                          <p className="flex items-center mb-2 flex-wrap">
                             <Calendar className="inline-block w-3 h-4 mr-2 mb-1" />
                             Last operation:{" "}
                             {item?.latestTimestamp ? (

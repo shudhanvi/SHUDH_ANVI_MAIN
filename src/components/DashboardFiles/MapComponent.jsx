@@ -603,7 +603,7 @@ const MapComponent = () => {
  // --- RENDER ---
   return (
     // 1. PARENT: Fixed height (e.g., h-[85vh]) ensures both sides are always equal height
-    <div className="w-full flex flex-row max-w-[2400px] gap-4 h-[85vh] p-2">
+    <div className="w-full flex flex-row max-w-[2400px] gap-4 h-[85vh] max-h-[1200px] p-2">
       
       {/* --- Left section (Map + Controls) --- */}
       <div className="shadow-md shadow-gray-300 p-4 rounded-xl bg-white w-[70%] flex flex-col h-full">
