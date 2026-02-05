@@ -149,8 +149,8 @@ const MapComponent = () => {
     const diffTime = today - lastCleaned;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays >= 40) return "danger";
-    if (diffDays >= 40) return "warning";
+    if (diffDays >= 70) return "danger";
+    if (diffDays >= 60) return "warning";
     return "safe";
   }, []);
 
