@@ -539,7 +539,7 @@ export const RobotPopupComponent = ({
         <div className="text-gray-500 text-sm flex items-center justify-center h-full">
           No video available
         </div>
-        {/* HEADER */}
+       
         {activeOps.length ===0 ?(<></>):(
         <div className="flex justify-between pt-3">
           <h1 className="text-[18px] w-[48%]">Operational Details</h1>
