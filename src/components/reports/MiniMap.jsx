@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
-import { LocateFixed, Map, MapPin } from 'lucide-react';
+import { LocateFixed } from "lucide-react";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -15,20 +15,39 @@ const MiniMap = ({ locations = [], height = "300px", width = "50%" }) => {
   const initialCenterRef = useRef(null);
   const initialZoomRef = useRef(13);
 
+  // ✅ Location Validator
+  const isValidLocation = (lat, lon) => {
+    return (
+      lat !== null &&
+      lon !== null &&
+      lat !== undefined &&
+      lon !== undefined &&
+      !isNaN(lat) &&
+      !isNaN(lon) &&
+      !(lat === 0 && lon === 0) // ❗Block 0,0
+    );
+  };
+
   useEffect(() => {
-    if (!locations.length) return;
+
+    // ✅ Filter invalid locations
+    const validLocations = locations.filter((loc) =>
+      isValidLocation(loc.lat, loc.lon)
+    );
+
+    if (!validLocations.length) return;
 
     // Cleanup previous map
     if (mapRef.current) {
-      try { mapRef.current.remove(); } catch { }
+      try {
+        mapRef.current.remove();
+      } catch {}
       mapRef.current = null;
     }
 
-    // Use first location as default center
-    const centerLat = locations[0].lat;
-    const centerLon = locations[0].lon;
-
-    if (isNaN(centerLat) || isNaN(centerLon)) return;
+    // Use first valid location
+    const centerLat = validLocations[0].lat;
+    const centerLon = validLocations[0].lon;
 
     // Save initial view
     initialCenterRef.current = [centerLon, centerLat];
@@ -45,20 +64,19 @@ const MiniMap = ({ locations = [], height = "300px", width = "50%" }) => {
     map.on("load", () => {
       const bounds = new mapboxgl.LngLatBounds();
 
-      locations.forEach((loc) => {
-        if (!isNaN(loc.lat) && !isNaN(loc.lon)) {
-          new mapboxgl.Marker({ color: "#60a5fa" })
-            .setLngLat([loc.lon, loc.lat])
-            .addTo(map);
+      // ✅ Add only valid markers
+      validLocations.forEach((loc) => {
+        new mapboxgl.Marker({ color: "#60a5fa" })
+          .setLngLat([loc.lon, loc.lat])
+          .addTo(map);
 
-          bounds.extend([loc.lon, loc.lat]);
-        }
+        bounds.extend([loc.lon, loc.lat]);
       });
 
-      if (locations.length > 1) {
+      // Fit map
+      if (validLocations.length > 1) {
         map.fitBounds(bounds, { padding: 40 });
       } else {
-        // For single marker — force re-render
         map.setCenter(initialCenterRef.current);
         map.setZoom(initialZoomRef.current);
 
@@ -66,19 +84,20 @@ const MiniMap = ({ locations = [], height = "300px", width = "50%" }) => {
           map.resize();
         }, 50);
       }
-
     });
 
     return () => {
       if (mapRef.current) {
-        try { mapRef.current.remove(); } catch { }
+        try {
+          mapRef.current.remove();
+        } catch {}
         mapRef.current = null;
       }
     };
+
   }, [locations]);
 
-
-  // 🔵 Recenter button handler
+  // 🔵 Recenter Button
   const handleRecenter = () => {
     if (!mapRef.current || !initialCenterRef.current) return;
 
@@ -90,7 +109,14 @@ const MiniMap = ({ locations = [], height = "300px", width = "50%" }) => {
   };
 
   return (
-    <div style={{ position: "relative", width, height, borderRadius: "8px" }}>
+    <div
+      style={{
+        position: "relative",
+        width,
+        height,
+        borderRadius: "8px",
+      }}
+    >
       {/* Map container */}
       <div
         ref={mapContainer}

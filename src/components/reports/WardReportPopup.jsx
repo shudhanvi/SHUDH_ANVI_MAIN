@@ -149,7 +149,8 @@ export const WardReportPopup = ({ reportData, onClose }) => {
 
 
   const data = reportData || {};
-  const sectionWeather = data["Section Weather Data"] || {};
+  const sectionWeather = data["Weather Report"] || {};
+  const section = sectionWeather.section || "";
   const weather7 = Array.isArray(sectionWeather.datewise_7d)
   ? sectionWeather.datewise_7d
   : [];
@@ -426,23 +427,25 @@ export const WardReportPopup = ({ reportData, onClose }) => {
 
 
             {/* Images */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-[30px]">
-              {Images.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col items-center w-[350px] h-auto bg-white rounded-lg shadow p-2"
-                >
-                  <img
-                    src={item.imageUrl}
-                    alt={item.label}
-                    className="w-full object-cover rounded-md mb-2"
-                  />
-                  <p className="text-center font-semibold text-gray-800">
-                    {item.label}
-                  </p>
-                </div>
-              ))}
-            </div>
+           {section === "Somajiguda" && (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-[30px] ">
+    {Images.map((item, index) => (
+      <div
+        key={index}
+        className="flex flex-col items-center w-[100%] max-w-[350px] h-auto bg-white rounded-lg shadow p-2"
+      >
+        <img
+          src={item.imageUrl}
+          alt={item.label}
+          className="w-full object-cover rounded-md mb-2"
+        />
+        <p className="text-center font-semibold text-gray-800">
+          {item.label}
+        </p>
+      </div>
+    ))}
+  </div>
+)}
 
             {/* ------------------------------ */}
             {/* CHARTS ROW */}

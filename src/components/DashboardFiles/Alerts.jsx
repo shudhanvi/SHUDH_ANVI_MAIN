@@ -45,7 +45,7 @@ const ZoneAlertItem = ({ zoneName, alerts, onManholeSelect }) => {
             <tbody>
               {/* Map through the alerts for this zone */}
               {alerts.map((alert, index) => (
-                <tr key={alert.id}>
+                <tr key={alert.id || index }>
                   {/* Serial Number */}
                   <td className={`py-2.5 pr-2 w-10 text-sm text-center text-gray-700 ${index < alerts.length - 1 ? 'border-b border-gray-100' : ''}`}>{index + 1}</td>
                   {/* Manhole ID */}
@@ -53,7 +53,7 @@ const ZoneAlertItem = ({ zoneName, alerts, onManholeSelect }) => {
                   {/* Clickable Location */}
                   <td
                     className={`py-2.5 px-2 text-sm text-blue-600 cursor-pointer hover:underline ${index < alerts.length - 1 ? 'border-b border-gray-100' : ''}`}
-                    onClick={() => onManholeSelect(alert.id)} // Call the passed function on click
+                    onClick={() => onManholeSelect(alert.id || index)} // Call the passed function on click
                   >
                     {alert.location}
                   </td>

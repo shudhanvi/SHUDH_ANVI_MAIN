@@ -1,84 +1,23 @@
+
 import { useState, useEffect, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Bot, Calendar, MapPin, Search, FireExtinguisher } from "lucide-react";
 import { useServerData } from "../context/ServerDataContext";
-import { fetchRobotSummary } from "../api/robots";
 import { RobotPopupComponent } from "../components/robots/robotPopupComponent";
 
 const userInputsObj = { division: "", section: "", fromDate: "", toDate: "" };
 const userInputsErrorObj = { division: false, section: false, fromDate: false, toDate: false };
 
 export const Robots = () => {
-  const [robotSummary, setRobotSummary] = useState([]);
-  const [summaryLoading, setSummaryLoading] = useState(false);
-  const [summaryError, setSummaryError] = useState(null);
-
-  const serverData = useServerData();
-  const { data } = serverData;
-
-  // console.log("ServerDataContext:", serverData);
-
+  const { data, loading, message } = useServerData();  // ✅ use new context data
   const [inputError, setInputError] = useState(userInputsErrorObj);
   const [userInputs, setUserInputs] = useState(userInputsObj);
-  // const [MainData, setMainData] = useState([]);
+  const [MainData, setMainData] = useState([]);
   const [showFiltered, setShowFiltered] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [activeRobot, setActiveRobot] = useState(null);
   const [appliedFilters, setAppliedFilters] = useState(userInputsObj);
-
-  const dropdownRows = data?.dropdowndata ?? [];
-
-  const divisions = useMemo(() => {
-    return Array.from(
-      new Set(dropdownRows.map(row => row.division))
-    );
-  }, [dropdownRows]);
-
-  const sections = useMemo(() => {
-    if (!userInputs.division) return [];
-
-    return dropdownRows
-      .filter(row => row.division === userInputs.division)
-      .map(row => row.section);
-  }, [dropdownRows, userInputs.division]);
-
-
-  useEffect(() => {
-    if (!showFiltered) return;
-
-    const loadRobotSummary = async () => {
-      try {
-        setSummaryLoading(true);
-        setSummaryError(null);
-
-        // ✅ PAYLOAD IS BUILT HERE
-        const payload = {
-          division: appliedFilters.division,
-          section: appliedFilters.section || "",
-          from_date: appliedFilters.fromDate
-            ? appliedFilters.fromDate.toISOString()
-            : "",
-          to_date: appliedFilters.toDate
-            ? appliedFilters.toDate.toISOString()
-            : "",
-        };
-
-        const res = await fetchRobotSummary(payload);
-
-        setRobotSummary(res.robots_data || []);
-      } catch (err) {
-        setSummaryError("Failed to load robot summary");
-        setRobotSummary([]);
-      } finally {
-        setSummaryLoading(false);
-      }
-    };
-
-    loadRobotSummary();
-  }, [showFiltered, appliedFilters]);
-
-  // console.log(robotSummary)
 
   const handleInput = (key, value) => {
     setUserInputs(prev => {
@@ -88,7 +27,12 @@ export const Robots = () => {
     });
   };
 
-
+  /**
+ * Cleans raw database names for display in the UI.
+ * - "Division 15(durgam cheruvu )" -> "durgam cheruvu"
+ * - "SR nagar (6)" -> "SR nagar"
+ * - "kukatpally (9)" -> "kukatpally"
+ */
   const getDisplayName = (rawName) => {
     if (typeof rawName !== 'string') return rawName;
 
@@ -111,21 +55,173 @@ export const Robots = () => {
     return rawName.trim();
   };
 
+  // ✅ Combine & normalize both RobotsData + OperationsData
+  const structingData = (dataObj) => {
+    return Object.keys(dataObj).map((index) => {
+      const item = dataObj[index];
+      return {
+        id: item?.id || "-",
+        operation_id: item?.operation_id || "-",
+        operation_type: item?.operation_type || "manhole_cleaning",
+        device_id: item?.device_id || item?.deviceId || item?.robot_id || "-",
+        before_path: item?.before_path || item.before_image_url || "-",
+        after_path: item?.after_path || item.after_image_url || "-",
+        gas_data_raw: item?.gas_data_raw || "-",
+        gas_status: item?.gas_status || "-",
+        location: item?.location || "-",
+        latitude: item?.latitude || item?.lat || "0",
+        longitude: item?.longitude || item?.lon || item?.lng || "0",
+        timestamp: item?.timestamp || item?.start_time || "-",
+        endtime: item?.endtime || item?.end_time || "-",
+        district: item?.district || item?.city || "-",
+        division: item?.division || "-",
+        area: item?.area || item?.section || "-",
+        operation_time_minutes: item?.operation_time_minutes || item?.duration_seconds || "-",
+        manhole_id: item?.manhole_id || "Unknown",
+        waste_collected_kg: item?.waste_collected_kg || item?.wasteCollectedKg || "-",
+        video_url: item?.video_url || "-",
+        pipe_inspection_starttime: item?.pipe_inspection_starttime || "-",
+        pipe_inspection_endtime: item?.pipe_inspection_endtime || "-",
+        pipe_inspection_operationtime: item?.pipe_inspection_operationtime || "-",
+
+      };
+    });
+  };
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     refreshData();
+  //   }, 60000); // every 60 seconds
+
+  //   return () => clearInterval(interval); // cleanup
+  // }, []);
 
 
+  // ✅ Merge context data once available
+  useEffect(() => {
+    if (!data?.RobotsData?.length && !data?.OperationsData?.length) return;
+    const combined = [...(data.RobotsData || []), ...(data.OperationsData || [])];
+    const normalized = structingData(combined);
+    setMainData(normalized);
+  }, [data]);
+
+  // Keep activeRobot in sync with latest MainData
+  useEffect(() => {
+    if (!activeRobot) return;
+
+    // Find updated robot operations from MainData
+    const updatedOperations = MainData.filter(
+      (op) => op.device_id === activeRobot.device_id
+    );
+
+    if (updatedOperations.length > 0) {
+      const latestOp = updatedOperations.reduce(
+        (a, b) => new Date(a.timestamp) > new Date(b.timestamp) ? a : b,
+        updatedOperations[0]
+      );
+
+      setActiveRobot({
+        ...latestOp,
+        operation_history: updatedOperations,
+      });
+    }
+  }, [MainData]);
+
+  // Build division → section hierarchy
+  const hierarchyData = useMemo(() => {
+    const hierarchy = {};
+    MainData.forEach((item) => {
+      const division = item?.division || "-";
+      const section = item?.area || "-";
+
+      if (!hierarchy[division]) hierarchy[division] = {};
+      if (!hierarchy[division][section]) hierarchy[division][section] = {};
+    });
+    return hierarchy;
+  }, [MainData]);
+
+  const divisions = Object.keys(hierarchyData);
+  const sections = userInputs.division
+    ? Object.keys(hierarchyData[userInputs.division] || {})
+    : [];
+
+  // Filter logic
+  const filteredData = useMemo(() => {
+    if (!MainData || MainData.length === 0) return [];
+
+    const fromDate = appliedFilters.fromDate
+      ? new Date(appliedFilters.fromDate)
+      : null;
+    const toDate = appliedFilters.toDate
+      ? new Date(appliedFilters.toDate)
+      : null;
+
+    return MainData.filter((item) => {
+      const division = (appliedFilters.division || "")
+        .toString()
+        .trim()
+        .toLowerCase();
+      const section = (appliedFilters.section || "")
+        .toString()
+        .trim()
+        .toLowerCase();
+
+      const itemDivision = (item.division || "").toString().trim().toLowerCase();
+      const itemSection = (item.area || "").toString().trim().toLowerCase();
+
+      const divisionMatch = !division || itemDivision === division;
+      const sectionMatch = !section || itemSection === section;
+
+      const itemTime = item.timestamp ? new Date(item.timestamp) : null;
+      const fromOk = !fromDate || (itemTime && itemTime >= fromDate);
+      const toOk = !toDate || (itemTime && itemTime <= toDate);
+
+      return divisionMatch && sectionMatch && fromOk && toOk;
+    });
+  }, [MainData, appliedFilters]);
+
+  // Group filtered data by robot
+  const uniqueBots = useMemo(() => {
+    const map = new Map();
+
+    filteredData.forEach((op) => {
+      const botId = op.device_id || "Unknown";
+      if (!map.has(botId)) {
+        map.set(botId, {
+          device_id: botId,
+          gas_status: op.gas_status || "-",
+          area: op.area || "-",
+          waste_collected_kg: Number(op.waste_collected_kg) || 0,
+          operationsCount: 1,
+          latestTimestamp: op.timestamp ? new Date(op.timestamp) : null,
+        });
+      } else {
+        const cur = map.get(botId);
+        cur.operationsCount += 1;
+        cur.waste_collected_kg += Number(op.waste_collected_kg) || 0;
+        if (op.timestamp) {
+          const d = new Date(op.timestamp);
+          if (!cur.latestTimestamp || d > cur.latestTimestamp)
+            cur.latestTimestamp = d;
+        }
+        map.set(botId, cur);
+      }
+    });
+
+    return Array.from(map.values());
+  }, [filteredData]);
 
   // Handle filter button
   const handleViewBots = () => {
     const errors = { ...userInputsErrorObj };
+
     if (!userInputs.division) errors.division = true;
     setInputError(errors);
 
     if (errors.division) return;
-
     setAppliedFilters(userInputs);
     setShowFiltered(true);
   };
-
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
     const day = String(date.getDate()).padStart(2, "0");
@@ -140,6 +236,13 @@ export const Robots = () => {
     const minutes = String(date.getMinutes()).padStart(2, "0");
     return `${hours}:${minutes}`;
   };
+  const sortedBots = useMemo(() => {
+    return [...uniqueBots].sort((a, b) => {
+      const idA = String(a.device_id).toLowerCase();
+      const idB = String(b.device_id).toLowerCase();
+      return idA.localeCompare(idB);
+    });
+  }, [uniqueBots]);
 
 
   // console.log("MainData:", MainData);
@@ -154,7 +257,7 @@ export const Robots = () => {
       <section className="flex justify-center h-auto w-full mt-6 ">
         <div className="flex  gap-[10px] justify-evenly p-[22px] pb-[26px] mx-[30px] rounded-xl border-[1.5px] border-[#E1E7EF]  items-center max-w-[2400px] w-[100%] bg-white ">
           <div className="flex justify-evenly w-[85%] gap-[15px]">
-
+            {/* Division */}
             <div className=" text-start relative w-[-webkit-fill-available] " >
               <label className="block font-semibold mb-1">Division</label>
               <div className="flex flex-col">
@@ -178,6 +281,7 @@ export const Robots = () => {
               </div>
             </div>
 
+            {/* Section */}
             <div className=" text-start w-[-webkit-fill-available]" >
               <label className="block font-semibold mb-1">Section</label>
               <select
@@ -194,7 +298,7 @@ export const Robots = () => {
               </select>
             </div>
 
-
+            {/* From Date */}
             <div className=" text-start relative w-[-webkit-fill-available]">
               <label className="block font-semibold mb-1">From Date</label>
               <DatePicker
@@ -207,6 +311,7 @@ export const Robots = () => {
               <Calendar className="absolute top-8 right-2 text-gray-600" />
             </div>
 
+            {/* To Date */}
             <div className=" text-start relative w-[-webkit-fill-available]">
               <label className="block font-semibold mb-1">To Date</label>
               <DatePicker
@@ -219,7 +324,7 @@ export const Robots = () => {
               <Calendar className="absolute top-8 right-2 text-gray-600" />
             </div>
           </div>
-
+          {/* Button */}
           <div className="">
             <button
               className="bg-[#1A8BA8] text-white px-6 py-2 rounded-[16px] flex items-center gap-2 cursor-pointer mt-5.5 transition-all duration-150"
@@ -232,43 +337,43 @@ export const Robots = () => {
         </div>
       </section>
 
+      {/* Data Display */}
       <section className="w-full px-5">
-        {summaryLoading ? (
+        {loading ? (
           <p className="text-gray-800 text-center text-xl mt-4 animate-pulse">
-            Loading robot summary...
-          </p>
-        ) : summaryError ? (
-          <p className="text-red-500 text-center mt-4">
-            {summaryError}
+            {message}
           </p>
         ) : showFiltered ? (
-          robotSummary.length > 0 ? (
+          uniqueBots.length > 0 ? (
             <>
-              <div className="h-20 flex justify-between text-2xl  mx-20 mt-10">
+              <div className="h-20 flex justify-between text-2xl text-bold mx-20 mt-10">
                 <h1>
-                  Showing Bots from {userInputs.section || userInputs.division}
+                  Showing Bots from{" "}
+                  {userInputs?.section || userInputs.division}
                 </h1>
-                <span>No. of Bots - {robotSummary.length}</span>
+                <span className="text-black">
+                  No. of Bots - {uniqueBots.length}
+                </span>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-0">
-                {robotSummary.map((item) => (
+
+                {sortedBots.map((item, idx) => (
                   <div
-                    key={item.device_id}
-                    className="cursor-pointer bg-white border border-gray-200 rounded-xl px-2 h-80
-                         hover:shadow-lg hover:shadow-[#1A8BA850] hover:scale-[1.01]
-                         transition-all duration-150"
+                    key={idx}
+                    className="cursor-pointer bg-white border border-gray-200 rounded-xl px-2 h-80 hover:shadow-lg hover:shadow-[#1A8BA850] hover:scale-101 transition-all duration-110"
                     onClick={() => {
-                      
-                      const activerobotdata= {
-                        device_id: item.device_id,
-                        division: userInputs.division,
-                        section: item.section,
-                        count:item.operations_count,
-                        from_date:userInputs.fromDate,
-                        to_date:userInputs.toDate
-                      }
-                      setActiveRobot(activerobotdata);
+                      const botOperations = filteredData.filter(
+                        (op) => op.device_id === item.device_id
+                      );
+                      const latestOp = botOperations.reduce(
+                        (a, b) =>
+                          new Date(a.timestamp) > new Date(b.timestamp) ? a : b,
+                        botOperations[0]
+                      );
+                      setActiveRobot({
+                        ...latestOp,
+                        operation_history: botOperations,
+                      });
                       setShowPopup(true);
                     }}
                   >
@@ -278,53 +383,58 @@ export const Robots = () => {
                         alt="Device"
                         className="w-40 h-40 mt-3 object-cover rounded-lg mb-4"
                       />
-
                       <div className="flex text-sm pl-2 text-gray-600 text-start items-center">
                         <div className="flex flex-col gap-y-3">
                           <p className="flex items-center mb-2">
                             <Bot className="inline-block w-4 h-4 mr-1 mb-1" />
-                            Device ID: {item.device_id}
+                            Device ID: {item?.device_id || "-"}
                           </p>
-                          <p className="flex items-center mb-2 flex-wrap">
+                          <p className="flex items-center mb-2">
                             <Calendar className="inline-block w-3 h-4 mr-2 mb-1" />
                             Last operation:{" "}
-                            {item.last_operation_timestamp ? (
-                              <span>
-                                {new Date(
-                                  item.last_operation_timestamp
-                                ).toLocaleDateString()}
-                              </span>
+                            {item?.latestTimestamp ? (
+                              <>
+                                <span>{formatDate(item.latestTimestamp)}</span>
+
+                              </>
                             ) : (
                               "-"
                             )}
-                          </p>
 
+                          </p>
+                          {/* <p className="flex items-center mb-2">
+                            <FireExtinguisher className="inline-block w-4 h-4 mr-1 mb-1" />
+                            Gas status:{" "}
+                            {item.gas_status
+                              ? item.gas_status
+                                .charAt(0)
+                                .toUpperCase() +
+                              item.gas_status.slice(1).toLowerCase()
+                              : "N/A"}
+                          </p> */}
                           <p className="flex items-center mb-2">
                             <MapPin className="inline-block w-4 h-4 mr-1 mb-1" />
-                            Ward: {item.section }
+                            Ward: {item.area || "-"}
                           </p>
                         </div>
                       </div>
                     </div>
-
-                    <hr className="my-4 mx-4 text-gray-400" />
-
+                    <hr className="my-4 mx-4 text-gray-400 " />
                     <div className="px-15 py-2">
                       <div className="flex justify-between items-center">
                         <div className="text-center">
-                          <p className="text-2xl">-</p>
+                          <p className="text-2xl ">
+                            {item?.waste_collected_kg || "-"} Kgs
+                          </p>
                           <p className="text-xs text-gray-500">
                             Waste Collected
                           </p>
                         </div>
-
                         <div className="text-center">
-                          <p className="text-2xl">
-                            {item.operations_count}
+                          <p className="text-2xl ">
+                            {item?.operationsCount ?? 0}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            Operations
-                          </p>
+                          <p className="text-xs text-gray-500">Operations</p>
                         </div>
                       </div>
                     </div>
@@ -339,30 +449,20 @@ export const Robots = () => {
           )
         ) : (
           <div className="flex flex-col justify-center items-center mt-[50px]">
-            <img
-              className="h-[130px] w-[130px]"
-              src="/images/Robot-filter.png"
-            />
-            <p className="text-gray-400 text-center italic">
+            <img className="h-[130px] w-[130px]" src="/images/Robot-filter.png" />
+            <p className="text-gray-400 text-center  " style={{ fontStyle: "italic" }}>
               “No robots to display yet. Please select a Division and Section to get started.”
             </p>
           </div>
         )}
+
+        {showPopup && activeRobot && (
+          <RobotPopupComponent
+            activeRecord={activeRobot}
+            closePopup={() => setShowPopup(false)}
+          />
+        )}
       </section>
-
-{/* {console.log("9876543",activeRobot)} */}
-{showPopup && activeRobot && (
-  <RobotPopupComponent
-    activeRobot = {activeRobot}
-    closePopup={() => {
-      setShowPopup(false);
-      setActiveRobot(null);
-    }}
-    
-  />
-)}
-
-
     </div>
   );
 };

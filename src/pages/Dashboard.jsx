@@ -22,7 +22,7 @@ export const Dashboard = () => {
       bgColor: "#F4EBF4",
       icon: <ShieldCheck size={30} color="#FF8FFF" />,
       iconBg: "#FF8FFF1A",
-      desc: "Schedule Maintenance",
+      desc: "Schedule Maitenance",
     },
     {
       label: "Cure",

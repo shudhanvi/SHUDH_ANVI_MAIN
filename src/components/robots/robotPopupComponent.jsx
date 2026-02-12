@@ -1,8 +1,11 @@
-import { useEffect, useState , useRef} from "react";
-import { MapContainer, TileLayer, Marker, Popup as LeafletPopup, useMap } from "react-leaflet";
-// import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
-import "leaflet/dist/leaflet.css";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup as LeafletPopup,
+  useMap,
+} from "react-leaflet";
 import DatePicker from "react-datepicker";
 import {
   MapPin,
@@ -10,7 +13,6 @@ import {
   Bot,
   Calendar,
   Clock,
-  Trash,
   Funnel,
   CalendarIcon,
   ClockIcon,
@@ -18,35 +20,49 @@ import {
   Settings,
 } from "lucide-react";
 import L from "leaflet";
+
 import "leaflet/dist/leaflet.css";
-import { OperationPopup } from "./OperationPopup";
-// ✅ Fix Leaflet marker issue for Vite/Render builds
+import "react-datepicker/dist/react-datepicker.css";
+
+import { fetchRobotOperations } from "../../api/robots";
+
+/* ================= LEAFLET FIX ================= */
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: new URL("leaflet/dist/images/marker-icon-2x.png", import.meta.url).href,
-  iconUrl: new URL("leaflet/dist/images/marker-icon.png", import.meta.url).href,
-  shadowUrl: new URL("leaflet/dist/images/marker-shadow.png", import.meta.url).href,
+  iconRetinaUrl: new URL(
+    "leaflet/dist/images/marker-icon-2x.png",
+    import.meta.url
+  ).href,
+  iconUrl: new URL(
+    "leaflet/dist/images/marker-icon.png",
+    import.meta.url
+  ).href,
+  shadowUrl: new URL(
+    "leaflet/dist/images/marker-shadow.png",
+    import.meta.url
+  ).href,
 });
 
+const DEFAULT_CENTER = [17.45709, 78.37077]; // Hyderabad center as fallback
+const PAGE_LIMIT = 50;
 
-export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
-  const videoRef = useRef(null);
-  const [detailedFromDate, setDetailedFromDate] = useState(null);
-  const [detailedToDate, setDetailedToDate] = useState(null);
-  const [detailedFilteredData, setDetailedFilteredData] = useState([]);
+/* ========================================================= */
+
+export const RobotPopupComponent = ({
+  activeRobot,
+  closePopup,
+}) => {
+  /* ================= STATE ================= */
+  const [operations, setOperations] = useState([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
+  const [loading, setLoading] = useState(true);
+  const [fetchingMore, setFetchingMore] = useState(false);
+  const [error, setError] = useState(null);
+
+  const [activeTab, setActiveTab] = useState("manhole");
   const [selectedHistory, setSelectedHistory] = useState(null);
-  const [showOperationPopup, setShowOperationPopup] = useState(false);
- 
-//  console.log(">>>>>>>>>>>>>>>>>>>>>>>.",activeRecord)
-  // ✅ Consistent Date & Time formatting (DD/MM/YYYY and 24-hour HH:mm:ss)
-  const formatDate = (timestamp) => {
-    if (!timestamp) return "-";
-    const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
 
   // const formatTime = (timestamp) => {
   //   if (!timestamp) return "-";
@@ -75,69 +91,252 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
   return `${hours}:${minutes}:${seconds}`;
 };
 
-// console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",activeRecord)
+  const totalCount = Number(activeRobot.count || 0);
+  const isDateFiltered = Boolean(appliedRange.from || appliedRange.to);
 
+  /* ================= SCROLL LOCK ================= */
   useEffect(() => {
-    // Disable background scroll
     document.body.style.overflow = "hidden";
-
-    return () => {
-      // Re-enable scroll when popup closes
-      document.body.style.overflow = "auto";
-    };
+    return () => (document.body.style.overflow = "auto");
   }, []);
 
+  /* ================= FETCH ================= */
+  const fetchData = async (loadMore = false, showloading = true) => {
+    if (!activeRobot.device_id) return;
 
-  // Initialize filtered data to all operation history initially
-  useEffect(() => {
-    if (activeRecord?.operation_history) {
-      setDetailedFilteredData(activeRecord.operation_history);
-    }
-  }, [activeRecord]);
+    // prevent duplicate calls
+    if (loadMore && fetchingMore) return;
 
-  const applyFilter = () => {
-    if (!activeRecord?.operation_history) {
-      setDetailedFilteredData([]);
+    // stop when total reached (only if no date filter)
+    if (!isDateFiltered && operations.length >= totalCount) {
+      setHasMore(false);
       return;
     }
 
-    const filtered = activeRecord.operation_history.filter((item) => {
-      const itemDate = new Date(item.timestamp);
-      const fromValid = detailedFromDate ? itemDate >= detailedFromDate : true;
-      const toValid = detailedToDate ? itemDate <= detailedToDate : true;
-      return fromValid && toValid;
+    // 🔑 CRITICAL: capture offset BEFORE async call
+    const requestOffset = loadMore ? offset : 0;
+
+    // console.log("➡️ REQUEST OFFSET:", requestOffset);
+
+    try {
+      loadMore ? setFetchingMore(true) : (showloading ? setLoading(true) : setLoading(false));
+
+      const payload = {
+        device_id: activeRobot.device_id,
+        division: activeRobot.division,
+        section: activeRobot.section,
+        from_date: activeRobot.from_date,
+        to_date: activeRobot.to_date,
+        // limit: PAGE_LIMIT,
+        // offset: requestOffset,
+      };
+
+      if (appliedRange.from) {
+        payload.from_date = appliedRange.from.toISOString();
+      }
+
+      if (appliedRange.to) {
+        payload.to_date = appliedRange.to.toISOString();
+      }
+
+      // console.log("📤 PAYLOAD SENT:", payload);
+
+      const res = await fetchRobotOperations(payload, 50, requestOffset);
+      const newOps = res?.operations || [];
+
+      // console.log(
+      //   "⬅️ RECEIVED:",
+      //   newOps.length,
+      //   "records starting from offset",
+      //   requestOffset
+      // );
+
+      if (newOps.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      !showloading ? setOperations(newOps) :
+        setOperations((prev) =>
+          loadMore ? [...prev, ...newOps] : newOps
+        );
+
+      // 🔑 offset MUST increase by what backend returned
+      setOffset((prev) => prev + newOps.length);
+
+      if (newOps.length < PAGE_LIMIT) {
+        setHasMore(false);
+      }
+    } catch (e) {
+      console.error(e);
+      setError("Failed to load operation history");
+    } finally {
+      setLoading(false);
+      setFetchingMore(false);
+    }
+  };
+
+
+  /* ================= INITIAL LOAD ================= */
+  useEffect(() => {
+    setOperations([]);
+    setOffset(0);
+    setHasMore(true);
+    setSelectedHistory(null);
+    fetchData(false);
+  }, [activeRobot]);
+
+  /* ================= APPLY DATE FILTER ================= */
+  const applyDateFilter = () => {
+    // setOperations([]);
+    setOffset(0);
+    setHasMore(true);
+    setSelectedHistory(null);
+
+    setAppliedRange({
+      from: fromDate,
+      to: toDate,
     });
 
-    setDetailedFilteredData(filtered);
+    fetchData(false, false);
   };
-  // Determine which record to show in right panel
-  const currentRecord = selectedHistory || activeRecord;
 
+  /* ================= SCROLL LOAD ================= */
+  const onScroll = () => {
+    const el = historyRef.current;
+    if (!el || !hasMore || fetchingMore) return;
 
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
+      // console.log("scroll calling")
+      fetchData(true);
+    }
+  };
 
-  // let lat = currentRecord?.latitude;
-  // let lng = currentRecord?.longitude;
+  /* ================= NORMALIZE ================= */
+  const normalizedOps = useMemo(() => {
+    return operations.map((op) => {
+      const isPipe = op.op_type === "pipe inspection";
+      return {
+        ...op,
+        operation_type: op.op_type || "manhole cleaning",
+        start_ts: op.op_start_time,
+        end_ts: op.op_end_time ,
+        before_img: op.before_op_image_url || op.before_path || "",
+        after_img: op.after_op_image_url || op.after_path || "",
+        video: op.op_video_url || "",
+        lat: Number(op.op_latitude),
+        lng: Number(op.op_longitude),
+      };
+    });
+  }, [operations]);
+
+  /* ================= TAB FILTER ================= */
+  const activeOps =
+    activeTab === "pipe"
+      ? normalizedOps.filter((o) => o.op_type === "pipe inspection")
+      : normalizedOps.filter((o) => o.op_type !== "pipe inspection");
+
+  const current = selectedHistory || activeOps[0];
+
+  /* ================= MAP ================= */
+  const hasValidLocation =
+    current &&
+    !isNaN(current.op_latitude) &&
+    !isNaN(current.op_longitude) &&
+    current.op_latitude !== 0 &&
+    current.op_longitude !== 0;
+
   const RecenterMap = ({ lat, lng }) => {
     const map = useMap();
     useEffect(() => {
-      if (lat && lng) map.setView([lat, lng], map.getZoom());
+      map.setView(
+        hasValidLocation ? [lat, lng] : DEFAULT_CENTER,
+        map.getZoom()
+      );
     }, [lat, lng, map]);
     return null;
   };
 
-  useEffect(() => {
-  if (videoRef.current) {
-    videoRef.current.playbackRate = 0.25;
-  }
-}, [currentRecord]);
-
-
-
+  /* ================= LOADING ================= */
+  if (loading) {
   return (
-    <div className="fixed inset-0 min-h-screen flex items-center justify-center bg-transparent bg-opacity-50 z-[910]">
-      <div className="w-full h-screen bg-[#00000099] flex place-content-center">
-        <div className="mx-auto bg-white w-full max-w-[1000px] rounded-lg px-6 overflow-y-auto max-h-[100vh] relative top-5 shadow-2xl border border-gray-297 custom-scrollbar">
-          <button
+    <div className="fixed inset-0 z-[910] bg-[#00000099] flex justify-center items-center">
+      <div className="bg-white w-full max-w-[1000px] rounded-lg px-6 py-5 max-h-[95vh] overflow-hidden">
+
+       
+
+        {/* TABS */}
+        <div className="flex gap-6 mt-2 border-b pb-2">
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-6 w-40" />
+        </div>
+
+        {/* HEADERS */}
+        <div className="flex justify-between pt-5">
+          <Skeleton className="h-5 w-[200px]" />
+          <Skeleton className="h-5 w-[200px]" />
+        </div>
+
+        {/* BODY */}
+        <div className="flex justify-between mt-4">
+
+          {/* LEFT PANEL */}
+          <div className="w-[48%] space-y-4">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-2/3" />
+
+            <div className="grid grid-cols-2 gap-y-6 gap-x-4 mt-5">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+
+            {/* MAP */}
+            <Skeleton className="h-44 w-full mt-6" />
+
+            {/* MEDIA */}
+            <Skeleton className="h-5 w-48 mt-6" />
+            <Skeleton className="h-[180px] w-full mt-2" />
+
+            {/* BUTTON */}
+            <Skeleton className="h-[48px] w-full mt-6 rounded-[16px]" />
+          </div>
+
+          {/* RIGHT PANEL */}
+          <div className="w-[48%] space-y-4">
+            <Skeleton className="h-4 w-40" />
+
+            <div className="flex gap-2">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+               <Skeleton className="h-10 w-32" />
+            </div>
+
+           
+
+            {/* HISTORY LIST */}
+            <div className="space-y-3 mt-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+  /* ================= UI ================= */
+  return (
+    <div className="fixed inset-0 z-[910] bg-[#00000099] flex justify-center items-center">
+      <div className="bg-white w-full max-w-[1000px] rounded-lg px-6 py-5 relative max-h-[95vh] overflow-y-auto custom-scrollbar" >
+
+        {/* CLOSE */}
+        <button
             onClick={closePopup}
             className="popup-btn absolute right-6 text-gray-500 hover:text-black text-5xl top-[10px] cursor-pointer "
           >
@@ -340,586 +539,354 @@ export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
         <div className="text-gray-500 text-sm flex items-center justify-center h-full">
           No video available
         </div>
-      )}
-    </div>
-  ) : (
-    /* ================= MANHOLE CLEANING → IMAGES ================= */
+        {/* HEADER */}
+        {activeOps.length ===0 ?(<></>):(
+        <div className="flex justify-between pt-3">
+          <h1 className="text-[18px] w-[48%]">Operational Details</h1>
+          <h1 className="text-[18px] w-[48%]">Operation History</h1>
+        </div>
+        )}
+        {/* BODY */}
+        <div className="flex justify-between mt-4 min-h-[420px]">
+
+  {activeOps.length === 0 ? (
+    /* ================= EMPTY STATE (INSIDE BODY) ================= */
     <>
-      <div className="flex justify-around px-2">
-        <h1 className="mt-2">Before</h1>
-        <h1 className="mt-2">After</h1>
+      {/* LEFT SIDE MESSAGE */}
+      <div className="w-[90%] min-h-[95vh] flex items-center justify-center text-gray-500 text-center text-[16px] px-4">
+        No {activeTab === "pipe"
+          ? "Pipe Inspection"
+          : "Manhole Cleaning"} operations are performed in this location
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mb-2 h-[165px]">
-        <div className="flex flex-col gap-2">
-          {currentRecord?.images?.some((op) => op.before)
-            ? currentRecord.images.map(
-                (op, i) =>
-                  op.before && (
-                    <img
-                      key={`before-${i}`}
-                      src={op.before}
-                      alt={`Before ${i}`}
-                      className="h-full object-cover rounded-lg border border-gray-100"
-                    />
-                  )
-              )
-            : (
-              <img
-                src={currentRecord.before_path}
-                alt="No Before"
-                className="h-full object-cover rounded-lg border"
-              />
+     
+    </>
+  ) : (
+    /* ================= NORMAL TWO-PANEL LAYOUT ================= */
+    <>
+      {/* ================= LEFT PANEL ================= */}
+      <div className="w-[48%] min-h-[420px]">
+        <p className="text-sm text-[#676D7E]">
+          <MapPin className="inline w-4 mr-2 text-[#0380FC]" />
+          Division: {current.op_division || "-"}
+        </p>
+
+        <p className="text-sm text-[#676D7E] mt-2">
+          <MapPinned className="inline w-4 mr-2 text-[#0380FC]" />
+          Section: { current.op_section || "-"}
+        </p>
+
+        <div className="grid grid-cols-2 gap-y-6 mt-5 text-sm">
+          <Info icon={Bot} label="Device ID" value={current.device_id} />
+          <Info
+            icon={Settings}
+            label="Operation Type"
+            value={activeTab === "pipe" ? "Pipe Inspection" : "Manhole Cleaning"}
+          />
+          <Info icon={Clock} label="Start Time" value={formatTime(current.start_ts,current.op_division)} />
+          <Info icon={Clock} label="End Time" value={formatTime(current.end_ts,current.op_division)} />
+          <Info
+            icon={Clock}
+            label="Task Duration"
+            value={formatDuration(
+              current.op_duration_sec || current.duration_seconds
             )}
+          />
+          <Info icon={Calendar} label="Date" value={formatDate(current.start_ts)} />
         </div>
 
-        <div className="flex flex-col gap-2">
-          {currentRecord?.images?.some((op) => op.after)
-            ? currentRecord.images.map(
-                (op, i) =>
-                  op.after && (
-                    <img
-                      key={`after-${i}`}
-                      src={op.after}
-                      alt={`After ${i}`}
-                      className="h-full object-cover rounded-lg border border-gray-100"
-                    />
-                  )
-              )
-            : (
-              <img
-                src={currentRecord.after_path}
-                alt="No After"
-                className="h-full object-cover rounded-lg border"
+        {/* MAP */}
+                  <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
+
+  {(() => {
+    const lat = Number(current?.op_latitude);
+    const lng = Number(current?.op_longitude);
+
+    // Check if valid and not 0
+    const isValidLocation =
+      !isNaN(lat) &&
+      !isNaN(lng) &&
+      lat !== 0 &&
+      lng !== 0;
+
+    // Default fallback location
+    const defaultLat = 17.45709;
+    const defaultLng = 78.37077;
+
+    // Final values
+    const finalLat = isValidLocation ? lat : defaultLat;
+    const finalLng = isValidLocation ? lng : defaultLng;
+
+    return (
+      <>
+        <div className="flex flex-row justify-between">
+          <h1 className="pb-1 text-start">
+            {`${finalLat.toFixed(5)}, ${finalLng.toFixed(5)}`}
+          </h1>
+
+          <h1>Manhole ID : {current?.mh_id}</h1>
+        </div>
+
+        <div className="bd-gray">
+
+          {current ? (
+            <MapContainer
+              center={[finalLat, finalLng]}
+              zoom={15}
+              className="h-40 rounded-lg"
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               />
-            )}
+
+              <Marker position={[finalLat, finalLng]}>
+                <LeafletPopup>
+                  {current.area ||
+                    current.section ||
+                    "Unknown Location"}
+                </LeafletPopup>
+              </Marker>
+
+              <RecenterMap
+                lat={finalLat}
+                lng={finalLng}
+              />
+
+            </MapContainer>
+          ) : (
+            <p className="text-gray-500 flex items-center justify-center h-40">
+              No location available
+            </p>
+          )}
+
+        </div>
+      </>
+    );
+  })()}
+
+</div>
+
+        <h1 className="text-[16px] mt-6">
+          {activeTab === "pipe" ? "Operation Video" : "Operation Images"}
+        </h1>
+
+        {activeTab === "pipe" ? (
+          current.video ? (
+            <video
+              src={current.video}
+              controls
+              className="w-full h-[180px] bg-black rounded-lg mt-2"
+            />
+          ) : (
+            <div className="h-[180px] flex items-center justify-center text-gray-500">
+              No video available
+            </div>
+          )
+        ) : (
+          <div className="grid grid-cols-2 gap-2 mt-2 bg-gray-100 p-[4px] rounded-[6px]">
+            <img
+              src={current.before_img || "/images/before.png"}
+              className="h-[150px] object-cover rounded"
+            />
+            <img
+              src={current.after_img || "/images/after.png"}
+              className="h-[150px] object-cover rounded"
+            />
+          </div>
+        )}
+
+        <button className="w-full mt-6 h-[48px] bg-[#1A8BA8] text-white rounded-[16px]">
+          <Download className="inline w-5 mr-2" />
+          Generate Operation Report
+        </button>
+      </div>
+
+      {/* ================= RIGHT PANEL ================= */}
+      <div className="w-[48%]">
+        {/* FILTER LABEL */}
+<div className="flex items-center text-sm text-[#676D7E] mb-2">
+  <Funnel className="mr-2" />
+  Filter by Date Range
+</div>
+
+{/* FILTER CONTROLS */}
+<div className="flex items-end gap-3">
+  <div className="w-full">
+    <DateField
+      value={fromDate}
+      setValue={setFromDate}
+      minDate={activeRobot.from_date}
+      maxDate={activeRobot.to_date || new Date()}
+      placeholder={formatDate(activeRobot.from_date )|| "From Date" }
+
+    />
+  </div>
+
+  <div className="w-full">
+    <DateField
+      value={toDate}
+      setValue={setToDate}
+      minDate={activeRobot.from_date}
+      maxDate={activeRobot.to_date }
+      placeholder={formatDate(activeRobot.to_date) || "To Date"}
+    />
+  </div>
+
+  <button
+  onClick={applyDateFilter}
+  disabled={!fromDate && !toDate}
+  className={`
+    px-5 py-2 h-[40px] whitespace-nowrap rounded-md text-white
+    transition-colors
+    ${
+      !fromDate && !toDate
+        ? "bg-[#1A8BA8] cursor-not-allowed"
+        : "bg-[#1A8BA8] hover:bg-[#157a92]"
+    }
+  `}
+>
+  Apply
+</button>
+
+</div>
+
+
+        <div
+          ref={historyRef}
+          onScroll={onScroll}
+          className="h-80 mt-4 overflow-y-auto shadow rounded-md p-2 custom-scrollbar"
+        >
+          {activeOps.map((h, i) => {
+  const isActive =
+    selectedHistory &&
+    selectedHistory.start_ts === h.start_ts &&
+    selectedHistory.device_id === h.device_id;
+
+  return (
+    <div
+      key={i}
+      className={`flex justify-between items-center py-2 px-2 mb-[6px] rounded-md cursor-pointer transition-colors
+        ${isActive ? "bg-gray-200" : "hover:bg-gray-100"}
+      `}
+      onClick={() => setSelectedHistory(h)}
+    >
+      <div className="text-[16px]">
+        <CalendarIcon className="inline h-4 mr-1" />
+        {formatDate(h.start_ts)}
+        <ClockIcon className="inline h-4 ml-4 mr-1" />
+        {formatTime(h.start_ts,current.op_division)}
+      </div>
+
+      <button
+        className={`btn-view-more flex items-center rounded-[6px] h-8 px-2 text-[14px] transition-colors
+          bg-blue-500 text-white
+        `}
+        onClick={(e) => {
+          e.stopPropagation(); // 🔑 prevent double click issue
+          setSelectedHistory(h);
+        }}
+      >
+        View More
+      </button>
+    </div>
+  );
+})}
+
+          {fetchingMore && (
+            <div className="text-center text-gray-400 text-sm py-2">
+              Loading more…
+            </div>
+          )}
         </div>
       </div>
     </>
   )}
 </div>
 
-
-              <div className="flex justify-center w-full my-[20px] mb-10">
-                {/* <button
-                  onClick={() => alert("Report Generated Successfully")}
-                  className="flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px] w-full text-white rounded-[16px] cursor-pointer btn-hover"
-                >
-                  <Download className="inline-block w-5 h-5 mr-1" color="white" />
-                  Generate Operation Report
-                </button> */}
-
-                <button
-                  // onClick={() => setShowOperationPopup(true)}
-                  className="flex items-center justify-center h-[48px] bg-[#1A8BA8] text-[16px] w-full text-white rounded-[16px] cursor-pointer btn-hover"
-                >
-                  <Download className="inline-block w-5 h-5 mr-1" color="white" />
-                  Generate Operation Report
-                </button>
-
-
-
-              </div>
-            </div>
-
-
-            {/* Right Panel - Operation History */}
-            <div className="w-[48%]">
-              <div className="flex flex-row">
-                <span className="inline-block text-[#676D7E] mr-2">
-                  <Funnel />
-                </span>
-                <h1 className="text-start text-[14px]"> Filter by Date Range </h1>
-              </div>
-              <div className="flex flex-row w-full justify-between mb-5 mt-3 gap-2">
-                <div className="text-start w-[45%] mt-2 relative">
-                  <label className="block text-[16px] text-[#676D7E] mb-1">From Date</label>
-                  <div className="relative">
-                    <DatePicker
-                      selected={detailedFromDate}
-                      onChange={(date) => setDetailedFromDate(date)}
-                      dateFormat="dd-MM-yyyy"
-                      className="border border-gray-300 rounded-md p-2 w-full text-sm pr-8"
-                      placeholderText="Select From Date"
-                      maxDate={new Date()}
-                    />
-                    {detailedFromDate && (
-                      <button
-                        type="button"
-                        onClick={() => setDetailedFromDate(null)}
-                        className="absolute right-2 top-[10px]  text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="text-start w-[45%] mt-2 relative">
-                  <label className="block text-[16px] text-[#676D7E] mb-1">To Date</label>
-                  <div className="relative">
-                    <DatePicker
-                      selected={detailedToDate}
-                      onChange={(date) => setDetailedToDate(date)}
-                      dateFormat="dd-MM-yyyy"
-                      className="border border-gray-300 rounded-md p-2 w-full text-sm pr-8"
-                      placeholderText="Select To Date"
-                      maxDate={new Date()}
-                    />
-                    {detailedToDate && (
-                      <button
-                        type="button"
-                        onClick={() => setDetailedToDate(null)}
-                        className="absolute right-2 top-[10px]  text-black rounded-full w-4 h-4 flex items-center justify-center text-xs  transition cursor-pointer"
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <button
-                    className="bg-[#1A8BA8] cursor-pointer text-white rounded-md h-10 text-sm px-6 mt-8.5 btn-hover"
-                    onClick={applyFilter}
-                  >
-                    Filter
-                  </button>
-                </div>
-              </div>
-              <div className="h-80 shadow overflow-y-auto rounded-md py-[8px] px-[10px] custom-scrollbar">
-                <ul className="space-y-3">
-                  {detailedFilteredData.length > 0 ? (
-                    // ✅ Sort by timestamp (latest first)
-                    [...detailedFilteredData]
-                      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                      .map((history, index) => {
-                        const isActive = selectedHistory?.timestamp === history.timestamp;
-                        return (
-                          <li
-                            key={index}
-                            className={`flex items-center justify-between h-12 transition-all px-[4px] ${isActive ? "bg-gray-200" : ""
-                              }`}
-                          >
-                            <div>
-                              <span className="mr-8 text-[16px]">
-                                <CalendarIcon className="h-4 inline-block" />
-                                {formatDate(history.timestamp)}
-
-                              </span>
-                              <span className="mr-8 text-[16px]">
-                                <ClockIcon className="h-4 inline-block" />
-                                {formatTime(history.timestamp)}
-
-                              </span>
-                            </div>
-                            <button
-                              className="btn-view-more flex items-center rounded-[6px] cursor-pointer h-8 px-2 transition-colors text-[14px] bg-blue-500 text-white"
-                              onClick={() => setSelectedHistory(history)}
-                            >
-                              View More
-                            </button>
-                          </li>
-                        );
-                      })
-                  ) : (
-                    <li className="text-center text-gray-500 py-4">No Records Found</li>
-                  )}
-                </ul>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-
       </div>
-
-
-      {showOperationPopup && (
-        <OperationPopup
-          record={currentRecord}
-          closePopup={() => setShowOperationPopup(false)}
-        />
-      )}
-
     </div>
-
   );
 };
 
+/* ================= HELPERS ================= */
 
-// import { useEffect, useState } from "react";
-// import {
-//   MapContainer,
-//   TileLayer,
-//   Marker,
-//   Popup as LeafletPopup,
-//   useMap,
-// } from "react-leaflet";
-// import "react-circular-progressbar/dist/styles.css";
-// import "leaflet/dist/leaflet.css";
-// import DatePicker from "react-datepicker";
-// import {
-//   MapPin,
-//   MapPinned,
-//   Bot,
-//   Calendar,
-//   Clock,
-//   Funnel,
-//   CalendarIcon,
-//   ClockIcon,
-//   Download,
-// } from "lucide-react";
-// import L from "leaflet";
-// import { OperationPopup } from "./OperationPopup";
+const Info = ({ icon: Icon, label, value }) => (
+  <span className="flex">
+    <Icon className="w-10 h-10 p-2 bg-[#0380FC10] text-[#0380FC] rounded-md" />
+    <span className="ml-2">
+      {label}
+      <div className="text-[#21232C] text-[16px]">{value || "-"}</div>
+    </span>
+  </span>
+);
 
-// /* ================= Leaflet Fix ================= */
-// delete L.Icon.Default.prototype._getIconUrl;
-// L.Icon.Default.mergeOptions({
-//   iconRetinaUrl: new URL(
-//     "leaflet/dist/images/marker-icon-2x.png",
-//     import.meta.url
-//   ).href,
-//   iconUrl: new URL(
-//     "leaflet/dist/images/marker-icon.png",
-//     import.meta.url
-//   ).href,
-//   shadowUrl: new URL(
-//     "leaflet/dist/images/marker-shadow.png",
-//     import.meta.url
-//   ).href,
-// });
+const DateField = ({ value, setValue, placeholder, minDate,maxDate }) => (
+  <div className="relative w-full">
+    <DatePicker
+      selected={value}
+      onChange={(date) => setValue(date)}
+      placeholderText={placeholder}
+      className="border p-2 rounded w-full pr-8"
+      maxDate={maxDate}
+      minDate={minDate}
+    />
+    {value && (
+      <button
+        onClick={() => setValue(null)}
+        className="absolute right-2 top-[10px] text-gray-500 hover:text-black"
+      >
+        ×
+      </button>
+    )}
+  </div>
+);
 
-// export const RobotPopupComponent = ({ activeRecord, closePopup }) => {
-//   /* ================= STATE ================= */
-//   const [activeOperationType, setActiveOperationType] =
-//     useState("pipe_inspection");
+const formatDate = (ts) => {
+  
+  return ts ? new Date(ts).toLocaleDateString("en-GB") : "";
 
-//   const [detailedFromDate, setDetailedFromDate] = useState(null);
-//   const [detailedToDate, setDetailedToDate] = useState(null);
+}
+  const formatTime = (timestamp,division) => {
+  if (!timestamp) return "-";
 
-//   const [selectedHistory, setSelectedHistory] = useState(null);
-//   const [showOperationPopup, setShowOperationPopup] = useState(false);
+  // Convert to Date
+  const date = new Date(timestamp);
 
-//   const [pipeInspections, setPipeInspections] = useState([]);
-//   const [manholeCleanings, setManholeCleanings] = useState([]);
+  // Add 5 hours 30 minutes (330 minutes)
+ const div = (division || "").toLowerCase().trim();
 
-//   const [filteredPipeInspections, setFilteredPipeInspections] = useState([]);
-//   const [filteredManholeCleanings, setFilteredManholeCleanings] =
-//     useState([]);
+  if (div.includes("durgam")) {
+    date.setMinutes(date.getMinutes() + 330); // 5h 30m
+  }
 
-//   /* ================= SPLIT DATA ================= */
-//   useEffect(() => {
-//     if (!activeRecord?.operation_history) return;
 
-//     const pipe = [];
-//     const manhole = [];
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
 
-//     for (const op of activeRecord.operation_history) {
-//       if (op.operation_type === "pipe_inspection") pipe.push(op);
-//       if (op.operation_type === "manhole_cleaning") manhole.push(op);
-//     }
+  return `${hours}:${minutes}:${seconds}`;
+};
 
-//     setPipeInspections(pipe);
-//     setManholeCleanings(manhole);
-//     setFilteredPipeInspections(pipe);
-//     setFilteredManholeCleanings(manhole);
-//     setSelectedHistory(null);
-//   }, [activeRecord]);
+export const formatDuration = (totalSeconds) => {
+  const secs = Number(totalSeconds);
 
-//   /* ================= SCROLL LOCK ================= */
-//   useEffect(() => {
-//     document.body.style.overflow = "hidden";
-//     return () => {
-//       document.body.style.overflow = "auto";
-//     };
-//   }, []);
+  if (isNaN(secs) || secs < 0) return "-";
 
-//   /* ================= HELPERS ================= */
-//   const formatDate = (timestamp) => {
-//     if (!timestamp) return "-";
-//     const d = new Date(timestamp);
-//     return d.toLocaleDateString("en-GB");
-//   };
+  const hours = Math.floor(secs / 3600);
+  const minutes = Math.floor((secs % 3600) / 60);
+  const seconds = Math.floor(secs % 60);
 
-//   const formatTime = (timestamp) => {
-//     if (!timestamp) return "-";
-//     const d = new Date(timestamp);
-//     return d.toLocaleTimeString("en-GB");
-//   };
+  let result = [];
 
-//   /* ================= FILTER ================= */
-//   const applyFilter = () => {
-//     const source =
-//       activeOperationType === "pipe_inspection"
-//         ? pipeInspections
-//         : manholeCleanings;
+  if (hours > 0) result.push(`${hours} hr${hours > 1 ? "s" : ""}`);
+  if (minutes > 0) result.push(`${minutes} min${minutes > 1 ? "s" : ""}`);
+  if (seconds > 0 || result.length === 0)
+    result.push(`${seconds} sec${seconds !== 1 ? "s" : ""}`);
 
-//     const filtered = source.filter((item) => {
-//       const d = new Date(item.timestamp);
-//       return (
-//         (!detailedFromDate || d >= detailedFromDate) &&
-//         (!detailedToDate || d <= detailedToDate)
-//       );
-//     });
+  return result.join(" ");
+};
 
-//     if (activeOperationType === "pipe_inspection") {
-//       setFilteredPipeInspections(filtered);
-//     } else {
-//       setFilteredManholeCleanings(filtered);
-//     }
-
-//     setSelectedHistory(null);
-//   };
-
-//   const detailedFilteredData =
-//     activeOperationType === "pipe_inspection"
-//       ? filteredPipeInspections
-//       : filteredManholeCleanings;
-
-//   const currentRecord = selectedHistory || activeRecord;
-
-//   const RecenterMap = ({ lat, lng }) => {
-//     const map = useMap();
-//     useEffect(() => {
-//       if (lat && lng) map.setView([lat, lng], map.getZoom());
-//     }, [lat, lng, map]);
-//     return null;
-//   };
-
-//   /* ================= UI ================= */
-//   return (
-//     <div className="fixed inset-0 min-h-screen flex items-center justify-center bg-transparent bg-opacity-50 z-[910]">
-//       <div className="w-full h-screen bg-[#00000099] flex place-content-center">
-//         <div className="mx-auto bg-white w-full max-w-[1000px] rounded-lg px-6 overflow-y-auto max-h-[100vh] relative top-5 shadow-2xl border border-gray-297 custom-scrollbar">
-//           <button
-//             onClick={closePopup}
-//             className="popup-btn absolute right-6 text-gray-500 hover:text-black text-5xl top-[10px] cursor-pointer"
-//           >
-//             ×
-//           </button>
-
-//           {/* Header */}
-//           <div className="flex flex-row justify-between pt-5">
-//             <div className="text-start w-[48%]">
-//               <h1 className="text-[18px] mb-2">
-//                 Operational Details
-//               </h1>
-//             </div>
-//             <div className="text-start w-[48%]">
-//               <h1 className="text-[18px] mb-2">
-//                 Operation History
-//               </h1>
-//             </div>
-//           </div>
-
-//           <div className="flex flex-row justify-between px-1">
-//             {/* ================= LEFT PANEL ================= */}
-//             <div className="w-[48%]">
-//               <div className="flex flex-col text-[#676D7E]">
-//                 <span className="text-[14px]">
-//                   <MapPin className="inline w-4 mr-2" />
-//                   Division: {currentRecord?.division || "-"}
-//                 </span>
-//                 <span className="text-[14px] mt-2">
-//                   <MapPinned className="inline w-4 mr-2" />
-//                   Section: {currentRecord?.area || "-"}
-//                 </span>
-//               </div>
-
-//               <div className="grid grid-cols-2 gap-y-6 mt-5 text-[14px]">
-//                 <span className="flex">
-//                   <Bot className="w-10 h-10 p-2 bg-[#0380FC10] rounded-md" />
-//                   <span className="ml-2">
-//                     Device Id
-//                     <div className="text-[#21232C] text-[16px]">
-//                       {currentRecord.device_id}
-//                     </div>
-//                   </span>
-//                 </span>
-
-//                 <span className="flex">
-//                   <Calendar className="w-10 h-10 p-2 bg-[#0380FC10] rounded-md" />
-//                   <span className="ml-2">
-//                     Date
-//                     <div className="text-[#21232C] text-[16px]">
-//                       {formatDate(currentRecord.timestamp)}
-//                     </div>
-//                   </span>
-//                 </span>
-
-//                 <span className="flex">
-//                   <Clock className="w-10 h-10 p-2 bg-[#0380FC10] rounded-md" />
-//                   <span className="ml-2">
-//                     Starting Time
-//                     <div className="text-[#21232C] text-[16px]">
-//                       {formatTime(
-//                         currentRecord.operation_type ===
-//                           "manhole_cleaning"
-//                           ? currentRecord.timestamp
-//                           : currentRecord.pipe_inspection_starttime
-//                       )}
-//                     </div>
-//                   </span>
-//                 </span>
-
-//                 <span className="flex">
-//                   <Clock className="w-10 h-10 p-2 bg-[#0380FC10] rounded-md" />
-//                   <span className="ml-2">
-//                     Ending Time
-//                     <div className="text-[#21232C] text-[16px]">
-//                       {formatTime(currentRecord.endtime)}
-//                     </div>
-//                   </span>
-//                 </span>
-//               </div>
-
-//               <div className="mt-6 bg-gray-100 p-2 rounded-lg">
-//                 {currentRecord?.latitude &&
-//                 currentRecord?.longitude ? (
-//                   <MapContainer
-//                     center={[
-//                       Number(currentRecord.latitude),
-//                       Number(currentRecord.longitude),
-//                     ]}
-//                     zoom={15}
-//                     className="h-40 rounded-lg"
-//                   >
-//                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-//                     <Marker
-//                       position={[
-//                         Number(currentRecord.latitude),
-//                         Number(currentRecord.longitude),
-//                       ]}
-//                     >
-//                       <LeafletPopup>
-//                         {currentRecord.area}
-//                       </LeafletPopup>
-//                     </Marker>
-//                     <RecenterMap
-//                       lat={Number(currentRecord.latitude)}
-//                       lng={Number(currentRecord.longitude)}
-//                     />
-//                   </MapContainer>
-//                 ) : (
-//                   <div className="h-40 flex items-center justify-center text-gray-500">
-//                     No location available
-//                   </div>
-//                 )}
-//               </div>
-
-//               <button className="w-full h-[48px] mt-6 bg-[#1A8BA8] text-white rounded-[16px]">
-//                 <Download className="inline w-5 mr-1" />
-//                 Generate Operation Report
-//               </button>
-//             </div>
-
-//             {/* ================= RIGHT PANEL ================= */}
-//             <div className="w-[48%]">
-//               {/* OPERATION TYPE BUTTONS */}
-//               <div className="flex gap-3 mb-4">
-//                 <button
-//                   onClick={() => {
-//                     setActiveOperationType("pipe_inspection");
-//                     setSelectedHistory(null);
-//                   }}
-//                   className={`px-4 py-2 rounded-md text-sm ${
-//                     activeOperationType === "pipe_inspection"
-//                       ? "bg-[#1A8BA8] text-white"
-//                       : "bg-gray-200"
-//                   }`}
-//                 >
-//                   Pipe Inspection
-//                 </button>
-
-//                 <button
-//                   onClick={() => {
-//                     setActiveOperationType("manhole_cleaning");
-//                     setSelectedHistory(null);
-//                   }}
-//                   className={`px-4 py-2 rounded-md text-sm ${
-//                     activeOperationType === "manhole_cleaning"
-//                       ? "bg-[#1A8BA8] text-white"
-//                       : "bg-gray-200"
-//                   }`}
-//                 >
-//                   Manhole Cleaning
-//                 </button>
-//               </div>
-
-//               <div className="flex items-center text-[#676D7E]">
-//                 <Funnel className="mr-2" />
-//                 Filter by Date Range
-//               </div>
-
-//               <div className="flex gap-2 mt-3">
-//                 <DatePicker
-//                   selected={detailedFromDate}
-//                   onChange={setDetailedFromDate}
-//                   className="border p-2 rounded-md"
-//                 />
-//                 <DatePicker
-//                   selected={detailedToDate}
-//                   onChange={setDetailedToDate}
-//                   className="border p-2 rounded-md"
-//                 />
-//                 <button
-//                   onClick={applyFilter}
-//                   className="bg-[#1A8BA8] text-white px-4 rounded-md"
-//                 >
-//                   Filter
-//                 </button>
-//               </div>
-
-//               <div className="h-80 mt-4 shadow overflow-y-auto rounded-md p-2">
-//                 <ul className="space-y-3">
-//                   {detailedFilteredData.length ? (
-//                     [...detailedFilteredData]
-//                       .sort(
-//                         (a, b) =>
-//                           new Date(b.timestamp) -
-//                           new Date(a.timestamp)
-//                       )
-//                       .map((history, index) => (
-//                         <li
-//                           key={index}
-//                           className="flex justify-between items-center"
-//                         >
-//                           <div>
-//                             <CalendarIcon className="inline h-4" />
-//                             {formatDate(history.timestamp)}
-//                             <ClockIcon className="inline h-4 ml-4" />
-//                             {formatTime(history.timestamp)}
-//                           </div>
-//                           <button
-//                             onClick={() =>
-//                               setSelectedHistory(history)
-//                             }
-//                             className="bg-blue-500 text-white px-2 py-1 rounded"
-//                           >
-//                             View More
-//                           </button>
-//                         </li>
-//                       ))
-//                   ) : (
-//                     <li className="text-center text-gray-500">
-//                       No Records Found
-//                     </li>
-//                   )}
-//                 </ul>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-
-//       {showOperationPopup && (
-//         <OperationPopup
-//           record={currentRecord}
-//           closePopup={() => setShowOperationPopup(false)}
-//         />
-//       )}
-//     </div>
-//   );
-// };
+const Skeleton = ({ className }) => (
+  <div className={`animate-pulse bg-gray-200 rounded ${className}`} />
+);
