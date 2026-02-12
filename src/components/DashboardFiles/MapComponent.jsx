@@ -342,9 +342,14 @@ else if (manholeData.length > 0) {
    [selectedAreaName]);
 
   return (
-    <div className="w-full flex flex-row max-w-[2400px] gap-1">
-      <div className="shadow-md shadow-gray-300 p-6 mb-4 rounded-xl bg-white w-full max-w-[70%]">
-        <div className="flex justify-between items-center flex-wrap gap-2">
+    // 1. PARENT: Fixed height (e.g., h-[85vh]) ensures both sides are always equal height
+    <div className="w-full flex flex-row max-w-[2400px] gap-4 h-[85vh] max-h-[1200px] p-2">
+      
+      {/* --- Left section (Map + Controls) --- */}
+      <div className="shadow-md shadow-gray-300 p-4 rounded-xl bg-white w-[70%] flex flex-col h-full">
+        
+        {/* Top Controls */}
+        <div className="flex justify-between items-center flex-wrap gap-2 mb-2">
           <p className="font-semibold text-md">Interactive Hotspot Manhole Map</p>
           <div className="flex justify-center items-center gap-4 ml-auto">
             {["all", "safe", "warning", "danger"].map((f) => (
