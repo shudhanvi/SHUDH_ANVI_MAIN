@@ -4,7 +4,9 @@ import { LocateFixed } from "lucide-react";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
-// mapboxgl.accessToken =   "";
+mapboxgl.accessToken =
+  "pk.eyJ1Ijoic2h1YmhhbWd2IiwiYSI6ImNtZDV2cmJneDAydngyanFzaW1oNTM3M24ifQ.7Jb5OXpznWqjyMeAuiXhrQ";
+
 const MiniMap = ({ locations = [], height = "300px", width = "50%" }) => {
   const mapContainer = useRef(null);
   const mapRef = useRef(null);

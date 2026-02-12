@@ -2,8 +2,8 @@ import React, { useEffect, useRef, memo, useCallback } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
- 
-// mapboxgl.accessToken = "";
+// Your Mapbox access token
+mapboxgl.accessToken = "pk.eyJ1Ijoic2h1YmhhbWd2IiwiYSI6ImNtZDV2cmJneDAydngyanFzaW1oNTM3M24ifQ.7Jb5OXpznWqjyMeAuiXhrQ";
 
 const MapboxCore = ({
   mapRef,
