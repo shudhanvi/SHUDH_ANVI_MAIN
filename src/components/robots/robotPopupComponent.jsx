@@ -64,32 +64,13 @@ export const RobotPopupComponent = ({
   const [activeTab, setActiveTab] = useState("manhole");
   const [selectedHistory, setSelectedHistory] = useState(null);
 
-  // const formatTime = (timestamp) => {
-  //   if (!timestamp) return "-";
-  //   const date = new Date(timestamp);
-  //   const hours = String(date.getHours()).padStart(2, "0");
-  //   const minutes = String(date.getMinutes()).padStart(2, "0");
-  //   const seconds = String(date.getSeconds()).padStart(2, "0");
-  //   return `${hours}:${minutes}:${seconds}`;
-  // };
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
+  const [appliedRange, setAppliedRange] = useState({ from: null, to: null });
 
-  const formatTime = (timestamp) => {
-  if (!timestamp) return "-";
+  // console.log("====================", activeRobot)
 
-  // Convert to Date
-  const date = new Date(timestamp);
-
-  // Add 5 hours 30 minutes (330 minutes)
- if (currentRecord.division === "Division 15 (Durgam Cheruvu)") {
-    date.setMinutes(date.getMinutes() + 330); // 5h 30m
-  }
-
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-
-  return `${hours}:${minutes}:${seconds}`;
-};
+  const historyRef = useRef(null);
 
   const totalCount = Number(activeRobot.count || 0);
   const isDateFiltered = Boolean(appliedRange.from || appliedRange.to);
@@ -343,203 +324,28 @@ export const RobotPopupComponent = ({
             ×
           </button>
 
-          {/* Header */}
-          <div className="flex flex-row justify-between pt-5">
-            <div className="text-start w-[48%]">
-              <h1 className="text-start text-[18px] mb-2">Operational Details</h1>
-            </div>
-            <div className="text-start w-[48%]">
-              <h1 className="text-start text-[18px] mb-2">Operation History</h1>
-            </div>
-          </div>
-
-          <div className="flex flex-row justify-between px-1">
-            {/* Left Panel */}
-            <div className="w-[48%]">
-              <div className="flex flex-col justify-start text-gray-500 w-full">
-                <span className="text-start text-[14px] text-[#676D7E]">
-                  <MapPin className="inline-block w-4 mr-2 mb-1 text-blue-600" />
-                  Division: {currentRecord?.division || "- "}
-                </span>
-                <br />
-                <span className="text-start text-[14px] text-[#676D7E]">
-                  <MapPinned className="inline-block w-4 mr-2 mb-1 text-blue-500" />
-                  Section: {currentRecord?.area || "- "}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 w-full text-start text-[14px] text-[#676D7E] mt-5 gap-y-6">
-                <span className="flex flex-row">
-                  <Bot className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
-                  <span className="flex flex-col ml-2 text-[14px]">
-                    Device Id
-                    <span className="text-[#21232C] text-[16px]">{currentRecord.device_id}</span>
-                  </span>
-                </span>
-                <span className="flex ">
-                  <Settings className="inline-block w-10 h-10 mr-3 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
-                   <span className="flex flex-col ml-2">
-                    Operation Type
-                    <span className="text-[#21232C] text-[16px]">
-                      {currentRecord.operation_type === "manhole_cleaning" ? "Manhole Cleaning":"Pipe Inspection"}
-                    </span>
-                  </span>
-                </span>
-               
-                <span className="flex flex-row">
-                  <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
-                  <span className="flex flex-col ml-2">
-                    Start Time
-                    <span className="text-[#21232C] text-[16px]">
-                      {formatTime( currentRecord.operation_type === "manhole_cleaning" ? currentRecord.timestamp : currentRecord.pipe_inspection_starttime )}
-                    </span>
-                  </span>
-                </span>
-                <span className="flex flex-row">
-                  <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
-                  <span className="flex flex-col ml-2">
-                    End Time
-                    <span className="text-[#21232C] text-[16px]">
-                      {formatTime( currentRecord.operation_type === "manhole_cleaning" ? currentRecord.endtime : currentRecord.pipe_inspection_endtime )}
-                    </span>
-                  </span>
-                </span>
-                <span className="flex flex-row">
-                  <Clock className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
-                  <span className="flex flex-col ml-2">
-                    Task Duration
-                    {/* <span className="text-[#21232C] text-[16px]">{currentRecord?.operation_time_minutes || "-"} secs</span> */}
-                    <span className="text-[#21232C] text-[16px]">
-                      {(() => {
-                        const totalSec = Number(currentRecord?.operation_type === "manhole_cleaning" ? currentRecord.operation_time_minutes : currentRecord.pipe_inspection_operationtime);
-                        if (isNaN(totalSec) || totalSec < 0) return "-";
-
-                        const hours = Math.floor(totalSec / 3600);
-                        const minutes = Math.floor((totalSec % 3600) / 60);
-                        const seconds = Math.floor(totalSec % 60);
-
-                        let result = "";
-
-                        if (hours > 0) result += `${hours} hr${hours > 1 ? "s" : ""} `;
-                        if (minutes > 0) result += `${minutes} min${minutes > 1 ? "s" : ""} `;
-                        if (seconds > 0 || result === "") result += `${seconds} sec${seconds !== 1 ? "s" : ""}`;
-
-                        return result.trim();
-                      })()}
-                    </span>
-
-                  </span>
-                </span>
-
-                 <span className="flex flex-row">
-                  <Calendar className="inline-block w-10 h-10 mr-1 bg-[#0380FC10] p-2 rounded-md" color="#0380FC" />
-                  <span className="flex flex-col ml-2">
-                    Date
-                    <span className="text-[#21232C] text-[16px]">
-                      {formatDate(currentRecord.timestamp)}
-                    </span>
-                  </span>
-                </span>
-              </div>
-
-
-             <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
-
-  {(() => {
-    const lat = Number(currentRecord?.latitude);
-    const lng = Number(currentRecord?.longitude);
-
-    // Check if valid and not 0
-    const isValidLocation =
-      !isNaN(lat) &&
-      !isNaN(lng) &&
-      lat !== 0 &&
-      lng !== 0;
-
-    // Default fallback location
-    const defaultLat = 17.45709;
-    const defaultLng = 78.37077;
-
-    // Final values
-    const finalLat = isValidLocation ? lat : defaultLat;
-    const finalLng = isValidLocation ? lng : defaultLng;
-
-    return (
-      <>
-        <div className="flex flex-row justify-between">
-          <h1 className="pb-1 text-start">
-            {`${finalLat.toFixed(5)}, ${finalLng.toFixed(5)}`}
-          </h1>
-
-          <h1>Manhole ID : {currentRecord?.manhole_id}</h1>
+        {/* TABS */}
+        <div className="flex gap-6 mt-2 border-b">
+          <button
+            onClick={() => setActiveTab("manhole")}
+            className={`pb-2 font-semibold ${activeTab === "manhole"
+                ? "border-b-2 border-[#1A8BA8] text-[#1A8BA8]"
+                : "text-gray-400"
+              }`}
+          >
+            Manhole Cleaning
+          </button>
+          <button
+            onClick={() => setActiveTab("pipe")}
+            className={`pb-2 font-semibold ${activeTab === "pipe"
+                ? "border-b-2 border-[#1A8BA8] text-[#1A8BA8]"
+                : "text-gray-400"
+              }`}
+          >
+            Pipe Inspection
+          </button>
         </div>
-
-        <div className="bd-gray">
-
-          {currentRecord ? (
-            <MapContainer
-              center={[finalLat, finalLng]}
-              zoom={15}
-              className="h-40 rounded-lg"
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-
-              <Marker position={[finalLat, finalLng]}>
-                <LeafletPopup>
-                  {currentRecord.area ||
-                    currentRecord.section ||
-                    "Unknown Location"}
-                </LeafletPopup>
-              </Marker>
-
-              <RecenterMap
-                lat={finalLat}
-                lng={finalLng}
-              />
-
-            </MapContainer>
-          ) : (
-            <p className="text-gray-500 flex items-center justify-center h-40">
-              No location available
-            </p>
-          )}
-
-        </div>
-      </>
-    );
-  })()}
-
-</div>
-
-              {/* {console.log("LatLng:", lat, lng)} */}
-
-              {/* Images and Report */}
-             {/* ================= Operation Media ================= */}
-<h1 className="text-[16px] text-[#21232C] mt-[24px] text-start">
-  {currentRecord?.operation_type === "pipe_inspection"
-    ? "Operation Video"
-    : "Operation Images"}
-</h1>
-
-<div className="rounded-lg mt-2 w-full bg-gray-100 overflow-y-auto">
-  {currentRecord?.operation_type === "pipe_inspection" ? (
-    /* ================= PIPE INSPECTION → VIDEO ================= */
-    <div className="h-[165px] flex items-center justify-center p-2">
-      {currentRecord?.video_url ? (
-        <video
-          ref={videoRef}
-          src={currentRecord.video_url}
-          controls
-          className="w-full h-full rounded-lg object-cover bg-black"
-        />
-      ) : (
-        <div className="text-gray-500 text-sm flex items-center justify-center h-full">
-          No video available
-        </div>
-       
+        {/* HEADER */}
         {activeOps.length ===0 ?(<></>):(
         <div className="flex justify-between pt-3">
           <h1 className="text-[18px] w-[48%]">Operational Details</h1>
