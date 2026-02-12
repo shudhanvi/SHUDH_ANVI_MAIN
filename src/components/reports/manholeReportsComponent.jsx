@@ -223,7 +223,7 @@ export const ManholeReportsComponent = ({ city, division, section }) => {
 
         const mappedZones = (response.data?.Doc_Manholes_Data || []).map(
           (item) => ({
-            zone: String(item.zone),
+            zone: String(item.docket_no),
             count: item.manholes_count,
           })
         );
@@ -251,6 +251,7 @@ export const ManholeReportsComponent = ({ city, division, section }) => {
      ZONE DETAILS VIEW
   --------------------------------------------- */
   if (selectedZoneData) {
+    // console.log("Selected Zone Data:", selectedZoneData);
     return (
       <ZoneWiseManholeReports
         zone={selectedZoneData.zone}

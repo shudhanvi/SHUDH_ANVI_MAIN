@@ -43,7 +43,7 @@ L.Icon.Default.mergeOptions({
   ).href,
 });
 
-const DEFAULT_CENTER = [17.385044, 78.486671];
+const DEFAULT_CENTER = [17.45709, 78.37077]; // Hyderabad center as fallback
 const PAGE_LIMIT = 50;
 
 /* ========================================================= */
@@ -68,7 +68,7 @@ export const RobotPopupComponent = ({
   const [toDate, setToDate] = useState(null);
   const [appliedRange, setAppliedRange] = useState({ from: null, to: null });
 
-  console.log("====================", activeRobot)
+  // console.log("====================", activeRobot)
 
   const historyRef = useRef(null);
 
@@ -97,7 +97,7 @@ export const RobotPopupComponent = ({
     // 🔑 CRITICAL: capture offset BEFORE async call
     const requestOffset = loadMore ? offset : 0;
 
-    console.log("➡️ REQUEST OFFSET:", requestOffset);
+    // console.log("➡️ REQUEST OFFSET:", requestOffset);
 
     try {
       loadMore ? setFetchingMore(true) : (showloading ? setLoading(true) : setLoading(false));
@@ -120,17 +120,17 @@ export const RobotPopupComponent = ({
         payload.to_date = appliedRange.to.toISOString();
       }
 
-      console.log("📤 PAYLOAD SENT:", payload);
+      // console.log("📤 PAYLOAD SENT:", payload);
 
       const res = await fetchRobotOperations(payload, 50, requestOffset);
       const newOps = res?.operations || [];
 
-      console.log(
-        "⬅️ RECEIVED:",
-        newOps.length,
-        "records starting from offset",
-        requestOffset
-      );
+      // console.log(
+      //   "⬅️ RECEIVED:",
+      //   newOps.length,
+      //   "records starting from offset",
+      //   requestOffset
+      // );
 
       if (newOps.length === 0) {
         setHasMore(false);
@@ -188,7 +188,7 @@ export const RobotPopupComponent = ({
     if (!el || !hasMore || fetchingMore) return;
 
     if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
-      console.log("scroll calling")
+      // console.log("scroll calling")
       fetchData(true);
     }
   };
@@ -196,19 +196,17 @@ export const RobotPopupComponent = ({
   /* ================= NORMALIZE ================= */
   const normalizedOps = useMemo(() => {
     return operations.map((op) => {
-      const isPipe = op.operation_type === "pipe_inspection";
+      const isPipe = op.op_type === "pipe inspection";
       return {
         ...op,
-        operation_type: op.operation_type || "manhole_cleaning",
-        start_ts: isPipe
-          ? op.pipe_inspection_starttime
-          : op.start_time || op.timestamp,
-        end_ts: isPipe ? op.pipe_inspection_endtime : op.end_time,
-        before_img: op.before_image_url || op.before_path || "",
-        after_img: op.after_image_url || op.after_path || "",
-        video: op.video_url || "",
-        lat: Number(op.latitude),
-        lng: Number(op.longitude),
+        operation_type: op.op_type || "manhole cleaning",
+        start_ts: op.op_start_time,
+        end_ts: op.op_end_time ,
+        before_img: op.before_op_image_url || op.before_path || "",
+        after_img: op.after_op_image_url || op.after_path || "",
+        video: op.op_video_url || "",
+        lat: Number(op.op_latitude),
+        lng: Number(op.op_longitude),
       };
     });
   }, [operations]);
@@ -216,18 +214,18 @@ export const RobotPopupComponent = ({
   /* ================= TAB FILTER ================= */
   const activeOps =
     activeTab === "pipe"
-      ? normalizedOps.filter((o) => o.operation_type === "pipe_inspection")
-      : normalizedOps.filter((o) => o.operation_type !== "pipe_inspection");
+      ? normalizedOps.filter((o) => o.op_type === "pipe inspection")
+      : normalizedOps.filter((o) => o.op_type !== "pipe inspection");
 
   const current = selectedHistory || activeOps[0];
 
   /* ================= MAP ================= */
   const hasValidLocation =
     current &&
-    !isNaN(current.lat) &&
-    !isNaN(current.lng) &&
-    current.lat !== 0 &&
-    current.lng !== 0;
+    !isNaN(current.op_latitude) &&
+    !isNaN(current.op_longitude) &&
+    current.op_latitude !== 0 &&
+    current.op_longitude !== 0;
 
   const RecenterMap = ({ lat, lng }) => {
     const map = useMap();
@@ -320,11 +318,11 @@ export const RobotPopupComponent = ({
 
         {/* CLOSE */}
         <button
-          onClick={closePopup}
-          className="absolute right-6 top-3 text-[30px] text-gray-500"
-        >
-         x
-        </button>
+            onClick={closePopup}
+            className="popup-btn absolute right-6 text-gray-500 hover:text-black text-5xl top-[10px] cursor-pointer "
+          >
+            ×
+          </button>
 
         {/* TABS */}
         <div className="flex gap-6 mt-2 border-b">
@@ -376,12 +374,12 @@ export const RobotPopupComponent = ({
       <div className="w-[48%] min-h-[420px]">
         <p className="text-sm text-[#676D7E]">
           <MapPin className="inline w-4 mr-2 text-[#0380FC]" />
-          Division: {current.division || "-"}
+          Division: {current.op_division || "-"}
         </p>
 
         <p className="text-sm text-[#676D7E] mt-2">
           <MapPinned className="inline w-4 mr-2 text-[#0380FC]" />
-          Section: {current.area || current.section || "-"}
+          Section: { current.op_section || "-"}
         </p>
 
         <div className="grid grid-cols-2 gap-y-6 mt-5 text-sm">
@@ -391,45 +389,89 @@ export const RobotPopupComponent = ({
             label="Operation Type"
             value={activeTab === "pipe" ? "Pipe Inspection" : "Manhole Cleaning"}
           />
-          <Info icon={Clock} label="Start Time" value={formatTime(current.start_ts)} />
-          <Info icon={Clock} label="End Time" value={formatTime(current.end_ts)} />
+          <Info icon={Clock} label="Start Time" value={formatTime(current.start_ts,current.op_division)} />
+          <Info icon={Clock} label="End Time" value={formatTime(current.end_ts,current.op_division)} />
           <Info
             icon={Clock}
             label="Task Duration"
             value={formatDuration(
-              current.operation_time_minutes || current.duration_seconds
+              current.op_duration_sec || current.duration_seconds
             )}
           />
           <Info icon={Calendar} label="Date" value={formatDate(current.start_ts)} />
         </div>
 
         {/* MAP */}
-        <div className="mt-6 bg-gray-100 p-2 rounded-lg">
-          <div className="flex justify-between pb-1">
-            <span>
-              {current?.latitude && current?.longitude
-                ? `${Number(current.latitude).toFixed(5)}, ${Number(
-                    current.longitude
-                  ).toFixed(5)}`
-                : "-"}
-            </span>
-            <span>Manhole ID : {current?.manhole_id || "-"}</span>
-          </div>
+                  <div className="w-full h-50 text-start text-[#21232C] mt-[24px] bg-gray-100 rounded-lg p-2">
 
-          <MapContainer
-            center={DEFAULT_CENTER}
-            zoom={15}
-            className="h-40 rounded-lg"
-          >
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            {hasValidLocation && (
-              <Marker position={[current.lat, current.lng]}>
-                <LeafletPopup>{current.area}</LeafletPopup>
-              </Marker>
-            )}
-            <RecenterMap lat={current.lat} lng={current.lng} />
-          </MapContainer>
+  {(() => {
+    const lat = Number(current?.op_latitude);
+    const lng = Number(current?.op_longitude);
+
+    // Check if valid and not 0
+    const isValidLocation =
+      !isNaN(lat) &&
+      !isNaN(lng) &&
+      lat !== 0 &&
+      lng !== 0;
+
+    // Default fallback location
+    const defaultLat = 17.45709;
+    const defaultLng = 78.37077;
+
+    // Final values
+    const finalLat = isValidLocation ? lat : defaultLat;
+    const finalLng = isValidLocation ? lng : defaultLng;
+
+    return (
+      <>
+        <div className="flex flex-row justify-between">
+          <h1 className="pb-1 text-start">
+            {`${finalLat.toFixed(5)}, ${finalLng.toFixed(5)}`}
+          </h1>
+
+          <h1>Manhole ID : {current?.mh_id}</h1>
         </div>
+
+        <div className="bd-gray">
+
+          {current ? (
+            <MapContainer
+              center={[finalLat, finalLng]}
+              zoom={15}
+              className="h-40 rounded-lg"
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+
+              <Marker position={[finalLat, finalLng]}>
+                <LeafletPopup>
+                  {current.area ||
+                    current.section ||
+                    "Unknown Location"}
+                </LeafletPopup>
+              </Marker>
+
+              <RecenterMap
+                lat={finalLat}
+                lng={finalLng}
+              />
+
+            </MapContainer>
+          ) : (
+            <p className="text-gray-500 flex items-center justify-center h-40">
+              No location available
+            </p>
+          )}
+
+        </div>
+      </>
+    );
+  })()}
+
+</div>
 
         <h1 className="text-[16px] mt-6">
           {activeTab === "pipe" ? "Operation Video" : "Operation Images"}
@@ -539,7 +581,7 @@ export const RobotPopupComponent = ({
         <CalendarIcon className="inline h-4 mr-1" />
         {formatDate(h.start_ts)}
         <ClockIcon className="inline h-4 ml-4 mr-1" />
-        {formatTime(h.start_ts)}
+        {formatTime(h.start_ts,current.op_division)}
       </div>
 
       <button
@@ -611,8 +653,26 @@ const formatDate = (ts) => {
   return ts ? new Date(ts).toLocaleDateString("en-GB") : "";
 
 }
-const formatTime = (ts) =>
-  ts ? new Date(ts).toLocaleTimeString("en-GB") : "-";
+  const formatTime = (timestamp,division) => {
+  if (!timestamp) return "-";
+
+  // Convert to Date
+  const date = new Date(timestamp);
+
+  // Add 5 hours 30 minutes (330 minutes)
+ const div = (division || "").toLowerCase().trim();
+
+  if (div.includes("durgam")) {
+    date.setMinutes(date.getMinutes() + 330); // 5h 30m
+  }
+
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${hours}:${minutes}:${seconds}`;
+};
 
 export const formatDuration = (totalSeconds) => {
   const secs = Number(totalSeconds);

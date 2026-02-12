@@ -1,10 +1,10 @@
 import React, { createContext, useState, useContext, useCallback, useRef } from 'react';
-import { fetchManholeData } from "../components/Api/DashboardMap"; // Import your API function
+import { fetchManholeData } from "../components/Api/DashboardMap"; 
 
 const MapContext = createContext();
 
 export const MapProvider = ({ children }) => {
-  // 1. Global State (Visible Data)
+  // 1. Global State
   const [manholeData, setManholeData] = useState([]);
   const [wardData, setWardData] = useState([]);
   const [buildingData, setBuildingData] = useState(null);
@@ -16,59 +16,59 @@ export const MapProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // 2. 🧠 MEMORY CACHE (The new part)
-  // Stores data like: { "S.R.Nagar-Somajiguda": { manholes: [...], wards: [...], buildings: ... } }
+  // 2. 🧠 MEMORY CACHE
   const dataCache = useRef({}); 
 
-  // 3. The Smart Fetch Function
+  // 3. The Fetch Function
   const fetchMapDataGlobal = useCallback(async (div, sec, zone) => {
-    // A. Cleanup if "All" is selected
+    // A. Cleanup if "All"
     if ((!div || div === "All") && (!sec || sec === "All")) {
+    //   console.log("🧹 Clearing Global Map Data");
       setManholeData([]); 
       setWardData([]); 
       setBuildingData(null); 
       return;
     }
     
-    // B. Generate a unique key for this request
+    // B. Generate Cache Key
     const cacheKey = `${div}-${sec}`;
 
-    // C. 🚀 CHECK CACHE FIRST (Instant Load)
+    // C. 🚀 CHECK CACHE (Instant Load)
     if (dataCache.current[cacheKey]) {
-        console.log(`⚡ Cache Hit! Loading ${sec} from memory...`);
         const cached = dataCache.current[cacheKey];
+        // console.log(`⚡ Cache Hit for ${sec}! Manholes: ${cached.manholes.length}, Buildings: ${cached.buildings ? 'Yes' : 'No'}`);
+        
         setManholeData(cached.manholes);
         setWardData(cached.wards);
         setBuildingData(cached.buildings);
-        return; // <--- STOP HERE, DO NOT CALL API
+        return cached; 
     }
 
-    // D. If not in cache, fetch from Network
+    // D. Fetch from Network
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log(`🌍 Global Fetch: ${div} -> ${sec}`);
+    //   console.log(`🌍 Global Fetching: ${div} -> ${sec}`);
       const zoneParam = (zone === "All") ? null : zone;
       
       const response = await fetchManholeData(div, sec, zoneParam);
 
-  // Inside fetchMapDataGlobal...
-
-      // A. Process Manholes
+      // --- 1. Process Manholes ---
       const rawManholes = response?.manholes?.data || [];
-      const safeManholes = rawManholes.map(mh => ({
-          ...mh,
-          id: String(mh.manhole_id || mh.id || "unknown"), 
-          timestamp: mh.last_operation_timestamp || mh.timestamp,
-          latitude: Number(mh.latitude || mh.lat || 0),
-          longitude: Number(mh.longitude || mh.lon || 0),
-          
-          // ✅ FIX: Don't overwrite with "All". Use the API data if available.
-          division: (div !== "All") ? div : (mh.division || mh.sw_mh_division_no || "N/A"),
-          section: (sec !== "All") ? sec : (mh.section || mh.section_name || "N/A")
-      }));
-      // --- Process Wards ---
+// Inside fetchMapDataGlobal try block
+const safeManholes = rawManholes.map(mh => ({
+    ...mh,
+    id: String(mh.manhole_id || "unknown"), 
+    timestamp: mh.last_operation_timestamp,
+    // 🟢 MATCH YOUR API KEYS HERE:
+    latitude: Number(mh.mh_latitude || 0),
+    longitude: Number(mh.mh_longitude || 0),
+    division: div,
+    section: sec
+}));
+
+      // --- 2. Process Wards ---
       const rawWards = response?.ward_coordinates?.data || [];
       const safeWards = rawWards.map(w => ({
           ...w,
@@ -76,13 +76,21 @@ export const MapProvider = ({ children }) => {
           longitude: Number(w.longitude),
       }));
 
-      // --- Process Buildings ---
+      // --- 3. Process Buildings (CRITICAL FIX) ---
       let safeBuildings = null;
       if (response.buildings) {
-          if (response.buildings.data) {
+          // Check for .data wrapper and unwrap it
+          if (response.buildings.data && Array.isArray(response.buildings.data.features)) {
+            //  console.log("🏢 Buildings Found (Unwrapped .data)");
              safeBuildings = response.buildings.data;
-          } else {
+          } 
+          // Check if it's already GeoJSON
+          else if (response.buildings.features && Array.isArray(response.buildings.features)) {
+            //  console.log("🏢 Buildings Found (Direct GeoJSON)");
              safeBuildings = response.buildings;
+          }
+          else {
+            //  console.log("⚠️ Buildings object exists but format is unknown:", response.buildings);
           }
       }
 
@@ -90,17 +98,19 @@ export const MapProvider = ({ children }) => {
       dataCache.current[cacheKey] = {
           manholes: safeManholes,
           wards: safeWards,
-          buildings: safeBuildings
+          buildings: safeBuildings 
       };
 
       // F. Update State
       setManholeData(safeManholes);
       setWardData(safeWards);
       setBuildingData(safeBuildings);
+      return { manholes: safeManholes, wards: safeWards, buildings: safeBuildings };
 
     } catch (err) {
       console.error("❌ Global Map Error:", err);
       setError("Failed to load data.");
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -112,10 +122,7 @@ export const MapProvider = ({ children }) => {
       setBuildingData(null);
   };
 
-  // Optional: Function to force refresh (ignore cache)
-  const refreshCache = () => {
-      dataCache.current = {};
-  };
+  const refreshCache = () => { dataCache.current = {}; };
 
   return (
     <MapContext.Provider value={{
@@ -124,7 +131,7 @@ export const MapProvider = ({ children }) => {
       selectedAreaName, setSelectedAreaName,
       selectedZone, setSelectedZone,
       isLoading, error,
-      fetchMapDataGlobal, 
+      fetchMapDataGlobal,
       clearMapData,
       refreshCache
     }}>

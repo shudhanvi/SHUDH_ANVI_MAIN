@@ -3,12 +3,10 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 // Your Mapbox access token
-mapboxgl.accessToken = "pk.eyJ1Ijoic2h1YmhhbWd2IiwiYSI6ImNtZDV2cmJneDAydngyanFzaW1oNTM3M24ifQ.7Jb5OXpznWqjyMeAuiXhrQ";
+mapboxgl.accessToken = "";
 
 const MapboxCore = ({
   mapRef,
-  centerToRestore,
-  zoomToRestore,
   styleUrl,
   manholeGeoJSON,
   wardGeoJSON,
@@ -24,359 +22,195 @@ const MapboxCore = ({
 }) => {
   const mapContainer = useRef(null);
   const popup = useRef(new mapboxgl.Popup({ offset: 15, closeOnClick: false, closeButton: false }));
-  const selectedManholeIdRef = useRef(null);
   const isPopupPinned = useRef(false);
-  
-  // ✅ FIX 1: Track current style to prevent loops/reloads
   const currentStyleRef = useRef(styleUrl);
 
-  // Refs for data stability
+  // Synchronized Constants
+  const MH_SOURCE = "shudh-manhole-source";
+  const MH_LAYER = "manhole-dots";
+  const BLDG_SOURCE = "shudh-building-source";
+  const BLDG_LAYER = "buildings-fill";
+  const WARD_SOURCE = "ward-polygon-source";
+  const WARD_LAYER = "ward-polygon-layer";
+
+  // Data Refs to prevent closure staleness
   const manholeDataRef = useRef(manholeGeoJSON);
-  const wardDataRef = useRef(wardGeoJSON);
   const buildingDataRef = useRef(buildingGeoJSON);
-  const statusFilterRef = useRef(statusFilter);
+  const wardDataRef = useRef(wardGeoJSON);
 
-  // Sync Refs
   useEffect(() => { manholeDataRef.current = manholeGeoJSON; }, [manholeGeoJSON]);
-  useEffect(() => { wardDataRef.current = wardGeoJSON; }, [wardGeoJSON]);
   useEffect(() => { buildingDataRef.current = buildingGeoJSON; }, [buildingGeoJSON]);
-  useEffect(() => { statusFilterRef.current = statusFilter; }, [statusFilter]);
+  useEffect(() => { wardDataRef.current = wardGeoJSON; }, [wardGeoJSON]);
 
-const drawLayers = useCallback(() => {
-    if (!mapRef.current || !mapRef.current.getStyle()) return;
-
-    const mapInstance = mapRef.current;
-    
-    // Define Empty Data Helper
-    const emptyGeo = { type: 'FeatureCollection', features: [] };
-
-    // ----------------------------------------------------
-    // 1. WARD POLYGONS
-    // ----------------------------------------------------
+  // --- SAFE QUERY HELPER (Fixes the "Layer does not exist" error) ---
+  const queryFeaturesSafe = (e, layers) => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded() || !map.getStyle()) return [];
     try {
-      const currentWardData = wardDataRef.current;
-      const hasData = currentWardData?.geometry?.coordinates?.[0]?.length >= 4;
-      let wardSource = mapInstance.getSource("ward-polygon-source");
+      const style = map.getStyle();
+      const existingLayers = style.layers.map(l => l.id);
+      const validLayers = layers.filter(l => existingLayers.includes(l));
+      if (validLayers.length === 0) return [];
+      return map.queryRenderedFeatures(e.point, { layers: validLayers });
+    } catch (err) { return []; }
+  };
 
-      if (hasData) {
-        // Draw Data
-        if (!wardSource) mapInstance.addSource("ward-polygon-source", { type: "geojson", data: currentWardData });
-        else wardSource.setData(currentWardData);
+  // --- POPUP HTML HELPERS ---
+  const createManholeHTML = (f) => {
+    const p = f.properties;
+    const pid = p.manhole_id || p.id || 'N/A';
+    const dateVal = p.last_operation_timestamp || p.timestamp;
+    let displayDate = (dateVal && typeof formatExcelDate === 'function') ? formatExcelDate(dateVal) : "No Record";
+    if (displayDate === "Invalid Date") displayDate = "No Record";
 
-        if (!mapInstance.getLayer("ward-polygon-layer")) {
-           mapInstance.addLayer({
-             id: "ward-polygon-layer", type: "fill", source: "ward-polygon-source",
-             paint: { "fill-color": "#1d4ed8", "fill-opacity": 0.1 }
-           });
-        }
-        if (!mapInstance.getLayer("ward-outline-layer")) {
-           mapInstance.addLayer({
-             id: "ward-outline-layer", type: "line", source: "ward-polygon-source",
-             paint: { "line-color": "#1d4ed8", "line-width": 2 }
-           });
-        }
-      } else if (wardSource) {
-        // 🧹 CLEAR DATA (Fix: Reset to empty instead of removing source to prevent errors)
-        wardSource.setData(emptyGeo); 
-      }
-    } catch (e) { console.error(e); }
+    return `<div style="font-family:sans-serif;padding:5px;text-align:center;color:#333;">
+              <strong>ID:</strong> ${pid}<br/>
+              <strong>Last Cleaned:</strong> ${displayDate}
+            </div>`;
+  };
 
-    // ----------------------------------------------------
-    // 2. BUILDINGS
-    // ----------------------------------------------------
-   // ----------------------------------------------------
-    // 3. MANHOLES (Inside drawLayers in MapboxCore.jsx)
-    // ----------------------------------------------------
+  const createBuildingHTML = (p) => {
+    return `<div style="font-family:sans-serif;padding:5px;color:#333;">
+              <strong style="display:block;border-bottom:1px solid #ccc;margin-bottom:4px;">Building Info</strong>
+              <b>Use:</b> ${p.landuse || 'N/A'}<br/>
+              <b>Address:</b> ${p.address || 'N/A'}
+            </div>`;
+  };
+
+  // --- DRAWING LOGIC ---
+  const drawLayers = useCallback(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded() || !map.getStyle()) return;
+
     try {
-      let manholeSource = mapInstance.getSource("manholes");
-      
-      // 1. Update Data
-      if (manholeSource) {
-        manholeSource.setData(manholeGeoJSON);
-      } else if (manholeGeoJSON && manholeGeoJSON.features.length > 0) {
-        mapInstance.addSource("manholes", { 
-            type: "geojson", 
-            data: manholeGeoJSON, 
-            promoteId: "id" // <--- Important: Tells Mapbox to use the top-level 'id'
-        });
-      mapInstance.addLayer({
-          id: "manhole-dots",
-          type: "circle",
-          source: "manholes",
+      // 1. MANHOLES
+      const mhData = manholeDataRef.current || { type: 'FeatureCollection', features: [] };
+      if (!map.getSource(MH_SOURCE)) map.addSource(MH_SOURCE, { type: "geojson", data: mhData, promoteId: "id" });
+      else map.getSource(MH_SOURCE).setData(mhData);
+
+      if (!map.getLayer(MH_LAYER)) {
+        map.addLayer({
+          id: MH_LAYER, type: "circle", source: MH_SOURCE,
+          metadata: { "mapbox:group": "custom" },
           paint: {
-            // Selected = Radius 8, Unselected = Radius 5
-            "circle-radius": ["case", ["boolean", ["feature-state", "selected"], false], 8, 5],
-            "circle-stroke-width": 1.5,
-            "circle-stroke-color": "#fff",
-            // Selected = Blue (#3b82f6), Unselected = Status Color
-            "circle-color": [
-              "case", 
-              ["boolean", ["feature-state", "selected"], false], "#3b82f6", 
-              ["match", ["get", "status"], "safe", "#22c55e", "warning", "#fbbf24", "danger", "#ef4444", "#ccc"]
-            ],
-          },
+            "circle-radius": 6, "circle-stroke-width": 1.5, "circle-stroke-color": "#fff",
+            "circle-color": ["match", ["get", "status"], "safe", "#22c55e", "warning", "#fbbf24", "danger", "#ef4444", "#ccc"]
+          }
         });
-      }
-      
-      // 2. Clear OLD Selection (Fixes the "Blue Glitch")
-      // This wipes the 'selected' state from ALL manholes first
-      if (mapInstance.getSource("manholes")) {
-          mapInstance.removeFeatureState({ source: 'manholes' });
       }
 
- if (selectedManholeId && mapInstance.getSource("manholes")) {
-         // console.log("🔵 Highlight ID:", selectedManholeId);
-         try {
-             mapInstance.setFeatureState(
-                 { source: 'manholes', id: selectedManholeId },
-                 { selected: true }
-             );
-         } catch (err) {
-             console.error("Failed to select manhole:", err);
-         }
-      }
-    } catch (e) { console.error(e); }
-    // ----------------------------------------------------
-    // 3. MANHOLES
-    // ----------------------------------------------------
-    try {
-      let manholeSource = mapInstance.getSource("manholes");
-      
-      // Always update data, even if empty. This clears the dots.
-      if (manholeSource) {
-        manholeSource.setData(manholeDataRef.current || emptyGeo);
-      } else if (manholeDataRef.current && manholeDataRef.current.features.length > 0) {
-        // Only add source if we actually have data to show
-        mapInstance.addSource("manholes", { type: "geojson", data: manholeDataRef.current, promoteId: "id" });
-        mapInstance.addLayer({
-          id: "manhole-dots", type: "circle", source: "manholes",
-          paint: {
-            "circle-radius": 5, "circle-stroke-width": 1.5, "circle-stroke-color": "#fff",
-            "circle-color": [
-              "case", ["boolean", ["feature-state", "selected"], false], "#3b82f6",
-              ["match", ["get", "status"], "safe", "#22c55e", "warning", "#fbbf24", "danger", "#ef4444", "#ccc"],
-            ],
-          },
-        });
-      }
-      
-      // Update Filters
-      if (mapInstance.getLayer("manhole-dots")) {
-        const filterExpr = statusFilterRef.current === "all" ? null : ["==", ["get", "status"], statusFilterRef.current];
-        mapInstance.setFilter("manhole-dots", filterExpr);
-      }
-      
-      // Update Selection
- 
-      if (selectedManholeIdRef.current !== null) {
-        // Only try to select if source exists
-        if (mapInstance.getSource("manholes")) {
-            mapInstance.setFeatureState({ source: 'manholes', id: selectedManholeIdRef.current }, { selected: true });
+      // 2. BUILDINGS
+      const bldgData = buildingDataRef.current;
+      if (bldgData?.features?.length > 0) {
+        if (!map.getSource(BLDG_SOURCE)) map.addSource(BLDG_SOURCE, { type: "geojson", data: bldgData });
+        else map.getSource(BLDG_SOURCE).setData(bldgData);
+        if (!map.getLayer(BLDG_LAYER)) {
+          map.addLayer({
+            id: BLDG_LAYER, type: "fill", source: BLDG_SOURCE,
+            paint: { "fill-color": "#3b82f6", "fill-opacity": 0.4, "fill-outline-color": "#fff" }
+          });
         }
       }
-    } catch (e) { console.error(e); }
 
+      // 3. WARD
+      const wardData = wardDataRef.current;
+      if (wardData?.features?.length > 0) {
+        if (!map.getSource(WARD_SOURCE)) map.addSource(WARD_SOURCE, { type: "geojson", data: wardData });
+        else map.getSource(WARD_SOURCE).setData(wardData);
+        if (!map.getLayer(WARD_LAYER)) {
+          map.addLayer({ id: WARD_LAYER, type: "fill", source: WARD_SOURCE, paint: { "fill-color": "#1d4ed8", "fill-opacity": 0.05 } });
+        }
+      }
+
+      if (map.getLayer(MH_LAYER)) map.moveLayer(MH_LAYER);
+    } catch (e) { console.warn("Drawing Error:", e.message); }
   }, [mapRef]);
 
-  // --- MAP INITIALIZATION & EVENT LISTENERS ---
+  // --- INITIALIZATION ---
   useEffect(() => {
     if (mapRef.current) return;
-    // Don't init without style, but we use styleUrl prop initially
-    const initialStyle = styleUrl || "mapbox://styles/mapbox/streets-v11";
-
-    // Create Map
-    const mapInstance = new mapboxgl.Map({
+    const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: initialStyle,
+      style: styleUrl || "mapbox://styles/mapbox/streets-v11",
       center: [78.4794, 17.3940],
-      zoom: 9.40,
-      doubleClickZoom: false,
-  
+      zoom: 9.4,
+      doubleClickZoom: false
     });
-    mapRef.current = mapInstance;
-    mapInstance.addControl(new mapboxgl.NavigationControl(), "top-left");
+    mapRef.current = map;
 
-    const handleStyleLoad = () => {
-      drawLayers();
-      if (centerToRestore?.current) {
-        mapInstance?.jumpTo({ center: centerToRestore.current, zoom: zoomToRestore.current });
-        centerToRestore.current = null;
+    const onReady = () => { drawLayers(); };
+    map.on("load", onReady);
+    map.on("style.load", onReady);
+    map.on("idle", () => { if (!map.getSource(MH_SOURCE)) drawLayers(); });
+
+    map.on("click", (e) => {
+      const mhHits = queryFeaturesSafe(e, [MH_LAYER]);
+      if (mhHits.length > 0) {
+        onManholeClick?.(mhHits[0]);
+        popup.current.setLngLat(mhHits[0].geometry.coordinates).setHTML(createManholeHTML(mhHits[0])).addTo(map);
+        isPopupPinned.current = true;
+        return;
       }
-    };
-
-    mapInstance.on("load", drawLayers);
-    mapInstance.on("style.load", handleStyleLoad);
-
-    // ✅ FIX 2: Correct Date Resolution Logic
-    const resolveDate = (feature) => {
-      const popupId = String(feature.properties.id);
-      
-      // 1. Try to get date from parent function (most reliable)
-      let resolvedDate = (typeof getManholeDateById === 'function') 
-          ? getManholeDateById(popupId) 
-          : null;
-
-      // 2. If parent function fails, fallback to feature property
-      // IMPORTANT: Changed 'date_for_status' to 'timestamp' to match MapComponent data
-      if (!resolvedDate) {
-          resolvedDate = feature.properties.timestamp || feature.properties.last_operation_timestamp;
+      const bldgHits = queryFeaturesSafe(e, [BLDG_LAYER]);
+      if (bldgHits.length > 0) {
+        onBuildingClick?.(bldgHits[0]);
+        popup.current.setLngLat(e.lngLat).setHTML(createBuildingHTML(bldgHits[0].properties)).addTo(map);
+        isPopupPinned.current = true;
+        return;
       }
-      
-      return resolvedDate;
-    };
-
-    const createPopupHTML = (id, dateValue) => {
-      let displayDate = (dateValue && typeof formatExcelDate === 'function') 
-          ? formatExcelDate(dateValue) 
-          : "No Record";
-      
-      // Extra check: if formatExcelDate returned "Invalid Date", show "No Record" instead
-      if (displayDate === "Invalid Date") displayDate = "No Record";
-
-      return `<div id="mhpop" style="font-size:12px;padding:4px;text-align:center;background:white;color:#333;"><strong>ID:</strong> ${id}<br/><strong>Last Cleaned:</strong> ${displayDate}</div>`;
-    };
-
-    // --- HELPER: SAFE QUERY (Prevents Crash on Style Change) ---
-    const queryFeaturesSafe = (e, layers) => {
-        try {
-            if(!mapInstance.isStyleLoaded()) return [];
-            // Filter out layers that don't exist yet
-            const validLayers = layers.filter(l => mapInstance.getLayer(l));
-            if(validLayers.length === 0) return [];
-            return mapInstance.queryRenderedFeatures(e.point, { layers: validLayers });
-        } catch (err) { return []; }
-    };
-
-    // --- EVENT: CLICK MANHOLE ---
-    mapInstance.on("click", (e) => {
-      // 1. Check Manholes
-      const manholeFeatures = queryFeaturesSafe(e, ['manhole-dots']);
-      if (manholeFeatures.length > 0) {
-          const feature = manholeFeatures[0];
-          if (!onManholeClick) return;
-          popup.current.remove();
-          onManholeClick(feature);
-          const popupId = String(feature.properties.id ?? 'N/A');
-          popup.current.setLngLat(feature.geometry.coordinates).setHTML(createPopupHTML(popupId, resolveDate(feature))).addTo(mapInstance);
-          isPopupPinned.current = true;
-          return;
-      }
-
-      // 2. Check Buildings (if no manhole clicked)
-      const buildingFeatures = queryFeaturesSafe(e, ['buildings-fill']);
-      if (buildingFeatures.length > 0) {
-          const feature = buildingFeatures[0];
-          const p = feature.properties;
-          const popupHtml = `
-            <div style="font-family: sans-serif; min-width: 180px; padding: 2px;">
-                <h3 style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 4px;">Building Information</h3>
-                <div style="font-size: 12px; display: grid; grid-template-columns: 60px 1fr; gap: 4px;">
-                    <span style="color: #666; font-weight: 600;">Use:</span>
-                    <span style="text-transform: capitalize;">${p.landuse || 'N/A'}</span>
-                    <span style="color: #666; font-weight: 600;">Address:</span>
-                    <span>${p.address || 'N/A'}</span>
-                </div>
-            </div>`;
-          popup.current.setLngLat(e.lngLat).setHTML(popupHtml).addTo(mapInstance);
-          isPopupPinned.current = true;
-          return;
-      }
-
-      // 3. Clicked Empty Space
       popup.current.remove();
       isPopupPinned.current = false;
-      if (selectedManholeIdRef.current && onManholeDeselect) onManholeDeselect();
+      onManholeDeselect?.();
     });
 
-    // --- CURSOR POINTERS ---
-    mapInstance.on("mousemove", (e) => {
-        const hits = queryFeaturesSafe(e, ['manhole-dots', 'buildings-fill']);
-        mapInstance.getCanvas().style.cursor = hits.length > 0 ? "pointer" : "";
-
-        // Show hover popup for Manholes ONLY (if not pinned)
-        const manholeHits = queryFeaturesSafe(e, ['manhole-dots']);
-        if (manholeHits.length > 0 && !isPopupPinned.current) {
-            const f = manholeHits[0];
-            const pid = String(f.properties.id ?? 'N/A');
-            popup.current.setLngLat(f.geometry.coordinates).setHTML(createPopupHTML(pid, resolveDate(f))).addTo(mapInstance);
-        } else if (!isPopupPinned.current) {
-            popup.current.remove();
-        }
+    map.on("mousemove", (e) => {
+      const allHits = queryFeaturesSafe(e, [MH_LAYER, BLDG_LAYER]);
+      if (map.getCanvas()) map.getCanvas().style.cursor = allHits.length > 0 ? "pointer" : "";
+      
+      const mhHover = queryFeaturesSafe(e, [MH_LAYER]);
+      if (mhHover.length > 0 && !isPopupPinned.current) {
+        popup.current.setLngLat(mhHover[0].geometry.coordinates).setHTML(createManholeHTML(mhHover[0])).addTo(map);
+      } else if (!isPopupPinned.current) {
+        popup.current.remove();
+      }
     });
 
-    return () => { if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; } };
-  }, []); // Run once on mount
+    return () => map.remove();
+  }, []);
 
   // --- UPDATES ---
-  
-  // 1. Data Update: Re-draw layers
-  useEffect(() => { 
-      if (mapRef.current && mapRef.current.isStyleLoaded()) drawLayers(); 
-  }, [manholeGeoJSON, wardGeoJSON, buildingGeoJSON, mapRef, drawLayers]);
+  useEffect(() => { if (mapRef.current?.isStyleLoaded()) drawLayers(); }, [manholeGeoJSON, buildingGeoJSON, drawLayers]);
 
-  // 2. Style Update (FIXED FOR DATA PERSISTENCE)
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !styleUrl) return;
-    
-    // Prevent reloading if style hasn't changed
-    if (currentStyleRef.current === styleUrl) return;
-    currentStyleRef.current = styleUrl;
-
-    // Apply Style
-    map.setStyle(styleUrl);
-
-    // Listen for 'styledata' - this fires when the new style is ready.
-    // We then immediately re-draw your layers so they don't disappear.
-    const onStyleData = () => {
-       if (map.isStyleLoaded() && !map.getSource('manholes')) {
-           drawLayers(); 
-       }
-    };
-
-    map.on('styledata', onStyleData);
-    return () => { map.off('styledata', onStyleData); };
-  }, [styleUrl, drawLayers]);
-
-  // 3. Filter Update
-  useEffect(() => {
-    if (!mapRef.current || !mapRef.current.isStyleLoaded() || !mapRef.current.getLayer("manhole-dots")) return;
-    try {
-      const filterExpr = statusFilter === "all" ? null : ["==", ["get", "status"], statusFilter];
-      mapRef.current.setFilter("manhole-dots", filterExpr);
-    } catch (e) { }
-  }, [statusFilter, mapRef]);
-
-  // 4. Selection Update
-  useEffect(() => {
-    selectedManholeIdRef.current = selectedManholeId;
-    if (mapRef.current && mapRef.current.isStyleLoaded()) drawLayers(); 
-    if (selectedManholeId === null) {
-      isPopupPinned.current = false;
-      popup.current.remove();
+    if (map && styleUrl && currentStyleRef.current !== styleUrl) {
+      currentStyleRef.current = styleUrl;
+      map.setStyle(styleUrl);
     }
-  }, [selectedManholeId, mapRef, drawLayers]);
+  }, [styleUrl]);
 
-  // 5. FlyTo Update
   useEffect(() => {
-    if (!mapRef.current || !flyToLocation) return;
-    const mapInstance = mapRef.current;
-    try {
-      if (flyToLocation.bounds) {
-        isPopupPinned.current = false;
-        popup.current.remove();
-        mapInstance.fitBounds(flyToLocation.bounds, { padding: flyToLocation.padding || 40, duration: 1000 });
-      } else if (flyToLocation.center) {
-        const currentCenter = mapInstance.getCenter();
-        const targetCenter = flyToLocation.center;
-        const dist = Math.sqrt(Math.pow(currentCenter.lng - targetCenter[0], 2) + Math.pow(currentCenter.lat - targetCenter[1], 2));
-        if (dist > 0.00001) mapInstance.flyTo({ center: targetCenter, zoom: flyToLocation.zoom || 18, duration: 1000 });
-        else if (mapInstance.getZoom() !== (flyToLocation.zoom || 18)) mapInstance.zoomTo(flyToLocation.zoom || 18, { duration: 500 });
+    const map = mapRef.current;
+    if (!map) return;
+    const performZoom = () => {
+      if (flyToLocation?.center) {
+        map.flyTo({ center: flyToLocation.center, zoom: flyToLocation.zoom || 17, essential: true, duration: 1500 });
+        return;
       }
-    } catch (e) { }
-  }, [flyToLocation, mapRef]);
+      const mhFeatures = manholeGeoJSON?.features || [];
+      const bounds = new mapboxgl.LngLatBounds();
+      let hasCoords = false;
+      mhFeatures.forEach(f => {
+        const [lng, lat] = f.geometry.coordinates;
+        if (lng !== 0 && lat !== 0) { bounds.extend([lng, lat]); hasCoords = true; }
+      });
+      if (hasCoords && !bounds.isEmpty()) map.fitBounds(bounds, { padding: 80, duration: 1500, maxZoom: 16, essential: true });
+    };
+    if (map.isStyleLoaded()) performZoom();
+    else map.once("idle", performZoom);
+  }, [manholeGeoJSON, flyToLocation]);
 
-  return <div ref={mapContainer} className="h-full w-full " />;
+  return <div ref={mapContainer} className="h-full w-full" />;
 };
 
-export default memo(MapboxCore);  
+export default memo(MapboxCore);

@@ -32,11 +32,16 @@ export const WardReportsComponent = ({ city, division, section }) => {
 
     // ✅ **FIX: Mapped the prop names to the keys required by the backend.**
     const payload = {
-      district: city,     // 'city' prop is now sent as 'district'
-      division: division, // This name was correct
-      area: section,
-      dateRange: { from: fromDate, to: toDate },   // 'section' prop is now sent as 'area'
-      command: "generate_ward_report",
+      district: city,
+      division: division,
+      section: section,
+      from_date: fromDate || null,
+      to_date: toDate || null
+      // district: city,     // 'city' prop is now sent as 'district'
+      // division: division, // This name was correct
+      // area: section,
+      // dateRange: { from: fromDate, to: toDate },   // 'section' prop is now sent as 'area'
+      // command: "generate_ward_report",
     };
 
     // console.log("Sending corrected payload to backend:", payload);

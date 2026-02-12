@@ -349,6 +349,7 @@ export const RobotReportsComponent = ({ division, section, city }) => {
   const [selectAll, setSelectAll] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [reportLoading,setReportLoading]=useState(false)
   const [reportData, setReportData] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
@@ -398,7 +399,7 @@ export const RobotReportsComponent = ({ division, section, city }) => {
 
         if (cancelled) return;
 
-        const ids = response.data?.Robots_All_Ids_Data || [];
+        const ids = response.data?.robot_ids || [];
 
         const normalized = ids.map((id) => ({
           device_id: id,
@@ -489,20 +490,26 @@ export const RobotReportsComponent = ({ division, section, city }) => {
       return;
     }
 
-    setIsLoading(true);
+    setReportData(true);
 
     const payload = {
-      selectedRobots,
-      userInputs: {
-        division,
-        section,
-        city,
-        dateRange: {
-          from: fromDate ? fromDate : null,
-          to: toDate ? toDate : null,
-        },
-      },
-      command: "generate_robot_report",
+      district: city,
+      division: division,
+      section: section,
+      from_date: fromDate || null,
+      to_date: toDate || null,
+      selected_robots: selectedRobots || []
+      // selectedRobots,
+      // userInputs: {
+      //   division,
+      //   section,
+      //   city,
+      //   dateRange: {
+      //     from: fromDate ? fromDate : null,
+      //     to: toDate ? toDate : null,
+      //   },
+      // },
+      // command: "generate_robot_report",
     };
 
     try {
@@ -603,10 +610,10 @@ export const RobotReportsComponent = ({ division, section, city }) => {
             </p>
             <button
               onClick={handleViewReport}
-              disabled={isLoading}
+              disabled={reportLoading}
               className="px-6 py-2.5 text-white font-semibold rounded-lg shadow-md transition-colors bg-[#1E9AB0] cursor-pointer"
             >
-              {isLoading ? "Loading..." : "View Report"}
+              {reportLoading ? "Loading..." : "View Report"}
             </button>
           </div>
         </div>

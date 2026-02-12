@@ -6,7 +6,7 @@ export const fetchManholeData = async (division = "", section = "", zone = "") =
   if (!section || section === "All") return [];
   
   const cleanZone = (zone && zone !== "All") ? zone : null;
-  console.log("📡 API Sending:", { division, section, zone: cleanZone });
+  // console.log("📡 API Sending:", { division, section, zone: cleanZone });
 
   try {
     // A. Standard Data
@@ -20,17 +20,22 @@ export const fetchManholeData = async (division = "", section = "", zone = "") =
 
     // B. 🟢 Inject External Buildings for Somajiguda
     if (String(section).toLowerCase().includes("somajiguda")) {
-        console.log("🏗️ Detected Somajiguda: Fetching external buildings...");
+        // console.log("🏗️ Detected Somajiguda: Fetching external buildings...");
         
         try {
             const PROXY_URL = backendApi.building_data;
             
             // ✅ FIX: Axios usage
-            const buildingRes = await axios.post(PROXY_URL, { section: section });
+            const buildingRes = await axios.post(PROXY_URL,
+              {
+                district: "Hyderabad",
+                division: division,
+                section: section
+              });
             
             // Axios returns data in .data, and status in .status
             if (buildingRes.status === 200 && buildingRes.data) {
-                console.log(`✅ Successfully injected buildings`);
+                //  console.log(`✅ Successfully injected buildings`);
                 finalData.buildings = buildingRes.data; // Assign direct JSON data
             }
         } catch (bErr) {

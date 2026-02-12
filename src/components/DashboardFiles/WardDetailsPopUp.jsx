@@ -7,17 +7,18 @@ import Alerts from "./Alerts";
 
 const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selectedWard, setSelectedWard }) => { // Using onClose passed from MapComponent
 
+  // console.log("WardDetailsPopUp received wardData:", wardData);
   const [activeTab, setActiveTab] = useState("details");
   // const [isLoading, setIsLoading] = useState(false); // For report loading state
 
   if (!wardData) {
-    console.error("WardDetailsPopUp received undefined wardData prop.");
+    console.error("WardDetailsPopUp received ",wardData);
     return null; // Don't render if data is missing
   }
 
   // Destructure properties from wardData for easier access
   const {
-    "s.no": sNo,
+    "s.no": sNo ,
     "S.no": SNo,
     Population,
     Total_sewer_length,
@@ -27,16 +28,48 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
     "no_of_robo's": noOfRobos,
     perimeter,
     ward_id,
-    zone, // Corresponds to 'division' for the API
+    division, // Corresponds to 'division' for the API
     area_name,
     waste_colleccted,
   } = wardData;
 
-  const finalSNo = sNo || SNo || wardData.s_no || "N/A";
+  const Wardpopupdata={
+   kondapur:{ 
+    Population: "",
+    SNo: "02",
+    Total_sewer_length: "",
+    area: "",
+    area_name: "Kondapur",
+    landuse_classes: "",
+    noOfRobos: "01",
+    no_of_manholes: "02",
+    perimeter: "",
+    sNo: "",
+    ward_id: "",
+    waste_colleccted: ""||"-",
+    zone: ""
+},
+  somajiguda:{Population: "29,830 (approx)",
+    SNo: "01",
+    Total_sewer_length: "47719.45 kms",
+    area: "1.19 sq.kms (approx)",
+    area_name: "Somajiguda",
+    landuse_classes: "03",
+    noOfRobos: "50",
+    no_of_manholes: "2324",
+    perimeter: "",
+    sNo: "",
+    ward_id: "",
+    waste_colleccted: "",
+    zone: ""
+  }
+}
+  // console.log("Destructured wardData:", { sNo, SNo, Population, Total_sewer_length, area, landuse_classes, no_of_manholes, noOfRobos, perimeter, ward_id, division, area_name, waste_colleccted });
+  const finalSNo = sNo || SNo || wardData.s_no || "01";
 
   // --- Calculate total alert count using useMemo ---
   const totalAlertCount = useMemo(() => {
-    if (!alertData) return 0; // Handle case where alertData might be undefined/null initially
+    if (!alertData) return 0; // Handle case where alertData might be "",/null initially
     return alertData.reduce((count, zoneGroup) => count + (zoneGroup.alerts?.length || 0), 0); // Safely sum lengths
   }, [alertData]);
   // --- End calculation ---
@@ -45,55 +78,6 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
   const activeClasses =
     "bg-[#1E9AB033] text-gray-900 font-bold hover:text-gray-800"; // Added font-bold for active
   const inactiveClasses = "text-gray-600 hover:text-gray-800";
-
-  // Function to handle report generation API call
-  // const handleOpenReport = async () => {
-  //   setIsLoading(true);
-  //   // setReportData(null); // Reset report data if managing state here
-  //   // setShowPopup(false); // Hide previous popup if managing state here
-  //   const payload = {
-  //     division: zone,
-  //     area: area_name,
-  //     command: "generate_ward_report",
-  //   };
-
-
-
-  //   try {
-  //     // --- Replace with your actual API endpoint ---
-  //     // MOCK RESPONSE:
-  //     await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate delay
-  //     const mockResponseData = {
-  //             message: "Report generated successfully (mock)",
-  //             data: { /* ... mock data ... */ }
-  //     };
-  //     const response = {
-  //         ok: true, status: 200,
-  //         json: async () => (mockResponseData)
-  //     };
-  //     // const response = await fetch(backendApi.wardsReportUrl, { method: "POST", /*...*/ });
-  //     // --- END MOCK / Replace ---
-
-  //     if (!response.ok) {
-  //       if (response.status === 400) {
-  //          const errorData = await response.json().catch(() => ({ message: "Server returned a 400 Bad Request." }));
-  //          throw new Error(`Server validation error: ${JSON.stringify(errorData)}`);
-  //        }
-  //       throw new Error(`Server error: ${response.status}`);
-  //     }
-
-  //     const data = await response.json();
-
-
-  //     alert("Report generated successfully! (Check console for mock data)"); // Simple alert for now
-  //   } catch (error) {
-  //     console.error("Error fetching ward report:", error);
-  //     alert(`Failed to generate the report. ${error.message}`);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
 
   return (
     // Main container with overflow handling
@@ -107,22 +91,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
       >
         <div className="flex flex-col justify-center relative align-middle gap-2 text-white text-left">
           <h1 className="text-xl font-bold ">{`Ward: ${area_name}`}</h1>
-          <p className="text-[12px]">{`Division :${zone}`}</p>
-          {/* <button
-              type="button"
-              className="btn-hover cursor-pointer"
-              style={{
-                backgroundColor: "green",
-                padding: "10px 20px",
-                borderRadius: "5px",
-                color: "white",
-                fontWeight: "bold",
-                fontSize: "16px",
-              }}
-              onClick={() => handleOpenReport()}
-            >
-              Generate Report
-            </button> */}
+          <p className="text-[12px]">{`Division :${division}`}</p>
 
         </div>
         <button
@@ -194,7 +163,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
                       No. of Manholes
                     </td>
                     <td className="p-2 border border-gray-400">
-                      {no_of_manholes ?? "2000"}
+                      {no_of_manholes ?? "2458"}
                     </td>
                   </tr>
                   <tr>
@@ -229,7 +198,7 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
                     <td className="p-2 font-semibold border border-gray-400">
                       Perimeter (m)
                     </td>
-                    <td className="p-2 border border-gray-400">{perimeter}</td>
+                    <td className="p-2 border border-gray-400">{perimeter || "N/A"}</td>
                   </tr>
                   <tr>
                     <td className="p-2 font-semibold border border-gray-400">
@@ -266,3 +235,6 @@ const WardDetailsPopUp = ({ wardData, alertData, onManholeSelect, onClose, selec
 };
 
 export default WardDetailsPopUp;
+
+
+

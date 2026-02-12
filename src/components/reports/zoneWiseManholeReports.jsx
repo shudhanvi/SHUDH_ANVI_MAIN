@@ -8,7 +8,7 @@ import { backendApi } from "../../utils/backendApi";
 import axios from "axios";
 
 /* ======================================================
-   🔒 MODULE-LEVEL IN-MEMORY CACHE (SURVIVES UNMOUNT)
+🔒 MODULE-LEVEL IN-MEMORY CACHE (SURVIVES UNMOUNT)
 ====================================================== */
 const manholeCache = new Map();
 
@@ -61,7 +61,7 @@ export const ZoneWiseManholeReports = ({ zone, userInputs, onBack }) => {
 
       try {
         const { city, division, section } = userInputs;
-
+        // console.log(zone, city, division, section);
         const response = await axios.post(
           `${backendApi.manholesurl}?doc_id=${parseInt(zone)}`,
           { city, division, section }
@@ -145,13 +145,18 @@ export const ZoneWiseManholeReports = ({ zone, userInputs, onBack }) => {
     setIsLoading(true);
 
     const payload = {
-      selectedManholes,
-      userInputs: {
-        ...userInputs,
-        dateRange: { from: fromDate, to: toDate },
-      },
-      zone,
-      command: "generate_manhole_report",
+      district: userInputs?.city,
+      division: userInputs?.division,
+      section: userInputs?.section,
+      from_date: userInputs?.dateRange?.from,
+      to_date: userInputs?.dateRange?.to,
+      selected_manholes: selectedManholes
+      // selectedManholes,
+      // userInputs: {
+      //   ...userInputs,
+      //   dateRange: { from: fromDate, to: toDate },
+      // },
+      // zone,
     };
 
     try {

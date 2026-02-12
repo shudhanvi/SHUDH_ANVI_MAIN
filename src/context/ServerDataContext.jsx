@@ -242,7 +242,7 @@ export const ServerDataProvider = ({ children }) => {
       setData(prev => ({ ...prev, [key]: tableData }));
  
       // 👇 THIS LOG IS CRITICAL. Check your Console!
-      console.log(`✅ Fetched ${key}: Found ${tableData.length} items`);
+      // console.log(`✅ Fetched ${key}: Found ${tableData.length} items`);
  
     } catch (err) {
       console.error(`❌ Error fetching ${key}:`, err);

@@ -17,7 +17,7 @@ export const Robots = () => {
   const serverData = useServerData();
   const { data } = serverData;
 
-  console.log("ServerDataContext:", serverData);
+  // console.log("ServerDataContext:", serverData);
 
   const [inputError, setInputError] = useState(userInputsErrorObj);
   const [userInputs, setUserInputs] = useState(userInputsObj);
@@ -78,7 +78,7 @@ export const Robots = () => {
     loadRobotSummary();
   }, [showFiltered, appliedFilters]);
 
-  console.log(robotSummary)
+  // console.log(robotSummary)
 
   const handleInput = (key, value) => {
     setUserInputs(prev => {
@@ -207,7 +207,6 @@ export const Robots = () => {
               <Calendar className="absolute top-8 right-2 text-gray-600" />
             </div>
 
-
             <div className=" text-start relative w-[-webkit-fill-available]">
               <label className="block font-semibold mb-1">To Date</label>
               <DatePicker
@@ -264,7 +263,7 @@ export const Robots = () => {
                       const activerobotdata= {
                         device_id: item.device_id,
                         division: userInputs.division,
-                        section: item.area  ,
+                        section: item.section,
                         count:item.operations_count,
                         from_date:userInputs.fromDate,
                         to_date:userInputs.toDate
@@ -303,7 +302,7 @@ export const Robots = () => {
 
                           <p className="flex items-center mb-2">
                             <MapPin className="inline-block w-4 h-4 mr-1 mb-1" />
-                            Ward: {item.area }
+                            Ward: {item.section }
                           </p>
                         </div>
                       </div>
@@ -352,7 +351,7 @@ export const Robots = () => {
         )}
       </section>
 
-{console.log("9876543",activeRobot)}
+{/* {console.log("9876543",activeRobot)} */}
 {showPopup && activeRobot && (
   <RobotPopupComponent
     activeRobot = {activeRobot}
