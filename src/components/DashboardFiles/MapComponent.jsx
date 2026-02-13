@@ -342,123 +342,126 @@ else if (manholeData.length > 0) {
    [selectedAreaName]);
 
   return (
-    // 1. PARENT: Fixed height (e.g., h-[85vh]) ensures both sides are always equal height
-    <div className="w-full flex flex-row max-w-[2400px] gap-4 h-[85vh] max-h-[1200px] p-2">
-      
-      {/* --- Left section (Map + Controls) --- */}
-      <div className="shadow-md shadow-gray-300 p-4 rounded-xl bg-white w-[70%] flex flex-col h-full">
-        
-        {/* Top Controls */}
-        <div className="flex justify-between items-center flex-wrap gap-2 mb-2">
-          <p className="font-semibold text-md">Interactive Hotspot Manhole Map</p>
-          <div className="flex justify-center items-center gap-4 ml-auto">
-            {["all", "safe", "warning", "danger"].map((f) => (
-              <button key={f} onClick={() => setFilter(f)} style={{ paddingBlock: "5px", borderRadius: "5px" }} 
-                className={`${filter === f ? "btn-blue" : "btn-blue-outline"} text-sm rounded-md hover:scale-105 hover:shadow-md hover:shadow-gray-300 duration-150`}>
-                {f === "all" ? "All Locations" : f.charAt(0).toUpperCase() + f.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="mt-4 flex flex-col justify-start gap-4 pb-3">
-          <div className="flex items-center gap-5 text-sm">
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500"></span>Safe</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500"></span>Warning</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500"></span>Danger</span>
-            {/* {isLoading && <span className="text-blue-600 font-bold ml-4 animate-pulse">Loading Data...</span>} */}
-          </div>
-          <div className="flex gap-3 justify-start items-center flex-wrap">
-            <input type="number" placeholder="Lat.." value={latInput} onChange={(e) => setLatInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white px-2 py-1 w-auto max-w-[150px]" />
-            <input type="number" placeholder="Lon.." value={lonInput} onChange={(e) => setLonInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white px-2 py-1 w-auto max-w-[150px]" />
-            <button onClick={handleJumpToLocation} className="btn-blue btn-hover text-sm ml-3" style={{ paddingBlock: "6px", borderRadius: "8px" }}>Go</button>
-            <div className="flex items-center gap-2 pl-4 border-gray-300">
-              <input type="text" placeholder="ID.." value={searchId} onChange={(e) => setSearchId(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearchManhole()} className="hover:shadow-md border border-gray-300 rounded-sm bg-white px-2 py-1 w-auto max-w-[160px]" />
-              <button onClick={handleSearchManhole} className="btn-blue btn-hover text-sm" style={{ paddingBlock: "6px", borderRadius: "8px" }}>Search</button>
-            </div>
-            <select value={selectedDivision} onChange={(e) => handleDivisionChange(e.target.value)} className="hover:shadow-md border cursor-pointer border-gray-300 rounded-sm bg-white px-2 py-1 w-auto max-w-[150px]">
-              <option value="All">Select Division</option>
-              {divisionList.filter(d => d !== "All").map((d, i) => <option key={i} value={d}>{getDisplayName(d)}</option>)}
-            </select>
-            <select value={selectedAreaName} onChange={(e) => handleAreaNameChange(e.target.value)} disabled={selectedDivision === "All"} className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white px-2 py-1 w-auto max-w-[150px]">
-              <option value="All">Select Ward</option>
-              {areaNameList.filter(a => a !== "All").map((a, i) => <option key={i} value={a}>{getDisplayName(a)}</option>)}
-            </select>
-            <select value={selectedZone} onChange={(e) => handleZoneChange(e.target.value)} disabled={selectedAreaName === "All"} 
-            className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white px-2 py-1 w-auto max-w-[160px]">
-              <option value="All">Select Zone</option>
-              {zoneOptions.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
-            </select>
-          </div>
- 
-        </div>
-        <div className="map-box relative rounded-lg overflow-hidden border border-gray-300" style={{ height: "445.52px" }}>
-          <button onClick={handleReset} className="bg-[#eee] absolute right-4 top-2 z-[500] rounded-md px-1.5 py-1 text-xs h-8 hover:bg-[#fff] border border-gray-300 cursor-pointer"><LocateFixed className="font-extralight w-8.5 opacity-80" /></button>
-          <div className="absolute right-2 top-10 z-[500] group mt-3">
-            <button className="bg-[#eee] border border-gray-300 shadow-md rounded-md w-12 h-7 mr-2 flex items-center justify-center hover:bg-[#fff] transition duration-300 opacity-80"> <MapIcon /> </button>
-            <div className="absolute top-full mt-1 left--4 grid grid-rows-3 gap-1 w-13.5 rounded-md overflow-hidden transform scale-y-0 opacity-0 origin-top transition-all duration-200 group-hover:scale-y-100 group-hover:opacity-100">
-              {mapStyles.map((style) => (
-                <button key={style.url} onClick={() => handleStyleChange(style.url)} className={`flex flex-col items-center w-12 border-2 bg-white rounded-md overflow-hidden transition-all duration-150 cursor-pointer ${mapStyle === style.url ? "border-blue-500" : "border-transparent hover:border-gray-400"}`}>
-                  <img src={style.img} alt={style.name} className="w-16 h-10 object-cover" />
-                  <span className="text-[10px] text-gray-700 mt-0">{style.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* <div className="relative w-full h-full">  */}
-       {isLoading && (
-      <div className="absolute inset-0 z-[10] flex items-center justify-center bg-black/10 backdrop-blur-[5px] pointer-events-none">
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full ">
-          <div className="w-10 h-10 border-5 border-white border-t-[#1e9ab0] rounded-full animate-spin"></div>
-         </div>
-      </div>
-    )}
-         <MapboxCore
-            mapRef={mapRef}
-            manholeGeoJSON={filteredManholeGeoJSON}
-            wardGeoJSON={activeWardGeoJSON ? { type: "FeatureCollection", features: [activeWardGeoJSON] } : emptyGeoJSON}
-            flyToLocation={flyToLocation}
-            onManholeClick={handleManholeClick}
-            onManholeDeselect={handleManholeDeselect}
-            buildingGeoJSON={buildingData}
-            styleUrl={mapStyle}
-            centerToRestore={centerToRestoreRef}
-            zoomToRestore={zoomToRestoreRef}
-            statusFilter={filter}
-            selectedManholeId={selectedManholeLocation ? String(selectedManholeLocation.id) : null}
-            getManholeDateById={getManholeDateById}
-            formatExcelDate={formatExcelDate}
-          />   
- 
-          <div className="bg-[#ffffff] absolute left-2 bottom-2 z-500 rounded-xl p-4 py-5 text-[12px] text-black flex flex-col gap-1">
-            <span className="flex items-center gap-3 space-x-1"><span className="w-3 h-3 rounded-full bg-green-500"></span>Safe - Regular Maintenance</span>
-            <span className="flex items-center gap-3 space-x-1"><span className="w-3 h-3 rounded-full bg-yellow-500"></span>Warning - Require Attention</span>
-            <span className="flex items-center gap-3 space-x-1"><span className="w-3 h-3 rounded-full bg-red-500"></span>Danger - Immediate Action Needed</span>
-          </div>
-        </div>
-      </div>
-      <div className="shadow-gray-300 shadow-md border border-gray-200 bg-white rounded-xl overflow-hidden flex flex-col w-full min-[1000px]:w-[30%] h-[500px] min-[1000px]:h-[633px] ml-0 min-[1000px]:ml-4 mt-4 min-[1000px]:mt-0">
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {selectedManholeLocation ? (
-            <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
-              <ManholePopUp selectedLocation={selectedManholeLocation} onClose={handleClosePopup} onGenerateReport={handleGenerateReport} onAssignBot={handleAssignBot} />
-            </div>
-          ) : selectedWardForPopup ? (
-            <WardDetailsPopUp wardData={selectedWardForPopup} 
-            alertData={alertData}
-             onManholeSelect={handleAlertManholeClick} 
-             onClose={() => handleAreaNameChange("All")}
-              setSelectedWard={setSelectedAreaName} />
-          ) : (
-           <div className="w-full h-full flex items-center justify-center place-items-center text-gray-400 p-4 text-center">
-              <p className="flex flex-col items-center justify-center">
-                <MapPin className=" w-18 h-18 mb-2 text-gray-300 " />
-                Select a Manhole or Building on the map to view details.
-              </p>
-            </div>
-          )}
-        </div>
+<div className="w-full flex flex-col min-[1000px]:flex-row max-w-[2400px] gap-4 h-auto min-[1000px]:h-[85vh] max-h-none min-[1000px]:max-h-[1200px] p-2">
+  
+  {/* --- Left section (Map + Controls) --- */}
+  {/* Changed w-max to flex-grow logic to maintain the 70/30 split visually while being safe */}
+  <div className="shadow-md shadow-gray-300 p-4 rounded-xl bg-white flex-1 min-[1000px]:flex-[0_0_70%] flex flex-col h-full">
+    
+    {/* Top Controls */}
+    <div className="flex justify-between items-center flex-wrap gap-2 mb-2">
+      <p className="font-semibold text-md">Interactive Hotspot Manhole Map</p>
+      <div className="flex justify-center items-center gap-4 ml-auto">
+        {["all", "safe", "warning", "danger"].map((f) => (
+          <button key={f} onClick={() => setFilter(f)} style={{ paddingBlock: "5px", borderRadius: "5px" }} 
+            className={`${filter === f ? "btn-blue" : "btn-blue-outline"} text-sm rounded-md hover:scale-105 hover:shadow-md hover:shadow-gray-300 duration-150`}>
+            {f === "all" ? "All Locations" : f.charAt(0).toUpperCase() + f.slice(1)}
+          </button>
+        ))}
       </div>
     </div>
+
+    <div className="mt-4 flex flex-col justify-start gap-4 pb-3">
+      <div className="flex items-center gap-5 text-sm">
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500"></span>Safe</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500"></span>Warning</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500"></span>Danger</span>
+      </div>
+      
+      {/* Inputs wrap naturally on small screens now */}
+      <div className="flex gap-3 justify-start items-center flex-wrap">
+        <input type="number" placeholder="Lat.." value={latInput} onChange={(e) => setLatInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white px-2 py-1 w-full max-w-[120px]" />
+        <input type="number" placeholder="Lon.." value={lonInput} onChange={(e) => setLonInput(e.target.value)} className="hover:shadow-md border border-gray-300 rounded-sm bg-white px-2 py-1 w-full max-w-[120px]" />
+        <button onClick={handleJumpToLocation} className="btn-blue btn-hover text-sm" style={{ paddingBlock: "6px", borderRadius: "8px", minWidth: "50px" }}>Go</button>
+        
+        <div className="flex items-center gap-2 border-gray-300">
+          <input type="text" placeholder="ID.." value={searchId} onChange={(e) => setSearchId(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearchManhole()} className="hover:shadow-md border border-gray-300 rounded-sm bg-white px-2 py-1 w-full max-w-[130px]" />
+          <button onClick={handleSearchManhole} className="btn-blue btn-hover text-sm" style={{ paddingBlock: "6px", borderRadius: "8px" }}>Search</button>
+        </div>
+
+        <select value={selectedDivision} onChange={(e) => handleDivisionChange(e.target.value)} className="hover:shadow-md border cursor-pointer border-gray-300 rounded-sm bg-white px-2 py-1 w-auto max-w-[150px]">
+          <option value="All">Select Division</option>
+          {divisionList.filter(d => d !== "All").map((d, i) => <option key={i} value={d}>{getDisplayName(d)}</option>)}
+        </select>
+        <select value={selectedAreaName} onChange={(e) => handleAreaNameChange(e.target.value)} disabled={selectedDivision === "All"} className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white px-2 py-1 w-auto max-w-[150px]">
+          <option value="All">Select Ward</option>
+          {areaNameList.filter(a => a !== "All").map((a, i) => <option key={i} value={a}>{getDisplayName(a)}</option>)}
+        </select>
+        <select value={selectedZone} onChange={(e) => handleZoneChange(e.target.value)} disabled={selectedAreaName === "All"} className="hover:shadow-md border border-gray-300 cursor-pointer rounded-sm bg-white px-2 py-1 w-auto max-w-[160px]">
+          <option value="All">Select Zone</option>
+          {zoneOptions.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
+        </select>
+      </div>
+    </div>
+
+    {/* Map Box - Now flex-grows to fill height on desktop */}
+    <div className="map-box relative rounded-lg overflow-hidden border border-gray-300 flex-grow min-h-[400px]">
+      <button onClick={handleReset} className="bg-[#eee] absolute right-4 top-2 z-[500] rounded-md px-1.5 py-1 text-xs h-8 hover:bg-[#fff] border border-gray-300 cursor-pointer"><LocateFixed className="font-extralight w-8.5 opacity-80" /></button>
+      <div className="absolute right-2 top-10 z-[500] group mt-3">
+        <button className="bg-[#eee] border border-gray-300 shadow-md rounded-md w-12 h-7 mr-2 flex items-center justify-center hover:bg-[#fff] transition duration-300 opacity-80"> <MapIcon /> </button>
+        <div className="absolute top-full mt-1 left--4 grid grid-rows-3 gap-1 w-13.5 rounded-md overflow-hidden transform scale-y-0 opacity-0 origin-top transition-all duration-200 group-hover:scale-y-100 group-hover:opacity-100">
+          {mapStyles.map((style) => (
+            <button key={style.url} onClick={() => handleStyleChange(style.url)} className={`flex flex-col items-center w-12 border-2 bg-white rounded-md overflow-hidden transition-all duration-150 cursor-pointer ${mapStyle === style.url ? "border-blue-500" : "border-transparent hover:border-gray-400"}`}>
+              <img src={style.img} alt={style.name} className="w-16 h-10 object-cover" />
+              <span className="text-[10px] text-gray-700 mt-0">{style.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {isLoading && (
+        <div className="absolute inset-0 z-[10] flex items-center justify-center bg-black/10 backdrop-blur-[5px] pointer-events-none">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full ">
+            <div className="w-10 h-10 border-5 border-white border-t-[#1e9ab0] rounded-full animate-spin"></div>
+          </div>
+        </div>
+      )}
+
+      <MapboxCore
+        mapRef={mapRef}
+        manholeGeoJSON={filteredManholeGeoJSON}
+        wardGeoJSON={activeWardGeoJSON ? { type: "FeatureCollection", features: [activeWardGeoJSON] } : emptyGeoJSON}
+        flyToLocation={flyToLocation}
+        onManholeClick={handleManholeClick}
+        onManholeDeselect={handleManholeDeselect}
+        buildingGeoJSON={buildingData}
+        styleUrl={mapStyle}
+        centerToRestore={centerToRestoreRef}
+        zoomToRestore={zoomToRestoreRef}
+        statusFilter={filter}
+        selectedManholeId={selectedManholeLocation ? String(selectedManholeLocation.id) : null}
+        getManholeDateById={getManholeDateById}
+        formatExcelDate={formatExcelDate}
+      />   
+
+      <div className="bg-[#ffffff] absolute left-2 bottom-2 z-[500] rounded-xl p-4 py-5 text-[12px] text-black hidden sm:flex flex-col gap-1 shadow-md">
+        <span className="flex items-center gap-3 space-x-1"><span className="w-3 h-3 rounded-full bg-green-500"></span>Safe - Regular Maintenance</span>
+        <span className="flex items-center gap-3 space-x-1"><span className="w-3 h-3 rounded-full bg-yellow-500"></span>Warning - Require Attention</span>
+        <span className="flex items-center gap-3 space-x-1"><span className="w-3 h-3 rounded-full bg-red-500"></span>Danger - Immediate Action Needed</span>
+      </div>
+    </div>
+  </div>
+
+  {/* --- Right section (Sidebar) --- */}
+  <div className="shadow-gray-300 shadow-md border border-gray-200 bg-white rounded-xl overflow-hidden flex flex-col w-full min-[1000px]:w-[30%] h-[500px] min-[1000px]:h-full min-[1000px]:ml-0 mt-4 min-[1000px]:mt-0">
+    <div className="flex-1 overflow-y-auto custom-scrollbar">
+      {selectedManholeLocation ? (
+        <div className="dB-Popup max-w-full flex justify-start h-full place-items-start transition-all duration-300">
+          <ManholePopUp selectedLocation={selectedManholeLocation} onClose={handleClosePopup} onGenerateReport={handleGenerateReport} onAssignBot={handleAssignBot} />
+        </div>
+      ) : selectedWardForPopup ? (
+        <WardDetailsPopUp wardData={selectedWardForPopup} alertData={alertData} onManholeSelect={handleAlertManholeClick} onClose={() => handleAreaNameChange("All")} setSelectedWard={setSelectedAreaName} />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-gray-400 p-4 text-center">
+          <p className="flex flex-col items-center justify-center">
+            <MapPin className=" w-18 h-18 mb-2 text-gray-300 " />
+            Select a Manhole or Building on the map to view details.
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
   );
 };
 
