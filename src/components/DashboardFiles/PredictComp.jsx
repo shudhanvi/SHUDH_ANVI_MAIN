@@ -5,7 +5,7 @@ const PredictComp = () => {
   const weatherAlert = {
     location: "Somajiguda",
     forecast: " Rain Expected",
-    timeline: "In 3 Days",
+    timeline: "No Expected Rain",
     desc: "These manholes show high clog risk under rainfall conditions and must be cleaned to prevent overflow or local flooding."
   };
   const highRiskManholes = [
@@ -65,7 +65,7 @@ const PredictComp = () => {
       <div className="w-full h-68 bg-slate-100 rounded-xl border border-slate-200 mb-4 overflow-hidden relative group">
         {/* Replace src with your actual map image */}
         <img
-          src="images/rainfall_lightblue.png"
+          src="images/Temperature.png"
           alt="Map of Somajiguda high risk manholes"
           className="w-full h-full object-fill opacity-90 group-hover:opacity-100 transition-opacity"
         />
